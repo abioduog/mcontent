@@ -2,14 +2,15 @@ package com.mnewservice.mcontent.web;
 
 import com.mnewservice.mcontent.domain.PhoneNumber;
 import com.mnewservice.mcontent.domain.Service;
+import com.mnewservice.mcontent.domain.Subscriber;
 import com.mnewservice.mcontent.domain.Subscription;
 import com.mnewservice.mcontent.domain.SubscriptionPeriod;
+import com.mnewservice.mcontent.manager.ServiceManager;
 import com.mnewservice.mcontent.manager.SubscriptionManager;
 import com.mnewservice.mcontent.util.DateUtils;
 import com.mnewservice.mcontent.util.ValidationUtils;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class SubscriptionApiController {
 
     @Autowired
-    private SubscriptionManager manager;
+    private SubscriptionManager subscriptionManager;
+
+    @Autowired
+    private ServiceManager serviceManager;
 
     private static final Logger LOG = Logger.getLogger(SubscriptionApiController.class);
 
@@ -44,6 +48,9 @@ public class SubscriptionApiController {
     private static final String RETURN_VALUE_SUCCESSFUL = "SUCCESSFUL";
     private static final String RETURN_VALUE_UNSUCCESSFUL = "UNSUCCESSFUL";
 
+    private static final String ERROR_SERVICE_NOT_FOUND
+            = "Service was not found for the given parameters: %s=%s, %s=%s, and %s=%s";
+
     @RequestMapping(method = RequestMethod.GET, value = "/subscription")
     @ResponseBody
     public String subscription(
@@ -56,7 +63,7 @@ public class SubscriptionApiController {
 
         validateRequestParams(message, shortCode, sender, messageId, operator, timestamp);
         Subscription subscription = createSubscription(message, shortCode, sender, messageId, operator, timestamp);
-        if (manager.registerSubscription(subscription)) {
+        if (subscriptionManager.registerSubscription(subscription)) {
             return RETURN_VALUE_SUCCESSFUL;
         } else {
             return RETURN_VALUE_UNSUCCESSFUL;
@@ -98,33 +105,58 @@ public class SubscriptionApiController {
     private Subscription createSubscription(String message, int shortCode,
             String sender, Long messageId, String operator,
             String timestamp) {
-        // TODO: fill properly
+        Service service = getService(message, shortCode, operator);
 
-        PhoneNumber phoneNumber = new PhoneNumber();
-        phoneNumber.setNumber(sender);
+        Subscription subscription = new Subscription();
+        subscription.setSubscriber(createSubscriber(sender));
+        subscription.setService(service);
+        subscription.setPeriods(new ArrayList<>());
+        subscription.getPeriods().add(
+                createSubscriptionPeriod(
+                        service, message, shortCode, operator,
+                        timestamp, messageId, sender)
+        );
 
-        Service service = new Service();
-        service.setKeyword(message.toUpperCase());
-        service.setShortCode(shortCode);
-        service.setOperator(operator);
+        return subscription;
+    }
 
+    private Service getService(String message, int shortCode, String operator) throws IllegalArgumentException {
+        Service service = serviceManager.getService(message, shortCode, operator);
+        if (service == null) {
+            String msg = String.format(
+                    ERROR_SERVICE_NOT_FOUND,
+                    PARAM_MESSAGE,
+                    message,
+                    PARAM_SHORTCODE,
+                    shortCode,
+                    PARAM_OPERATOR,
+                    operator);
+            throw new IllegalArgumentException(msg);
+        }
+        return service;
+    }
+
+    private SubscriptionPeriod createSubscriptionPeriod(Service service, String message, int shortCode, String operator, String timestamp, Long messageId, String sender) {
         SubscriptionPeriod period = new SubscriptionPeriod();
+        period.setStart(DateUtils.getCurrentDate()); // TODO: what this is in practise; next possible delivery time?
+        period.setEnd(DateUtils.getCurrentDatePlusNDays(service.getSubscriptionPeriod()));
         period.setMessage(message);
         period.setShortCode(shortCode);
         period.setOperator(operator);
         period.setOriginalTimeStamp(timestamp);
         period.setMessageId(messageId);
         period.setSender(sender);
+        return period;
+    }
 
-        Collection<SubscriptionPeriod> periods = new ArrayList<>();
-        periods.add(period);
+    private Subscriber createSubscriber(String sender) {
+        PhoneNumber phoneNumber = new PhoneNumber();
+        phoneNumber.setNumber(sender);
 
-        Subscription subscription = new Subscription();
-        subscription.setSubscriber(phoneNumber);
-        subscription.setService(service);
-        subscription.setPeriods(periods);
+        Subscriber subscriber = new Subscriber();
+        subscriber.setPhone(phoneNumber);
 
-        return subscription;
+        return subscriber;
     }
 
 }

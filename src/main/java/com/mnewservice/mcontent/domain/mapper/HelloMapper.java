@@ -16,6 +16,9 @@ public class HelloMapper extends AbstractMapper<Hello, HelloEntity> {
 
     @Override
     public Hello toDomain(HelloEntity entity) {
+        if (entity == null) {
+            return null;
+        }
         LOG.debug("mapping: " + entity.getId() + "; " + entity.getName());
         Hello domain = new Hello();
         domain.setId(entity.getId());
@@ -26,6 +29,9 @@ public class HelloMapper extends AbstractMapper<Hello, HelloEntity> {
 
     @Override
     public HelloEntity toEntity(Hello domain) {
+        if (domain == null) {
+            return null;
+        }
         LOG.debug("mapping: " + domain.getId() + "; " + domain.getName());
         HelloEntity entity = new HelloEntity();
         entity.setId(domain.getId());

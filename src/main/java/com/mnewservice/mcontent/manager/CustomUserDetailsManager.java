@@ -51,7 +51,7 @@ public class CustomUserDetailsManager implements UserDetailsService {
 
         // Build user's authorities
         for (RoleEntity role : roles) {
-            setAuths.add(new SimpleGrantedAuthority(role.getRoleName()));
+            setAuths.add(new SimpleGrantedAuthority(role.getName().name()));
         }
 
         return new ArrayList<>(setAuths);

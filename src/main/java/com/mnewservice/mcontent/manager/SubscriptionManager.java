@@ -1,7 +1,6 @@
 package com.mnewservice.mcontent.manager;
 
 import com.mnewservice.mcontent.domain.Subscription;
-import com.mnewservice.mcontent.domain.mapper.HelloMapper;
 import com.mnewservice.mcontent.domain.mapper.SubscriptionMapper;
 import com.mnewservice.mcontent.repository.SubscriptionRepository;
 import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
@@ -25,6 +24,7 @@ public class SubscriptionManager {
     private static final Logger LOG = Logger.getLogger(SubscriptionManager.class);
 
     public boolean registerSubscription(Subscription subscription) {
+        // TODO: tuki tilauksen päivittämiselle
         LOG.debug("registerSubscription() with subscription=" + subscription);
         SubscriptionEntity entity = repository.save(mapper.toEntity(subscription));
         if (entity != null && entity.getId() != null) {

@@ -1,1 +1,21 @@
-^target$
+syntax: glob
+
+#Builds
+target/
+
+# Maven
+release.properties
+
+#Eclipse
+.settings/
+.classpath
+.project
+
+# Netbeans
+nb-configuration.xml
+nbactions.xml
+nbproject
+
+#IntelliJ IDEA
+.idea/
+*.iml

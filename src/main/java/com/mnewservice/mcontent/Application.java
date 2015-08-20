@@ -1,15 +1,18 @@
 package com.mnewservice.mcontent;
 
+import com.mnewservice.mcontent.scheduler.SchedulerConfig;
 import java.util.Arrays;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Import;
 
 /**
  *
  * @author Marko Tuononen <marko.tuononen at nolwenture.com>
  */
 @SpringBootApplication // same as @Configuration @EnableAutoConfiguration @ComponentScan
+@Import({SchedulerConfig.class})
 public class Application {
 
     public static void main(String[] args) {

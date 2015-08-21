@@ -75,5 +75,4 @@ public class ValidationUtils {
             throw new IllegalArgumentException(msg);
         }
     }
-
 }

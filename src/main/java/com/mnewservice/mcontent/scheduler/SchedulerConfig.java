@@ -3,6 +3,7 @@ package com.mnewservice.mcontent.scheduler;
 import com.mnewservice.mcontent.domain.DeliveryTime;
 import com.mnewservice.mcontent.job.DeliveryJob;
 import static com.mnewservice.mcontent.job.DeliveryJob.DELIVERY_TIME_PARAM;
+import com.mnewservice.mcontent.util.CronUtils;
 import java.io.IOException;
 import java.util.Properties;
 import javax.sql.DataSource;
@@ -179,10 +180,27 @@ public class SchedulerConfig {
             JobDetail jobDetail, DeliveryTime deliveryTime) {
         String hour = deliveryTime.name().substring(1, 3);
         String minute = deliveryTime.name().substring(3, 5);
+        String second = CronUtils.ZERO;
 
         CronTriggerFactoryBean factoryBean = new CronTriggerFactoryBean();
         factoryBean.setJobDetail(jobDetail);
-        factoryBean.setCronExpression(hour + " * * * * ?"); // TODO: real implementation
+
+        // used for testing purposes
+        //String cronExpression = CronUtils.generateCronExpression(
+        //        deliveryTime.name().substring(1, 3), CronUtils.EVERY, CronUtils.EVERY,
+        //        CronUtils.EVERY, CronUtils.EVERY, CronUtils.OMIT,
+        //        CronUtils.NOT_GIVEN);
+        String cronExpression = CronUtils.generateCronExpression(
+                CronUtils.ZERO,
+                deliveryTime.name().substring(3, 5),
+                deliveryTime.name().substring(1, 3),
+                CronUtils.EVERY,
+                CronUtils.EVERY,
+                CronUtils.OMIT,
+                CronUtils.NOT_GIVEN
+        );
+
+        factoryBean.setCronExpression(cronExpression);
         factoryBean.setName(deliveryTime.name());
         factoryBean.setGroup(GROUP_MESSAGE_DELIVERY);
         factoryBean.setMisfireInstruction(CronTrigger.MISFIRE_INSTRUCTION_FIRE_ONCE_NOW);

@@ -1,16 +1,18 @@
 package com.mnewservice.mcontent.scheduler;
 
+import com.mnewservice.mcontent.domain.DeliveryTime;
 import com.mnewservice.mcontent.job.DeliveryJob;
+import static com.mnewservice.mcontent.job.DeliveryJob.DELIVERY_TIME_PARAM;
 import java.io.IOException;
-import java.util.List;
 import java.util.Properties;
 import javax.sql.DataSource;
 import org.apache.log4j.Logger;
+import org.quartz.CronTrigger;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Trigger;
 import org.quartz.spi.JobFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
@@ -29,6 +31,8 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 @ConditionalOnProperty(name = "quartz.enabled")
 public class SchedulerConfig {
 
+    private static final String GROUP_MESSAGE_DELIVERY = "messageDelivery";
+
     private static final Logger LOG = Logger.getLogger(SchedulerConfig.class);
 
     @Bean
@@ -42,8 +46,14 @@ public class SchedulerConfig {
     public SchedulerFactoryBean schedulerFactoryBean(
             DataSource dataSource,
             JobFactory jobFactory,
-            @Qualifier("jobTrigger") Trigger jobTrigger)
-            throws Exception {
+            @Qualifier("jobT0800Trigger") Trigger jobT0800Trigger,
+            @Qualifier("jobT1000Trigger") Trigger jobT1000Trigger,
+            @Qualifier("jobT1200Trigger") Trigger jobT1200Trigger,
+            @Qualifier("jobT1400Trigger") Trigger jobT1400Trigger,
+            @Qualifier("jobT1600Trigger") Trigger jobT1600Trigger,
+            @Qualifier("jobT1800Trigger") Trigger jobT1800Trigger,
+            @Qualifier("jobT2000Trigger") Trigger jobT2000Trigger,
+            @Qualifier("jobT2200Trigger") Trigger jobT2200Trigger) throws Exception {
         SchedulerFactoryBean factory = new SchedulerFactoryBean();
         // allow to update triggers in DB, when updating settings in config file
         factory.setOverwriteExistingJobs(true);
@@ -51,7 +61,16 @@ public class SchedulerConfig {
         factory.setJobFactory(jobFactory);
 
         factory.setQuartzProperties(quartzProperties());
-        factory.setTriggers(jobTrigger);
+        factory.setTriggers(
+                jobT0800Trigger,
+                jobT1000Trigger,
+                jobT1200Trigger,
+                jobT1400Trigger,
+                jobT1600Trigger,
+                jobT1800Trigger,
+                jobT2000Trigger,
+                jobT2200Trigger
+        );
 
         return factory;
     }
@@ -64,44 +83,124 @@ public class SchedulerConfig {
         return propertiesFactoryBean.getObject();
     }
 
+    // <editor-fold defaultstate="collapsed" desc="jobTxxxxDetail beans">
     @Bean
-    public JobDetailFactoryBean jobDetail() {
-        return createJobDetail(DeliveryJob.class);
+    public JobDetailFactoryBean jobT0800Detail() {
+        return createJobDetail(DeliveryJob.class, DeliveryTime.T0800);
     }
 
-    @Bean(name = "jobTrigger")
-    public CronTriggerFactoryBean jobTrigger(
-            @Qualifier("jobDetail") JobDetail jobDetail,
-            @Value("#{'${quartz.job.deliveryTimes}'.split(',')}") List<String> deliveryTimes) {
-        for (String deliveryTime : deliveryTimes) {
-            LOG.debug("deliveryTime: " + deliveryTime);
-        }
+    @Bean
+    public JobDetailFactoryBean jobT1000Detail() {
+        return createJobDetail(DeliveryJob.class, DeliveryTime.T1000);
+    }
 
-        // TODO: create an own trigger for every delivery time
+    @Bean
+    public JobDetailFactoryBean jobT1200Detail() {
+        return createJobDetail(DeliveryJob.class, DeliveryTime.T1200);
+    }
+
+    @Bean
+    public JobDetailFactoryBean jobT1400Detail() {
+        return createJobDetail(DeliveryJob.class, DeliveryTime.T1400);
+    }
+
+    @Bean
+    public JobDetailFactoryBean jobT1600Detail() {
+        return createJobDetail(DeliveryJob.class, DeliveryTime.T1600);
+    }
+
+    @Bean
+    public JobDetailFactoryBean jobT1800Detail() {
+        return createJobDetail(DeliveryJob.class, DeliveryTime.T1800);
+    }
+
+    @Bean
+    public JobDetailFactoryBean jobT2000Detail() {
+        return createJobDetail(DeliveryJob.class, DeliveryTime.T2000);
+    }
+
+    @Bean
+    public JobDetailFactoryBean jobT2200Detail() {
+        return createJobDetail(DeliveryJob.class, DeliveryTime.T2200);
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="jobTxxxxTrigger beans">
+    @Bean(name = "jobT0800Trigger")
+    public CronTriggerFactoryBean jobT0800Trigger(
+            @Qualifier("jobT0800Detail") JobDetail jobDetail) {
+        return createTrigger(jobDetail, DeliveryTime.T0800);
+    }
+
+    @Bean(name = "jobT1000Trigger")
+    public CronTriggerFactoryBean jobT1000Trigger(
+            @Qualifier("jobT1000Detail") JobDetail jobDetail) {
+        return createTrigger(jobDetail, DeliveryTime.T1000);
+    }
+
+    @Bean(name = "jobT1200Trigger")
+    public CronTriggerFactoryBean jobT1200Trigger(
+            @Qualifier("jobT1200Detail") JobDetail jobDetail) {
+        return createTrigger(jobDetail, DeliveryTime.T1200);
+    }
+
+    @Bean(name = "jobT1400Trigger")
+    public CronTriggerFactoryBean jobT1400Trigger(
+            @Qualifier("jobT1400Detail") JobDetail jobDetail) {
+        return createTrigger(jobDetail, DeliveryTime.T1400);
+    }
+
+    @Bean(name = "jobT1600Trigger")
+    public CronTriggerFactoryBean jobT1600Trigger(
+            @Qualifier("jobT1600Detail") JobDetail jobDetail) {
+        return createTrigger(jobDetail, DeliveryTime.T1600);
+    }
+
+    @Bean(name = "jobT1800Trigger")
+    public CronTriggerFactoryBean jobT1800Trigger(
+            @Qualifier("jobT1800Detail") JobDetail jobDetail) {
+        return createTrigger(jobDetail, DeliveryTime.T1800);
+    }
+
+    @Bean(name = "jobT2000Trigger")
+    public CronTriggerFactoryBean jobT2000Trigger(
+            @Qualifier("jobT2000Detail") JobDetail jobDetail) {
+        return createTrigger(jobDetail, DeliveryTime.T2000);
+    }
+
+    @Bean(name = "jobT2200Trigger")
+    public CronTriggerFactoryBean jobT2200Trigger(
+            @Qualifier("jobT2200Detail") JobDetail jobDetail) {
+        return createTrigger(jobDetail, DeliveryTime.T2200);
+    }
+    // </editor-fold>
+
+    private CronTriggerFactoryBean createTrigger(
+            JobDetail jobDetail, DeliveryTime deliveryTime) {
+        String hour = deliveryTime.name().substring(1, 3);
+        String minute = deliveryTime.name().substring(3, 5);
+
         CronTriggerFactoryBean factoryBean = new CronTriggerFactoryBean();
         factoryBean.setJobDetail(jobDetail);
-        factoryBean.setCronExpression("0 * * * * ?");
-
+        factoryBean.setCronExpression(hour + " * * * * ?"); // TODO: real implementation
+        factoryBean.setName(deliveryTime.name());
+        factoryBean.setGroup(GROUP_MESSAGE_DELIVERY);
+        factoryBean.setMisfireInstruction(CronTrigger.MISFIRE_INSTRUCTION_FIRE_ONCE_NOW);
         return factoryBean;
     }
 
-    private static JobDetailFactoryBean createJobDetail(Class<?> jobClass) {
+    private static JobDetailFactoryBean createJobDetail(
+            Class<?> jobClass, DeliveryTime deliveryTime) {
         JobDetailFactoryBean factoryBean = new JobDetailFactoryBean();
         factoryBean.setJobClass(jobClass);
         // job has to be durable like the Finnish Bedrock
         factoryBean.setDurability(true);
+        factoryBean.setName(deliveryTime.name());
+        factoryBean.setGroup(GROUP_MESSAGE_DELIVERY);
+
+        JobDataMap jobDataMap = factoryBean.getJobDataMap();
+        jobDataMap.put(DELIVERY_TIME_PARAM, deliveryTime);
+
         return factoryBean;
     }
-    /*
-     private SimpleTriggerFactoryBean createTrigger(JobDetail jobDetail, long pollFrequency) {
-     SimpleTriggerFactoryBean factoryBean = new SimpleTriggerFactoryBean();
-     factoryBean.setJobDetail(jobDetail);
-     factoryBean.setStartDelay(10000);
-     factoryBean.setRepeatInterval(pollFrequency);
-     factoryBean.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
-     factoryBean.setMisfireInstruction(
-     SimpleTrigger.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT);
-     return factoryBean;
-     }
-     */
 }

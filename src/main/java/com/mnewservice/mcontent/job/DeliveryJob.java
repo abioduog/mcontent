@@ -4,8 +4,10 @@ import com.mnewservice.mcontent.domain.DeliveryTime;
 import com.mnewservice.mcontent.manager.DeliveryManager;
 import org.apache.log4j.Logger;
 import org.quartz.Job;
+import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.JobKey;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -14,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class DeliveryJob implements Job {
 
+    public static String DELIVERY_TIME_PARAM = "DELIVERY_TIME";
+
     private static final Logger LOG = Logger.getLogger(DeliveryJob.class);
 
     @Autowired
@@ -21,11 +25,22 @@ public class DeliveryJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        LOG.debug("jobExecutionContext: " + jobExecutionContext);
+        try {
+            JobKey key = jobExecutionContext.getJobDetail().getKey();
+            LOG.debug("instance (key): " + key);
+            LOG.debug("jobExecutionContext: " + jobExecutionContext);
 
-        DeliveryTime deliveryTime = (DeliveryTime) jobExecutionContext.get("DELIVERY_TIME");
-        deliveryManager.deliverContent(deliveryTime);
-        deliveryManager.deliverExpirationNotification(deliveryTime);
+            JobDataMap dataMap = jobExecutionContext.getJobDetail().getJobDataMap();
+
+            DeliveryTime deliveryTime = (DeliveryTime) dataMap.getOrDefault(DELIVERY_TIME_PARAM, null);
+
+            deliveryManager.deliverContent(deliveryTime);
+            deliveryManager.deliverExpirationNotification(deliveryTime);
+        } catch (Exception ex) {
+            LOG.debug(ex);
+            throw new JobExecutionException(ex);
+        }
+
     }
 
 }

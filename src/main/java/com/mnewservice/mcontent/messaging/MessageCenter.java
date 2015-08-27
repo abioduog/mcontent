@@ -22,10 +22,15 @@ public class MessageCenter {
         }
 
         // TODO: record sent messages somewhere?
-        LOG.debug("message content: " + message.getMessage());
+        StringBuilder sb = new StringBuilder();
         for (PhoneNumber phoneNumber : ((SmsMessage) message).getReceivers()) {
-            LOG.debug("recipient phone number: " + phoneNumber.getNumber());
+            sb.append(phoneNumber.getNumber()).append(" ");
         }
+
+        LOG.debug(String.format(
+                "Sending message '%s' to %s",
+                message.getMessage(),
+                sb.toString()));
 
         // TODO use SMS gateway --> throw an exception in the case of failure
     }

@@ -37,3 +37,6 @@ INSERT INTO scheduled_deliverables (id, delivery_date) VALUES (
         ),
         CURDATE()
 );
+
+INSERT INTO settings (name, value) VALUES ("DELIVERY_JOB_PAGE_SIZE", "100000");
+INSERT INTO settings (name, value) VALUES ("DELIVERY_JOB_SEND_SIZE",  "50000");

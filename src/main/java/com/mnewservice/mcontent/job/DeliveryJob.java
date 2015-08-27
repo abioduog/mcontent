@@ -7,7 +7,6 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.JobKey;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -24,23 +23,32 @@ public class DeliveryJob implements Job {
     private DeliveryManager deliveryManager;
 
     @Override
-    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+    public void execute(JobExecutionContext jobExecutionContext)
+            throws JobExecutionException {
+        LOG.info("Delivery job started.");
         try {
-            JobKey key = jobExecutionContext.getJobDetail().getKey();
-            LOG.debug("instance (key): " + key);
-            LOG.debug("jobExecutionContext: " + jobExecutionContext);
-
-            JobDataMap dataMap = jobExecutionContext.getJobDetail().getJobDataMap();
-
-            DeliveryTime deliveryTime = (DeliveryTime) dataMap.getOrDefault(DELIVERY_TIME_PARAM, null);
+            JobDataMap dataMap
+                    = jobExecutionContext.getJobDetail().getJobDataMap();
+            DeliveryTime deliveryTime
+                    = (DeliveryTime) dataMap.getOrDefault(
+                            DELIVERY_TIME_PARAM,
+                            null
+                    );
 
             deliveryManager.deliverContent(deliveryTime);
-            deliveryManager.deliverExpirationNotification(deliveryTime);
+
+            if (DeliveryTime.T0800.equals(deliveryTime)) {
+                // TODO: check that this is fine
+                // send expiration notifications daily at 8am
+                deliveryManager.deliverExpirationNotification(deliveryTime);
+            }
+
         } catch (Exception ex) {
             LOG.debug(ex);
             throw new JobExecutionException(ex);
+        } finally {
+            LOG.info("Delivery job ended.");
         }
-
     }
 
 }

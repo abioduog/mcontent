@@ -15,6 +15,6 @@ import org.springframework.stereotype.Repository;
 public interface ScheduledDeliverableRepository
         extends CrudRepository<ScheduledDeliverableEntity, Long> {
 
-    List<ScheduledDeliverableEntity> findByServiceAndDeliveryDate(
+    ScheduledDeliverableEntity findByServiceAndDeliveryDate(
             ServiceEntity service, Date deliveryDate);
 }

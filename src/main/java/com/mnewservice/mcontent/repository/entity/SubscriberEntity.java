@@ -2,6 +2,7 @@ package com.mnewservice.mcontent.repository.entity;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -13,7 +14,7 @@ import javax.persistence.Table;
 @Table(name = "subscribers")
 public class SubscriberEntity extends AbstractEntity {
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private PhoneNumberEntity phone;
 
     public PhoneNumberEntity getPhone() {

@@ -19,7 +19,14 @@ public class PhoneNumberMapper extends AbstractMapper<PhoneNumber, PhoneNumberEn
         if (entity == null) {
             return null;
         }
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+        PhoneNumber domain = new PhoneNumber();
+        LOG.debug("mapping id: " + entity.getId());
+        domain.setId(entity.getId());
+        LOG.debug("mapping number: " + entity.getNumber());
+        domain.setNumber(entity.getNumber());
+
+        return domain;
     }
 
     @Override

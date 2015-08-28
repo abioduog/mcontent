@@ -102,6 +102,8 @@ public class SubscriptionApiController {
                 timestamp);
     }
 
+    // TODO: support for autorenewal; how to know when autorenewal should
+    //       be enabled?
     private Subscription createSubscription(String message, int shortCode,
             String sender, Long messageId, String operator,
             String timestamp) {

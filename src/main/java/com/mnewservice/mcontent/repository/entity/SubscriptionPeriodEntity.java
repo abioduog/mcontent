@@ -2,6 +2,7 @@ package com.mnewservice.mcontent.repository.entity;
 
 import java.util.Date;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 
 /**
@@ -9,7 +10,13 @@ import javax.persistence.Table;
  * @author Marko Tuononen <marko.tuononen at nolwenture.com>
  */
 @Entity
-@Table(name = "subscriptionperiods")
+@Table(
+        name = "subscriptionperiods",
+        indexes = {
+            @Index(columnList = "end"),
+            @Index(columnList = "start, end")
+        }
+)
 public class SubscriptionPeriodEntity extends AbstractEntity {
 
     private Date start;

@@ -112,7 +112,10 @@ public class DeliveryManager {
         doDeliverExpirationNotification(getPageSize(), getLeadInDays(), getSendSize());
     }
 
-    private void doDeliverExpirationNotification(Integer pageSize, Integer expirationNotificationLeadInDays, Integer sendSize) {
+    private void doDeliverExpirationNotification(
+            Integer pageSize,
+            Integer expirationNotificationLeadInDays,
+            Integer sendSize) {
         Pageable page = new PageRequest(0, pageSize);
         Page<SubscriptionEntity> subscriptionsPage;
         do {

@@ -35,7 +35,8 @@ public class SubscriptionApiController {
     @Autowired
     private ServiceManager serviceManager;
 
-    private static final Logger LOG = Logger.getLogger(SubscriptionApiController.class);
+    private static final Logger LOG
+            = Logger.getLogger(SubscriptionApiController.class);
 
     private static final String PARAM_MESSAGE = "MESSAGE";
     private static final String PARAM_SHORTCODE = "SHORTCODE";
@@ -49,7 +50,8 @@ public class SubscriptionApiController {
     private static final String RETURN_VALUE_UNSUCCESSFUL = "UNSUCCESSFUL";
 
     private static final String ERROR_SERVICE_NOT_FOUND
-            = "Service was not found for the given parameters: %s=%s, %s=%s, and %s=%s";
+            = "Service was not found for the given parameters: "
+            + "%s=%s, %s=%s, and %s=%s";
 
     @RequestMapping(method = RequestMethod.GET, value = "/subscription")
     @ResponseBody
@@ -61,8 +63,10 @@ public class SubscriptionApiController {
             @RequestParam(value = PARAM_OPERATOR) String operator,
             @RequestParam(value = PARAM_TIMESTAMP) String timestamp) {
 
-        validateRequestParams(message, shortCode, sender, messageId, operator, timestamp);
-        Subscription subscription = createSubscription(message, shortCode, sender, messageId, operator, timestamp);
+        validateRequestParams(
+                message, shortCode, sender, messageId, operator, timestamp);
+        Subscription subscription = createSubscription(
+                message, shortCode, sender, messageId, operator, timestamp);
         if (subscriptionManager.registerSubscription(subscription)) {
             return RETURN_VALUE_SUCCESSFUL;
         } else {
@@ -97,13 +101,12 @@ public class SubscriptionApiController {
         ValidationUtils.validateNotNullOrEmpty(PARAM_OPERATOR, operator);
 
         LOG.debug(PARAM_TIMESTAMP + "=" + timestamp);
-        ValidationUtils.validateTimestamp(ValidationUtils.FORMAT_MMDDYYYY_HHMM_AA,
+        ValidationUtils.validateTimestamp(
+                ValidationUtils.FORMAT_MMDDYYYY_HHMM_AA,
                 PARAM_TIMESTAMP,
                 timestamp);
     }
 
-    // TODO: support for autorenewal; how to know when autorenewal should
-    //       be enabled?
     private Subscription createSubscription(String message, int shortCode,
             String sender, Long messageId, String operator,
             String timestamp) {
@@ -122,8 +125,10 @@ public class SubscriptionApiController {
         return subscription;
     }
 
-    private Service getService(String message, int shortCode, String operator) throws IllegalArgumentException {
-        Service service = serviceManager.getService(message, shortCode, operator);
+    private Service getService(String message,
+            int shortCode, String operator) throws IllegalArgumentException {
+        Service service
+                = serviceManager.getService(message, shortCode, operator);
         if (service == null) {
             String msg = String.format(
                     ERROR_SERVICE_NOT_FOUND,
@@ -138,7 +143,9 @@ public class SubscriptionApiController {
         return service;
     }
 
-    private SubscriptionPeriod createSubscriptionPeriod(Service service, String message, int shortCode, String operator, String timestamp, Long messageId, String sender) {
+    private SubscriptionPeriod createSubscriptionPeriod(
+            Service service, String message, int shortCode, String operator,
+            String timestamp, Long messageId, String sender) {
         SubscriptionPeriod period = new SubscriptionPeriod();
         period.setStart(DateUtils.getCurrentDate()); // TODO: what this is in practise; next possible delivery time?
         period.setEnd(DateUtils.getCurrentDatePlusNDays(service.getSubscriptionPeriod()));

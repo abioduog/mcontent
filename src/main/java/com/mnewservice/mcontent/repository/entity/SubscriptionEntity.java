@@ -7,13 +7,19 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 /**
  *
  * @author Marko Tuononen <marko.tuononen at nolwenture.com>
  */
 @Entity
-@Table(name = "subscriptions")
+@Table(
+        name = "subscriptions",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"service_id", "subscriber_id"}
+        )
+)
 public class SubscriptionEntity extends AbstractEntity {
 
     @ManyToOne

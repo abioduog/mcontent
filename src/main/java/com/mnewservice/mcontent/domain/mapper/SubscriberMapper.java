@@ -23,7 +23,13 @@ public class SubscriberMapper extends AbstractMapper<Subscriber, SubscriberEntit
         if (entity == null) {
             return null;
         }
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Subscriber domain = new Subscriber();
+        LOG.debug("mapping id: " + entity.getId());
+        domain.setId(entity.getId());
+        LOG.debug("mapping phone: " + entity.getPhone());
+        domain.setPhone(phoneNumberMapper.toDomain(entity.getPhone()));
+
+        return domain;
     }
 
     @Override

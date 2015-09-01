@@ -24,11 +24,19 @@ public class ValidationUtils {
 
     public static void validateValueIgnoreCase(String expected,
             String name, String actual) {
+        validateValueIgnoreCase(new String[]{expected}, name, actual);
+    }
+
+    public static void validateValueIgnoreCase(String expected[],
+            String name, String actual) {
         validateNotNullOrEmpty(name, actual);
-        if (!expected.equalsIgnoreCase(actual)) {
-            String msg = String.format(ERROR_PARAM_INVALID_VALUE, name, actual);
-            throw new IllegalArgumentException(msg);
+        for (String str : expected) {
+            if (str.equalsIgnoreCase(actual)) {
+                return;
+            }
         }
+        String msg = String.format(ERROR_PARAM_INVALID_VALUE, name, actual);
+        throw new IllegalArgumentException(msg);
     }
 
     public static void validateNumeric(String name, String value) {

@@ -4,6 +4,7 @@ import com.mnewservice.mcontent.domain.DeliveryTime;
 import com.mnewservice.mcontent.job.DeliveryJob;
 import static com.mnewservice.mcontent.job.DeliveryJob.DELIVERY_TIME_PARAM;
 import com.mnewservice.mcontent.util.CronUtils;
+import com.mnewservice.mcontent.util.DeliveryTimeUtils;
 import java.io.IOException;
 import java.util.Properties;
 import javax.sql.DataSource;
@@ -178,22 +179,15 @@ public class SchedulerConfig {
 
     private CronTriggerFactoryBean createTrigger(
             JobDetail jobDetail, DeliveryTime deliveryTime) {
-        String hour = deliveryTime.name().substring(1, 3);
-        String minute = deliveryTime.name().substring(3, 5);
-        String second = CronUtils.ZERO;
-
+        String[] parsedDeliveryTime
+                = DeliveryTimeUtils.parseDeliveryTimeAsStringArray(deliveryTime);
         CronTriggerFactoryBean factoryBean = new CronTriggerFactoryBean();
         factoryBean.setJobDetail(jobDetail);
 
-        // used for testing purposes
-        //String cronExpression = CronUtils.generateCronExpression(
-        //        deliveryTime.name().substring(1, 3), CronUtils.EVERY, CronUtils.EVERY,
-        //        CronUtils.EVERY, CronUtils.EVERY, CronUtils.OMIT,
-        //        CronUtils.NOT_GIVEN);
         String cronExpression = CronUtils.generateCronExpression(
-                CronUtils.ZERO,
-                deliveryTime.name().substring(3, 5),
-                deliveryTime.name().substring(1, 3),
+                parsedDeliveryTime[2],
+                parsedDeliveryTime[1],
+                parsedDeliveryTime[0],
                 CronUtils.EVERY,
                 CronUtils.EVERY,
                 CronUtils.OMIT,

@@ -2,11 +2,11 @@ package com.mnewservice.mcontent.manager;
 
 import com.mnewservice.mcontent.domain.Service;
 import com.mnewservice.mcontent.domain.mapper.ServiceMapper;
-import com.mnewservice.mcontent.domain.mapper.SubscriptionMapper;
 import com.mnewservice.mcontent.repository.ServiceRepository;
 import com.mnewservice.mcontent.repository.entity.ServiceEntity;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -23,6 +23,7 @@ public class ServiceManager {
 
     private static final Logger LOG = Logger.getLogger(ServiceManager.class);
 
+    @Transactional(readOnly = true)
     public Service getService(String keyword, int shortCode, String operator) {
         LOG.info("Looking service with keyword=" + keyword
                 + ", shortCode=" + shortCode

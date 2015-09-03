@@ -1,16 +1,21 @@
 package com.mnewservice.mcontent.web;
 
+import com.mnewservice.mcontent.domain.DeliveryTime;
 import com.mnewservice.mcontent.domain.PhoneNumber;
 import com.mnewservice.mcontent.domain.Service;
 import com.mnewservice.mcontent.domain.Subscriber;
 import com.mnewservice.mcontent.domain.Subscription;
 import com.mnewservice.mcontent.domain.SubscriptionPeriod;
 import com.mnewservice.mcontent.manager.ServiceManager;
+import com.mnewservice.mcontent.manager.SubscriberManager;
 import com.mnewservice.mcontent.manager.SubscriptionManager;
 import com.mnewservice.mcontent.util.DateUtils;
+import com.mnewservice.mcontent.util.DeliveryTimeUtils;
 import com.mnewservice.mcontent.util.ValidationUtils;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +50,7 @@ public class SubscriptionApiController {
     private static final String PARAM_OPERATOR = "OPERATOR";
     private static final String PARAM_TIMESTAMP = "TIMESTAMP";
 
-    private static final String MESSAGE_READ_VALUE = "READ";
+    private static final String[] MESSAGE_VALUES = new String[]{"READ", "READ2"};
     private static final String RETURN_VALUE_SUCCESSFUL = "SUCCESSFUL";
     private static final String RETURN_VALUE_UNSUCCESSFUL = "UNSUCCESSFUL";
 
@@ -86,7 +91,7 @@ public class SubscriptionApiController {
             String timestamp) throws IllegalArgumentException {
         LOG.debug(PARAM_MESSAGE + "=" + message);
         ValidationUtils.validateValueIgnoreCase(
-                MESSAGE_READ_VALUE, PARAM_MESSAGE, message);
+                MESSAGE_VALUES, PARAM_MESSAGE, message);
 
         LOG.debug(PARAM_SHORTCODE + "=" + shortCode);
         ValidationUtils.validatePositive(PARAM_SHORTCODE, shortCode);
@@ -114,7 +119,7 @@ public class SubscriptionApiController {
 
         Subscription subscription = new Subscription();
         subscription.setSubscriber(createSubscriber(sender));
-        subscription.setService(service);
+        subscription.setService(createService(message, shortCode, operator));
         subscription.setPeriods(new ArrayList<>());
         subscription.getPeriods().add(
                 createSubscriptionPeriod(
@@ -147,8 +152,13 @@ public class SubscriptionApiController {
             Service service, String message, int shortCode, String operator,
             String timestamp, Long messageId, String sender) {
         SubscriptionPeriod period = new SubscriptionPeriod();
-        period.setStart(DateUtils.getCurrentDate()); // TODO: what this is in practise; next possible delivery time?
-        period.setEnd(DateUtils.getCurrentDatePlusNDays(service.getSubscriptionPeriod()));
+        period.setStart(getNextDeliveryDate(service.getDeliveryTime()));
+        period.setEnd(
+                DateUtils.addDays(
+                        period.getStart(),
+                        service.getSubscriptionPeriod()
+                )
+        );
         period.setMessage(message);
         period.setShortCode(shortCode);
         period.setOperator(operator);
@@ -156,6 +166,14 @@ public class SubscriptionApiController {
         period.setMessageId(messageId);
         period.setSender(sender);
         return period;
+    }
+
+    private Service createService(String message, int shortCode, String operator) {
+        Service service = new Service();
+        service.setKeyword(message);
+        service.setShortCode(shortCode);
+        service.setOperator(operator);
+        return service;
     }
 
     private Subscriber createSubscriber(String sender) {
@@ -168,4 +186,26 @@ public class SubscriptionApiController {
         return subscriber;
     }
 
+    private Date getNextDeliveryDate(DeliveryTime deliveryTime) {
+        Calendar currentTime = DateUtils.getCurrentCalendar();
+        Calendar todaysRunTime = getTodaysRunTime(deliveryTime);
+
+        // TODO: should we use some kind of threshold in comparison?
+        if (currentTime.compareTo(todaysRunTime) >= 0) {
+            // today's execution has been passed, next delivery will be tomorrow..
+            todaysRunTime.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+        return todaysRunTime.getTime();
+    }
+
+    private Calendar getTodaysRunTime(DeliveryTime deliveryTime) {
+        int[] parsedDeliveryTime
+                = DeliveryTimeUtils.parseDeliveryTimeAsIntArray(deliveryTime);
+        Calendar todaysRunTime = DateUtils.getCurrentCalendarAtMidnight();
+        todaysRunTime.set(Calendar.HOUR_OF_DAY, parsedDeliveryTime[0]);
+        todaysRunTime.set(Calendar.MINUTE, parsedDeliveryTime[1]);
+        todaysRunTime.set(Calendar.SECOND, parsedDeliveryTime[2]);
+        return todaysRunTime;
+    }
 }

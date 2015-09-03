@@ -16,9 +16,19 @@ import org.springframework.stereotype.Repository;
 public interface SubscriptionRepository
         extends CrudRepository<SubscriptionEntity, Long> {
 
+    SubscriptionEntity findByServiceKeywordAndServiceShortCodeAndServiceOperatorAndSubscriberPhoneNumber(
+            String serviceKeyword, int serviceShortCode, String serviceOperator, String subscriberPhoneNumber);
+
+    SubscriptionEntity findByServiceIdAndSubscriberPhoneNumber(
+            Long serviceId, String phoneNumber);
+
+    SubscriptionEntity findByServiceIdAndSubscriberId(
+            Long serviceId, Long subscriberId);
+
     Page<SubscriptionEntity> findByServiceAndPeriodsStartLessThanAndPeriodsEndGreaterThan(
             ServiceEntity service, Date d1, Date d2, Pageable pageable);
 
     Page<SubscriptionEntity> findByPeriodsEndBetween(
             Date start, Date end, Pageable pageable);
+
 }

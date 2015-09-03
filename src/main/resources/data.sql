@@ -35,5 +35,29 @@ INSERT INTO scheduled_deliverables (id, delivery_date) VALUES (
         CURDATE()
 );
 
+INSERT INTO services (keyword, short_code, operator, provider_id, subscription_period, delivery_time) VALUES ('READ2', 33070, 'MTN', (SELECT id FROM users WHERE username LIKE 'provider'), 14, 'T1000');
+
+INSERT INTO contents (content_type) VALUES ('RSS');
+INSERT INTO rss_contents (id, title, description, link) VALUES (
+        (SELECT id FROM contents WHERE content_type='RSS'),
+        'testi-rss',
+        'tämä on RSS-testiviesti',
+        'http://www.mnewservice.com/'
+);
+
+INSERT INTO deliverables (content_id, service_id, deliverable_type) VALUES (
+        (SELECT id FROM rss_contents WHERE title='testi-rss'),
+        (SELECT id FROM services WHERE keyword='READ2' AND short_code=33070 AND operator='MTN'),
+        'SCHEDULED'
+);
+INSERT INTO scheduled_deliverables (id, delivery_date) VALUES (
+        (SELECT id FROM deliverables WHERE
+                content_id=(SELECT id FROM rss_contents WHERE title='testi-rss') AND
+                service_id=(SELECT id FROM services WHERE keyword='READ2' AND short_code=33070 AND operator='MTN') AND
+                deliverable_type='SCHEDULED'
+        ),
+        CURDATE()
+);
+
 INSERT INTO settings (name, value) VALUES ("DELIVERY_JOB_PAGE_SIZE", "100000");
 INSERT INTO settings (name, value) VALUES ("DELIVERY_JOB_SEND_SIZE",  "50000");

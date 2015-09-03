@@ -25,7 +25,7 @@ public class ServiceManager {
 
     @Transactional(readOnly = true)
     public Service getService(String keyword, int shortCode, String operator) {
-        LOG.info("Looking service with keyword=" + keyword
+        LOG.debug("Looking service with keyword=" + keyword
                 + ", shortCode=" + shortCode
                 + ", and operator=" + operator);
         ServiceEntity entity = repository

@@ -31,9 +31,13 @@ public class RoleMapper extends AbstractMapper<Role, RoleEntity> {
         }
         RoleEntity entity = new RoleEntity();
         entity.setId(domain.getId());
-        entity.setName(RoleEntity.RoleEnum.valueOf(domain.getName()));
+        entity.setName(toRoleEnum(domain.getName()));
 
         return entity;
+    }
+
+    public static RoleEntity.RoleEnum toRoleEnum(String domainName) {
+        return RoleEntity.RoleEnum.valueOf(domainName);
     }
 
 }

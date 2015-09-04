@@ -12,6 +12,7 @@ public class Service {
     private int shortCode;
     private String operator;
     private User provider;
+    private String unsubscribeKeyword;
     private int subscriptionPeriod;
     private DeliveryTime deliveryTime;
 
@@ -54,6 +55,14 @@ public class Service {
 
     public void setProvider(User provider) {
         this.provider = provider;
+    }
+
+    public String getUnsubscribeKeyword() {
+        return unsubscribeKeyword;
+    }
+
+    public void setUnsubscribeKeyword(String unsubscribeKeyword) {
+        this.unsubscribeKeyword = unsubscribeKeyword;
     }
 
     public int getSubscriptionPeriod() {

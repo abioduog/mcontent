@@ -1,7 +1,9 @@
 package com.mnewservice.mcontent.domain.mapper;
 
 import com.mnewservice.mcontent.domain.User;
+import com.mnewservice.mcontent.repository.entity.RoleEntity;
 import com.mnewservice.mcontent.repository.entity.UserEntity;
+import java.util.Collection;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,7 +45,8 @@ public class UserMapper extends AbstractMapper<User, UserEntity> {
         entity.setUsername(domain.getUsername());
         entity.setPassword(domain.getPassword());
         entity.setEmail(domain.getEmail());
-        entity.setRoles(roleMapper.toEntity(domain.getRoles()).stream().collect(Collectors.toSet()));
+        Collection<RoleEntity> roles = roleMapper.toEntity(domain.getRoles());
+        entity.setRoles(roles == null ? null : roles.stream().collect(Collectors.toSet()));
 
         return entity;
     }

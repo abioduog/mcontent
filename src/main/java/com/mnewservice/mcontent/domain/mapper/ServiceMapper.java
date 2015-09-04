@@ -32,6 +32,7 @@ public class ServiceMapper extends AbstractMapper<Service, ServiceEntity> {
         domain.setShortCode(entity.getShortCode());
         domain.setOperator(entity.getOperator());
         domain.setProvider(userMapper.toDomain(entity.getProvider()));
+        domain.setUnsubscribeKeyword(entity.getUnsubscribeKeyword());
         domain.setSubscriptionPeriod(entity.getSubscriptionPeriod());
         domain.setDeliveryTime(deliveryTimeMapper.toDomain(entity.getDeliveryTime()));
 
@@ -45,25 +46,13 @@ public class ServiceMapper extends AbstractMapper<Service, ServiceEntity> {
         }
         ServiceEntity entity = new ServiceEntity();
 
-        LOG.debug("mapping id: " + domain.getId());
         entity.setId(domain.getId());
-
-        LOG.debug("mapping keyword: " + domain.getKeyword());
         entity.setKeyword(domain.getKeyword());
-
-        LOG.debug("mapping shortCode: " + domain.getShortCode());
         entity.setShortCode(domain.getShortCode());
-
-        LOG.debug("mapping operator: " + domain.getOperator());
         entity.setOperator(domain.getOperator());
-
-        LOG.debug("mapping provider: " + domain.getProvider());
         entity.setProvider(userMapper.toEntity(domain.getProvider()));
-
-        LOG.debug("mapping subscriptionPeriod: " + domain.getSubscriptionPeriod());
+        entity.setUnsubscribeKeyword(domain.getUnsubscribeKeyword());
         entity.setSubscriptionPeriod(domain.getSubscriptionPeriod());
-
-        LOG.debug("mapping deliveryTime: " + domain.getDeliveryTime());
         entity.setDeliveryTime(deliveryTimeMapper.toEntity(domain.getDeliveryTime()));
 
         return entity;

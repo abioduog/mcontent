@@ -2,15 +2,20 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
     <head lang="en">
-        <title>mContent Main Page</title>
+        <title>Main Page | mContent</title>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     </head>
     <body>
         <h1 th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</h1>
+        <p><a href="/content.html" th:href="@{/content}">Content management</a></p>
+        <p><a href="/provider.html" th:href="@{/provider}">Provider management</a></p>
+        <p><a href="/report.html" th:href="@{/report}">Report management</a></p>
+        <p><a href="/serviceList.html" th:href="@{/service/list}">Service management</a></p>
+        <p><a href="/subscriber.html" th:href="@{/subscriber}">Subscriber management</a></p>
         <p><form th:action="@{/logout}" method="post">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <input type="submit" value="Sign Out"/>
+                <input type="submit" th:value="#{general.logout}" value="Sign Out"/>
             </form>
         </p>
     </body>

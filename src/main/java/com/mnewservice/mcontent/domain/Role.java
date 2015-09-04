@@ -6,6 +6,8 @@ package com.mnewservice.mcontent.domain;
  */
 public class Role {
 
+    public static final String PROVIDER = "PROVIDER";
+
     private Long id;
     private String name;
 

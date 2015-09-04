@@ -14,9 +14,14 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table(
         name = "services",
-        uniqueConstraints = @UniqueConstraint(
-                columnNames = {"keyword", "shortCode", "operator"}
-        )
+        uniqueConstraints = {
+            @UniqueConstraint(
+                    columnNames = {"keyword", "shortCode", "operator"}
+            ),
+            @UniqueConstraint(
+                    columnNames = {"unsubscribeKeyword", "shortCode", "operator"}
+            )
+        }
 )
 public class ServiceEntity extends AbstractEntity {
 
@@ -37,6 +42,7 @@ public class ServiceEntity extends AbstractEntity {
     private String operator;
     @ManyToOne
     private UserEntity provider;
+    private String unsubscribeKeyword;
     private int subscriptionPeriod;
 
     @Enumerated(EnumType.STRING)
@@ -49,6 +55,14 @@ public class ServiceEntity extends AbstractEntity {
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
+    }
+
+    public String getUnsubscribeKeyword() {
+        return unsubscribeKeyword;
+    }
+
+    public void setUnsubscribeKeyword(String unsubscribeKeyword) {
+        this.unsubscribeKeyword = unsubscribeKeyword;
     }
 
     public Integer getShortCode() {
@@ -90,5 +104,6 @@ public class ServiceEntity extends AbstractEntity {
     public void setDeliveryTime(DeliveryTime deliveryTime) {
         this.deliveryTime = deliveryTime;
     }
+
 // </editor-fold>
 }

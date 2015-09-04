@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 /**
@@ -20,7 +20,7 @@ public class UserEntity extends AbstractEntity {
     private String password;
     private String email;
 
-    @OneToMany
+    @ManyToMany
     private Set<RoleEntity> roles;
 
     public UserEntity() {

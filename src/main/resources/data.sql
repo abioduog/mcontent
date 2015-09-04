@@ -1,18 +1,31 @@
-INSERT INTO users (username, password, email) VALUES ('admin', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'admin@admin.com');
 INSERT INTO roles (name) VALUES ('ADMIN');
+INSERT INTO roles (name) VALUES ('PROVIDER');
+
+INSERT INTO users (username, password, email) VALUES ('admin', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'admin@admin.com');
 INSERT INTO users_roles (users_id, roles_id) VALUES (
 	(SELECT id FROM users WHERE username='admin'),
 	(SELECT id FROM roles WHERE name='ADMIN')
 );
 
 INSERT INTO users (username, password, email) VALUES ('provider', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'provider@provider.com');
-INSERT INTO roles (name) VALUES ('PROVIDER');
 INSERT INTO users_roles (users_id, roles_id) VALUES (
 	(SELECT id FROM users WHERE username='provider'),
 	(SELECT id FROM roles WHERE name='PROVIDER')
 );
 
-INSERT INTO services (keyword, short_code, operator, provider_id, subscription_period, delivery_time) VALUES ('READ', 33070, 'MTN', (SELECT id FROM users WHERE username LIKE 'provider'), 7, 'T1600');
+INSERT INTO users (username, password, email) VALUES ('a_provider', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'provider@provider.com');
+INSERT INTO users_roles (users_id, roles_id) VALUES (
+	(SELECT id FROM users WHERE username='a_provider'),
+	(SELECT id FROM roles WHERE name='PROVIDER')
+);
+
+INSERT INTO users (username, password, email) VALUES ('z_provider', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'provider@provider.com');
+INSERT INTO users_roles (users_id, roles_id) VALUES (
+	(SELECT id FROM users WHERE username='z_provider'),
+	(SELECT id FROM roles WHERE name='PROVIDER')
+);
+
+INSERT INTO services (keyword, short_code, operator, provider_id, unsubscribe_keyword, subscription_period, delivery_time) VALUES ('READ', 33070, 'MTN', (SELECT id FROM users WHERE username LIKE 'provider'), 'UNSUBSCRIBE READ', 7, 'T1600');
 
 INSERT INTO contents (content_type) VALUES ('CUSTOM');
 INSERT INTO custom_contents (id, short_uuid, content) VALUES (
@@ -35,7 +48,7 @@ INSERT INTO scheduled_deliverables (id, delivery_date) VALUES (
         CURDATE()
 );
 
-INSERT INTO services (keyword, short_code, operator, provider_id, subscription_period, delivery_time) VALUES ('READ2', 33070, 'MTN', (SELECT id FROM users WHERE username LIKE 'provider'), 14, 'T1000');
+INSERT INTO services (keyword, short_code, operator, provider_id, unsubscribe_keyword, subscription_period, delivery_time) VALUES ('READ2', 33070, 'MTN', (SELECT id FROM users WHERE username LIKE 'provider'), 'UNSUBSCRIBE READ2', 14, 'T1000');
 
 INSERT INTO contents (content_type) VALUES ('RSS');
 INSERT INTO rss_contents (id, title, description, link) VALUES (

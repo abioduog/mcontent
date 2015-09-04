@@ -15,16 +15,28 @@ public abstract class AbstractMapper<DOMAIN, ENTITY> {
     public abstract DOMAIN toDomain(ENTITY entity);
 
     public Collection<DOMAIN> toDomain(Collection<ENTITY> entities) {
-        return entities.stream().map(e -> toDomain(e)).collect(Collectors.toList());
+        if (entities == null) {
+            return null;
+        } else {
+            return entities.stream().map(e -> toDomain(e)).collect(Collectors.toList());
+        }
     }
 
     public abstract ENTITY toEntity(DOMAIN domain);
 
     public Collection<ENTITY> toEntity(Collection<DOMAIN> domains) {
-        return domains.stream().map(d -> toEntity(d)).collect(Collectors.toList());
+        if (domains == null) {
+            return null;
+        } else {
+            return domains.stream().map(d -> toEntity(d)).collect(Collectors.toList());
+        }
     }
 
     public Collection<ENTITY> makeCollection(Iterable<ENTITY> iterable) {
+        if (iterable == null) {
+            return null;
+        }
+
         Collection<ENTITY> list = new ArrayList<>();
         for (ENTITY e : iterable) {
             list.add(e);

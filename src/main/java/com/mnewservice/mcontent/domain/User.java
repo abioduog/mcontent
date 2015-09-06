@@ -13,6 +13,7 @@ public class User {
     private String username;
     private String password;
     private String email;
+    private boolean active;
 
     private Collection<Role> roles;
 
@@ -47,6 +48,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public Collection<Role> getRoles() {

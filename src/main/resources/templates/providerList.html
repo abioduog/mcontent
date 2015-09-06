@@ -1,0 +1,30 @@
+<h1 th:inline="text">Provider list</h1>
+<div class="provider-list" th:unless="${#lists.isEmpty(allProviders)}">
+    <table class="pure-table">
+        <thead>
+            <tr>
+                <th th:text="#{provider.username}">Username</th>
+                <th th:text="#{provider.email}">Email</th>
+                <th th:text="#{provider.status}">Status</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="provider : ${allProviders}">
+                <td th:text="${provider.username}">NAME</td>
+                <td th:text="${provider.email}">EMAIL</td>
+                <td th:text="${provider.active} ? #{provider.status.active} : #{provider.status.inactive}">ACTIVE</td>
+                <td><!-- icon (?) -->
+                    <a th:unless="${provider.active}" th:href="@{|/provider/${provider.id}/activate|}" th:text="#{provider.state.activate}" onclick="callSimpleAction(this, event);">Activate</a>
+                    <a th:if="${provider.active}" th:href="@{|/provider/${provider.id}/deactivate|}" th:text="#{provider.state.deactivate}" onclick="callSimpleAction(this, event);">Deactivate</a>
+                </td>
+            </tr>   
+        </tbody>
+    </table>
+</div>
+<!-- style to look like a button (?) -->
+<!--
+<p><a href="serviceDetail.html"
+      th:href="@{/service/create}"
+      th:text="#{general.createNew}" onclick="loadToPopup('Create service', this, event);">Create new</a></p>
+-->

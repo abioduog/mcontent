@@ -1,41 +1,31 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:tiles="http://www.thymeleaf.org">
-    <head lang="en">
-        <title tiles:fragment="title">Service list | mContent</title>
-        <meta charset="UTF-8"/>
-        <!-- http://purecss.io/ -->
-        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    </head>
-    <body>
-        <h1 th:inline="text">Service list</h1>
-        <div class="service-list" th:unless="${#lists.isEmpty(allServices)}">
-            <table class="pure-table">
-                <thead>
-                    <tr>
-                        <th th:text="#{service.keyword}">Keyword</th>
-                        <th th:text="#{service.shortCode}">Short code</th>
-                        <th th:text="#{service.operator}">Operator</th>
-                        <th>&nbsp;</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="service : ${allServices}">
-                        <td th:text="${service.keyword}">READ</td>
-                        <td th:text="${service.shortCode}">33070</td>
-                        <td th:text="${service.operator}">MTN</td>
-                        <td><!-- icon (?) -->
-                            <a href="serviceDetail.html"
-                               th:href="@{|/service/${service.id}|}"
-                               th:text="#{general.showDetails}">Show details</a></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <!-- style to look like a button (?) -->
-        <p><a href="serviceDetail.html"
-              th:href="@{/service/create}"
-              th:text="#{general.createNew}">Create new</a></p>
-        <p><a href="/" th:href="@{/}">Back to main</a></p>
-    </body>
-</html>
+<h1 th:inline="text">Service list</h1>
+<div class="service-list" th:unless="${#lists.isEmpty(allServices)}">
+    <table class="pure-table">
+        <thead>
+            <tr>
+                <th th:text="#{service.operator}">Operator</th>
+                <th th:text="#{service.shortCode}">Short code</th>
+                <th th:text="#{service.keyword}">Keyword</th>
+                <th th:text="#{service.subscriptionPeriod}">Subscription time</th>
+                <th th:text="#{service.provider}">Content provider</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="service : ${allServices}">
+                <td th:text="${service.operator}">OPERATOR</td>
+                <td th:text="${service.shortCode}">00000</td>
+                <td th:text="${service.keyword}">KEYWORD</td>
+                <td th:text="${service.subscriptionPeriod}">SUBSCRIPTION TIME</td>
+                <td th:text="${service.provider.username}">PROVIDER</td>
+                <td><!-- icon (?) -->
+                    <a th:href="@{|/service/${service.id}|}"
+                       th:text="#{general.showDetails}" onclick="loadToPopup('Edit service', this, event);">Show details</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- style to look like a button (?) -->
+<p><a href="serviceDetail.html"
+      th:href="@{/service/create}"
+      th:text="#{general.createNew}" onclick="loadToPopup('Create service', this, event);">Create new</a></p>

@@ -43,7 +43,7 @@ public class ServiceController {
 
     @ModelAttribute("allProviders")
     public List<User> populateProviders() {
-        return userManager.getAllUsersByRoleName(Role.PROVIDER)
+        return userManager.getAllUsersByRoleName(Role.PROVIDER_SHOULD_BE_ENUM)
                 .stream().collect(Collectors.toList());
     }
 

@@ -2,6 +2,7 @@ package com.mnewservice.mcontent.domain.mapper;
 
 import com.mnewservice.mcontent.domain.Subscriber;
 import com.mnewservice.mcontent.repository.entity.SubscriberEntity;
+import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,18 @@ public class SubscriberMapper extends AbstractMapper<Subscriber, SubscriberEntit
         domain.setId(entity.getId());
         LOG.debug("mapping phone: " + entity.getPhone());
         domain.setPhone(phoneNumberMapper.toDomain(entity.getPhone()));
+
+        int activeSubscriptions = 0, inactiveSubscriptions = 0;
+        for (SubscriptionEntity subscription : entity.getSubscriptions()) {
+            if (subscription.isActive()) {
+                activeSubscriptions++;
+            } else {
+                inactiveSubscriptions++;
+            }
+        }
+
+        domain.setActiveSubscriptionCount(activeSubscriptions);
+        domain.setInactiveSubscriptionCount(inactiveSubscriptions);
 
         return domain;
     }

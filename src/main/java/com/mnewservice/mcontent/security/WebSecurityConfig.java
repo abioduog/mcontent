@@ -29,7 +29,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .authorizeRequests().antMatchers("/subscription").permitAll()
+                .authorizeRequests().antMatchers("/subscription").hasIpAddress("127.0.0.1")
+                .and()
+                .authorizeRequests().antMatchers("/register/provider").permitAll()
                 .and()
                 .authorizeRequests().anyRequest().authenticated()
                 .and()

@@ -1,0 +1,22 @@
+<h1 th:inline="text">Subscribers list</h1>
+<div class="subscriber-list" th:unless="${#lists.isEmpty(allSubscribers)}">
+    <table class="pure-table">
+        <thead>
+            <tr>
+                <th th:text="#{subscriber.phone}">Phone</th>
+                <th th:text="#{subscriber.activesubscriptioncount}">Active subscriptions</th>
+                <th th:text="#{subscriber.inactivesubscriptioncount}">Inactive subscriptions</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="subscriber : ${allSubscribers}">
+                <td th:text="${subscriber.phone.number}">PHONE</td>
+                <td th:text="${subscriber.activeSubscriptionCount}">ACTIVE SUBSCRIPTION COUNT</td>
+                <td th:text="${subscriber.inactiveSubscriptionCount}">ACTIVE SUBSCRIPTION COUNT</td>
+                <td><!-- icon (?) -->
+                </td>
+            </tr>   
+        </tbody>
+    </table>
+</div>

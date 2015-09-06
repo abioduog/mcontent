@@ -4,6 +4,7 @@ import com.mnewservice.mcontent.domain.Subscriber;
 import com.mnewservice.mcontent.domain.mapper.SubscriberMapper;
 import com.mnewservice.mcontent.repository.SubscriberRepository;
 import com.mnewservice.mcontent.repository.entity.SubscriberEntity;
+import java.util.Collection;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,12 @@ public class SubscriberManager {
         LOG.info("Looking subscriber with number=" + number);
         SubscriberEntity entity = repository.findByPhoneNumber(number);
         return mapper.toDomain(entity);
+    }
+
+    public Collection<Subscriber> getAllSubscribers() {
+        LOG.info("Getting all subscribers");
+        Collection<SubscriberEntity> entities = mapper.makeCollection(repository.findAll());
+        return mapper.toDomain(entities);
     }
 
 }

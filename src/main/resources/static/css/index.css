@@ -1,0 +1,19 @@
+#menu {
+    float: left;
+    clear: left;
+}
+
+#session-control {
+    float: right;
+    clear: right;
+}
+
+#session-control > * {
+    float: left;
+}
+
+#workarea {
+    clear: both;
+    padding: 10px;
+    border-top: 2px solid darkgray;
+}

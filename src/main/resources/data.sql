@@ -1,25 +1,25 @@
 INSERT INTO roles (name) VALUES ('ADMIN');
 INSERT INTO roles (name) VALUES ('PROVIDER');
 
-INSERT INTO users (username, password, email) VALUES ('admin', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'admin@admin.com');
+INSERT INTO users (username, password, email, active) VALUES ('admin', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'admin@admin.com', true);
 INSERT INTO users_roles (users_id, roles_id) VALUES (
 	(SELECT id FROM users WHERE username='admin'),
 	(SELECT id FROM roles WHERE name='ADMIN')
 );
 
-INSERT INTO users (username, password, email) VALUES ('provider', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'provider@provider.com');
+INSERT INTO users (username, password, email, active) VALUES ('provider', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'provider@provider.com', true);
 INSERT INTO users_roles (users_id, roles_id) VALUES (
 	(SELECT id FROM users WHERE username='provider'),
 	(SELECT id FROM roles WHERE name='PROVIDER')
 );
 
-INSERT INTO users (username, password, email) VALUES ('a_provider', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'provider@provider.com');
+INSERT INTO users (username, password, email, active) VALUES ('a_provider', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'a_provider@provider.com', true);
 INSERT INTO users_roles (users_id, roles_id) VALUES (
 	(SELECT id FROM users WHERE username='a_provider'),
 	(SELECT id FROM roles WHERE name='PROVIDER')
 );
 
-INSERT INTO users (username, password, email) VALUES ('z_provider', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'provider@provider.com');
+INSERT INTO users (username, password, email, active) VALUES ('z_provider', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'provider_z@provider.com', true);
 INSERT INTO users_roles (users_id, roles_id) VALUES (
 	(SELECT id FROM users WHERE username='z_provider'),
 	(SELECT id FROM roles WHERE name='PROVIDER')

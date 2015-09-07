@@ -1,0 +1,22 @@
+body {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#header, #footer, #workarea {
+    float: left;
+    clear: both;
+    width: 100%;
+}
+
+#header, #footer {
+    height: 10vh;
+    background-color: yellow;
+}
+.header-content, .footer-content {
+    text-align: center;
+}
+
+#workarea {
+    min-height: 80vh;
+}

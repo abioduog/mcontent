@@ -15,8 +15,8 @@
                 <td th:text="${provider.email}">EMAIL</td>
                 <td th:text="${provider.active} ? #{provider.status.active} : #{provider.status.inactive}">ACTIVE</td>
                 <td><!-- icon (?) -->
-                    <a th:unless="${provider.active}" th:href="@{|/provider/${provider.id}/activate|}" th:text="#{provider.state.activate}" onclick="callSimpleAction(this, event);">Activate</a>
-                    <a th:if="${provider.active}" th:href="@{|/provider/${provider.id}/deactivate|}" th:text="#{provider.state.deactivate}" onclick="callSimpleAction(this, event);">Deactivate</a>
+                    <a th:unless="${provider.active}" th:href="@{|/provider/${provider.id}/activate|}" th:text="#{provider.status.activate}" onclick="callSimpleAction(this, event);">Activate</a>
+                    <a th:if="${provider.active}" th:href="@{|/provider/${provider.id}/deactivate|}" th:text="#{provider.status.deactivate}" onclick="callSimpleAction(this, event);">Deactivate</a>
                 </td>
             </tr>   
         </tbody>

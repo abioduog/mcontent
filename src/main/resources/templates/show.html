@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+    <head lang="en">
+        <title th:inline="text">[[${content.title}]] | mContent</title>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"/>
+        <link rel="stylesheet" href="css/lib/pure-0.6.0.min.css"/>
+        <link rel="stylesheet" href="css/show.css"/>
+    </head>
+    <body>
+        <div id="header">
+            <div class="header-content">
+                Adds goes here
+            </div>
+        </div>
+        <div id="workarea" th:text="${content.content}">    
+            
+        </div>
+        <div id="footer">
+            <div class="footer-content">
+                <a href="#">Active subscriptions</a> | <a href="#">Discover content</a>
+            </div>
+        </div>
+        <script src="js/lib/jquery-2.1.4.min.js"></script>
+        <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+        <script src="js/show.js"></script>
+    </body>
+</html>

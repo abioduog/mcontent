@@ -15,12 +15,15 @@
                 Adds goes here
             </div>
         </div>
-        <div id="workarea" th:text="${content.content}">    
-            
+        <div id="workarea" th:text="${content.content}">
+
         </div>
         <div id="footer">
             <div class="footer-content">
-                <a href="#">Active subscriptions</a> | <a href="#">Discover content</a>
+                <form id="logout" th:action="@{/show/logout}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                </form>
+                <a href="#">Active subscriptions</a> | <a href="#">Discover content</a> | <a onclick="$('#logout').submit();">Logout</a>
             </div>
         </div>
         <script src="js/lib/jquery-2.1.4.min.js"></script>

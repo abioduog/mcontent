@@ -74,3 +74,34 @@ INSERT INTO scheduled_deliverables (id, delivery_date) VALUES (
 
 INSERT INTO settings (name, value) VALUES ("DELIVERY_JOB_PAGE_SIZE", "100000");
 INSERT INTO settings (name, value) VALUES ("DELIVERY_JOB_SEND_SIZE",  "50000");
+
+INSERT INTO subscriptionperiods (start, end, message, message_id, operator, original_timestamp, sender, short_code) VALUES (
+        CURDATE(),
+        CURDATE() + INTERVAL 7 DAY,
+        "READ",
+        1,
+        "MTN",
+        "8/24/2015 15:37 AM",
+        "2348183525258",
+        33070
+);
+
+INSERT INTO phonenumbers (number) VALUES ("2348183525258");
+INSERT INTO subscribers (phone_id) VALUES (
+        (SELECT id FROM phonenumbers WHERE number='2348183525258')
+);
+
+INSERT INTO subscriptions (service_id, subscriber_id) VALUES (
+        (SELECT id FROM services WHERE keyword='READ' AND short_code=33070 AND operator='MTN'),
+        (SELECT S.id FROM subscribers S JOIN phonenumbers P ON S.phone_id=P.id WHERE P.number='2348183525258')
+);
+
+INSERT INTO subscriptions_periods (subscriptions_id, periods_id) VALUES (
+        (SELECT SUBP.id
+            FROM subscriptions SUBP
+                JOIN services SERV ON SUBP.service_id=SERV.id
+                JOIN subscribers SUBB ON SUBP.subscriber_id=SUBB.id
+                JOIN phonenumbers PHON ON SUBB.phone_id=PHON.id
+            WHERE SERV.keyword='READ' AND SERV.short_code=33070 AND SERV.operator='MTN' AND PHON.number='2348183525258'),
+        (SELECT id FROM subscriptionperiods WHERE message='READ' AND short_code=33070 AND operator='MTN')
+);

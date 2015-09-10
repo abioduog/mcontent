@@ -2,13 +2,15 @@ package com.mnewservice.mcontent.manager;
 
 import com.mnewservice.mcontent.repository.SubscriberRepository;
 import com.mnewservice.mcontent.repository.entity.SubscriberEntity;
+import com.mnewservice.mcontent.security.PasswordEncrypter;
 import java.util.ArrayList;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +21,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class ContentUserDetailsManager implements UserDetailsService {
 
-    @Autowired
-    private SubscriberRepository subscriberRepository;
+    private static final String PASSWORD = " ";
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private SubscriberRepository subscriberRepository;
 
     @Override
     public UserDetails loadUserByUsername(String phoneNumber)
@@ -34,10 +35,12 @@ public class ContentUserDetailsManager implements UserDetailsService {
             throw new UsernameNotFoundException("not found " + phoneNumber);
         }
 
+        PasswordEncoder encoder = NoOpPasswordEncoder.getInstance();
         return new User(
                 subscriber.getPhone().getNumber(),
-                passwordEncoder.encode(""),
-                new ArrayList<>());
+                encoder.encode(PASSWORD),
+                new ArrayList<>()
+        );
 
     }
 }

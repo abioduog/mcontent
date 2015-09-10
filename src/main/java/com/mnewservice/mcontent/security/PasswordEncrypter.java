@@ -1,6 +1,6 @@
 package com.mnewservice.mcontent.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.log4j.Logger;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -10,9 +10,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  */
 public class PasswordEncrypter {
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private static final Logger LOG = Logger.getLogger(PasswordEncrypter.class);
 
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private static PasswordEncrypter instance;
 
     public static PasswordEncrypter getInstance() {
@@ -21,6 +21,10 @@ public class PasswordEncrypter {
         }
 
         return instance;
+    }
+
+    public PasswordEncoder getPasswordEncoder() {
+        return passwordEncoder;
     }
 
     public String encrypt(String pw) {

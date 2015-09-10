@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
@@ -22,15 +22,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private static PasswordEncoder encoder;
+    private static final int REMEMBERME_TOKEN_VALIDITY = 31536000; // one year
 
     @Bean
-    public static PasswordEncoder passwordEncoder() {
-        if (encoder == null) {
-            encoder = new BCryptPasswordEncoder();
-        }
+    public static PasswordEncoder applicationPasswordEncoder() {
+        return PasswordEncrypter.getInstance().getPasswordEncoder();
+    }
 
-        return encoder;
+    @Bean
+    public static PasswordEncoder contentPasswordEncoder() {
+        return NoOpPasswordEncoder.getInstance();
     }
 
     @Configuration
@@ -50,13 +51,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .and()
                     .logout()
                     .logoutUrl("/show/logout")
-                    .logoutSuccessUrl("/show/login?logout").permitAll();
+                    .deleteCookies("remember-me")
+                    .logoutSuccessUrl("/show/login?logout").permitAll()
+                    .and()
+                    .rememberMe().tokenValiditySeconds(REMEMBERME_TOKEN_VALIDITY);
+
         }
 
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth.userDetailsService(contentUserDetailsManager)
-                    .passwordEncoder(passwordEncoder());
+                    .passwordEncoder(contentPasswordEncoder());
         }
     }
 
@@ -70,7 +75,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                    .authorizeRequests().antMatchers("/subscription").permitAll() //.hasIpAddress("127.0.0.1")
+                    .authorizeRequests().antMatchers("/subscription").hasIpAddress("127.0.0.1")
                     .and()
                     .authorizeRequests().antMatchers("/register/provider").permitAll()
                     .and()
@@ -85,7 +90,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth.userDetailsService(applicationUserDetailsManager)
-                    .passwordEncoder(passwordEncoder());
+                    .passwordEncoder(applicationPasswordEncoder());
         }
     }
 

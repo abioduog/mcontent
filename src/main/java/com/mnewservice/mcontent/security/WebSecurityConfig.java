@@ -22,7 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private static final int REMEMBERME_TOKEN_VALIDITY = 31536000; // one year
+    private static final int REMEMBERME_TOKEN_VALIDITY = 7776000; // 90 days
+    private static final String REMEMBERME_KEY = "9yNeDk9nxP6985wRnbQ8YkDbvrKg1yhy";
 
     @Bean
     public static PasswordEncoder applicationPasswordEncoder() {
@@ -54,8 +55,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .deleteCookies("remember-me")
                     .logoutSuccessUrl("/show/login?logout").permitAll()
                     .and()
-                    .rememberMe().tokenValiditySeconds(REMEMBERME_TOKEN_VALIDITY);
-
+                    .rememberMe()
+                    .key(REMEMBERME_KEY)
+                    .tokenValiditySeconds(REMEMBERME_TOKEN_VALIDITY);
         }
 
         @Override

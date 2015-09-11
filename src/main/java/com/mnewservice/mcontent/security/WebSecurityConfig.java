@@ -1,6 +1,7 @@
 package com.mnewservice.mcontent.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -74,10 +75,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         @Autowired
         private UserDetailsService applicationUserDetailsManager;
 
+        @Value("${application.sms.gateway.url}")
+        private String smsGatewayUrl;
+
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                    .authorizeRequests().antMatchers("/subscription").hasIpAddress("127.0.0.1")
+                    .authorizeRequests().antMatchers("/subscription").hasIpAddress(smsGatewayUrl)
                     .and()
                     .authorizeRequests().antMatchers("/register/provider").permitAll()
                     .and()

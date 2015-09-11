@@ -21,9 +21,6 @@ public class SettingEntity extends AbstractEntity {
 
     public enum SettingNameEnum {
 
-        DELIVERY_JOB_PAGE_SIZE,
-        DELIVERY_JOB_SEND_SIZE,
-        DELIVERY_JOB_EXPIRATION_LEAD
     }
 
     @Enumerated(EnumType.STRING)

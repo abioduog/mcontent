@@ -16,7 +16,6 @@ import com.mnewservice.mcontent.repository.entity.CustomContentEntity;
 import com.mnewservice.mcontent.repository.entity.ScheduledDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.SeriesDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.ServiceEntity;
-import com.mnewservice.mcontent.repository.entity.SettingEntity.SettingNameEnum;
 import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionPeriodEntity;
 import com.mnewservice.mcontent.util.DateUtils;
@@ -27,6 +26,7 @@ import java.util.Map;
 import javax.transaction.Transactional;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,15 +40,24 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class DeliveryManager {
 
-    private static final int DEFAULT_PAGE_SIZE = 10000;
-    private static final int DEFAULT_SEND_SIZE = 2048;
-    private static final int DEFAULT_LEAD_IN_DAYS = 3;
     private static final String DEFAULT_EXPIRY_MESSAGE
             = "Your mContent subscription is expiring in %d days. Please renew "
             + "your subscription, if you wish to receive messages also in the "
             + "future.";
     private static final int MAXIMUM_LENGTH_FOR_SERIES = 128;
     private static final Logger LOG = Logger.getLogger(DeliveryManager.class);
+
+    @Value("${application.delivery.fetch.pageSize}")
+    private Integer pageSize;
+
+    @Value("${application.sms.gateway.maxRecipients}")
+    private Integer sendSize;
+
+    @Value("${application.delivery.reminder.daysBefore}")
+    private Integer leadInDays;
+
+    @Value("${application.delivery.reminder.minDurationInDays}")
+    private Integer leadInMinDuration;
 
     @Autowired
     private ServiceRepository serviceRepository;
@@ -90,7 +99,7 @@ public class DeliveryManager {
             if (scheduledDeliverable != null || seriesDeliverables != null) {
                 doDeliverContent(
                         service, scheduledDeliverable, seriesDeliverables,
-                        getPageSize(), getSendSize()
+                        pageSize, sendSize
                 );
             } else {
                 LOG.info(String.format(
@@ -109,12 +118,13 @@ public class DeliveryManager {
                 deliveryTime.name())
         );
 
-        doDeliverExpirationNotification(getPageSize(), getLeadInDays(), getSendSize());
+        doDeliverExpirationNotification(pageSize, leadInDays, leadInMinDuration, sendSize);
     }
 
     private void doDeliverExpirationNotification(
             Integer pageSize,
             Integer expirationNotificationLeadInDays,
+            Integer expirationNotificationMinDuration,
             Integer sendSize) {
         Pageable page = new PageRequest(0, pageSize);
         Page<SubscriptionEntity> subscriptionsPage;
@@ -149,27 +159,6 @@ public class DeliveryManager {
             }
             page = subscriptionsPage.nextPageable();
         } while (subscriptionsPage.hasNext());
-    }
-
-    private Integer getSendSize() {
-        return settingManager.getIntegerOrDefault(
-                SettingNameEnum.DELIVERY_JOB_SEND_SIZE,
-                DEFAULT_SEND_SIZE
-        );
-    }
-
-    private Integer getPageSize() {
-        return settingManager.getIntegerOrDefault(
-                SettingNameEnum.DELIVERY_JOB_PAGE_SIZE,
-                DEFAULT_PAGE_SIZE
-        );
-    }
-
-    private Integer getLeadInDays() {
-        return settingManager.getIntegerOrDefault(
-                SettingNameEnum.DELIVERY_JOB_EXPIRATION_LEAD,
-                DEFAULT_LEAD_IN_DAYS
-        );
     }
 
     private ScheduledDeliverableEntity getScheduledDeliverables(ServiceEntity service) {

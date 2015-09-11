@@ -11,7 +11,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "scheduled_deliverables")
-@DiscriminatorValue("SCHEDULED")
+@DiscriminatorValue(value = DeliveryPipeEntity.DeliverableTypeEnum.Values.SCHEDULED)
 public class ScheduledDeliverableEntity extends AbstractDeliverableEntity {
 
     private Date deliveryDate;

@@ -1,6 +1,7 @@
 package com.mnewservice.mcontent.repository.entity;
 
 import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -15,23 +16,23 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "deliverables")
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "deliverableType")
+@DiscriminatorColumn(name = "deliverableType", discriminatorType = DiscriminatorType.STRING)
 public abstract class AbstractDeliverableEntity extends AbstractEntity {
 
     private String deliverableType;
 
     @ManyToOne
-    private ServiceEntity service;
+    private DeliveryPipeEntity deliveryPipe;
 
     @OneToOne
     private AbstractContentEntity content;
 
-    public ServiceEntity getService() {
-        return service;
+    public DeliveryPipeEntity getDeliveryPipe() {
+        return deliveryPipe;
     }
 
-    public void setService(ServiceEntity service) {
-        this.service = service;
+    public void setDeliveryPipe(DeliveryPipeEntity deliveryPipe) {
+        this.deliveryPipe = deliveryPipe;
     }
 
     public AbstractContentEntity getContent() {

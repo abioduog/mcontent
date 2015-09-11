@@ -10,7 +10,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "series_deliverables")
-@DiscriminatorValue("SERIES")
+@DiscriminatorValue(DeliveryPipeEntity.DeliverableTypeEnum.Values.SERIES)
 public class SeriesDeliverableEntity extends AbstractDeliverableEntity {
 
     private Integer deliveryDaysAfterSubscription;

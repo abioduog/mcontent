@@ -2,6 +2,8 @@ package com.mnewservice.mcontent.repository.entity;
 
 import java.util.Set;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
@@ -32,7 +34,10 @@ public class DeliveryPipeEntity extends AbstractEntity { // aka Devil Pipe
     }
 
     private String name;
+
+    @Enumerated(EnumType.STRING)
     private DeliverableTypeEnum deliverableType;
+
     @ManyToMany
     private Set<UserEntity> providers;
 

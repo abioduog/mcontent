@@ -25,7 +25,12 @@ INSERT INTO users_roles (users_id, roles_id) VALUES (
 	(SELECT id FROM roles WHERE name='PROVIDER')
 );
 
-INSERT INTO services (keyword, short_code, operator, provider_id, unsubscribe_keyword, subscription_period, delivery_time) VALUES ('READ', 33070, 'MTN', (SELECT id FROM users WHERE username LIKE 'provider'), 'UNSUBSCRIBE READ', 7, 'T1600');
+INSERT INTO delivery_pipes (name, deliverable_type) VALUES ('Test pipe','SCHEDULED');
+INSERT INTO delivery_pipes_providers (delivery_pipes_id, providers_id) VALUES (
+        (SELECT id FROM delivery_pipes WHERE name='Test pipe'),
+        (SELECT id FROM users WHERE username='provider'));
+
+INSERT INTO services (keyword, short_code, operator, unsubscribe_keyword, subscription_period, delivery_pipe_id, delivery_time) VALUES ('READ', 33070, 'MTN', 'UNSUBSCRIBE READ', 7, (SELECT id FROM delivery_pipes WHERE name='Test pipe'), 'T1600');
 
 INSERT INTO contents (content_type) VALUES ('CUSTOM');
 INSERT INTO custom_contents (id, short_uuid, content) VALUES (
@@ -34,21 +39,30 @@ INSERT INTO custom_contents (id, short_uuid, content) VALUES (
         'testi-content'
 );
 
-INSERT INTO deliverables (content_id, service_id, deliverable_type) VALUES (
+INSERT INTO deliverables (content_id, delivery_pipe_id, deliverable_type) VALUES (
         (SELECT id FROM custom_contents WHERE short_uuid='9d37c676-2991-4267-9fcc-1bb133489c8c'),
-        (SELECT id FROM services WHERE keyword='READ' AND short_code=33070 AND operator='MTN'),
+        (SELECT id FROM delivery_pipes WHERE name='Test pipe'),
         'SCHEDULED'
 );
 INSERT INTO scheduled_deliverables (id, delivery_date) VALUES (
         (SELECT id FROM deliverables WHERE
                 content_id=(SELECT id FROM custom_contents WHERE short_uuid='9d37c676-2991-4267-9fcc-1bb133489c8c') AND
-                service_id=(SELECT id FROM services WHERE keyword='READ' AND short_code=33070 AND operator='MTN') AND
+                delivery_pipe_id=(SELECT id FROM delivery_pipes WHERE name='Test pipe') AND
                 deliverable_type='SCHEDULED'
         ),
         CURDATE()
 );
 
-INSERT INTO services (keyword, short_code, operator, provider_id, unsubscribe_keyword, subscription_period, delivery_time) VALUES ('READ2', 33070, 'MTN', (SELECT id FROM users WHERE username LIKE 'provider'), 'UNSUBSCRIBE READ2', 14, 'T1000');
+INSERT INTO delivery_pipes (name, deliverable_type) VALUES ('Test pipe 2','SCHEDULED');
+INSERT INTO delivery_pipes_providers (delivery_pipes_id, providers_id) VALUES (
+        (SELECT id FROM delivery_pipes WHERE name='Test pipe 2'),
+        (SELECT id FROM users WHERE username='a_provider'));
+
+INSERT INTO delivery_pipes_providers (delivery_pipes_id, providers_id) VALUES (
+        (SELECT id FROM delivery_pipes WHERE name='Test pipe 2'),
+        (SELECT id FROM users WHERE username='z_provider'));
+
+INSERT INTO services (keyword, short_code, operator, unsubscribe_keyword, subscription_period, delivery_pipe_id, delivery_time) VALUES ('READ2', 33070, 'MTN', 'UNSUBSCRIBE READ2', 14, (SELECT id FROM delivery_pipes WHERE name='Test pipe 2'), 'T1000');
 
 INSERT INTO contents (content_type) VALUES ('RSS');
 INSERT INTO rss_contents (id, title, description, link) VALUES (
@@ -58,15 +72,15 @@ INSERT INTO rss_contents (id, title, description, link) VALUES (
         'http://www.mnewservice.com/'
 );
 
-INSERT INTO deliverables (content_id, service_id, deliverable_type) VALUES (
+INSERT INTO deliverables (content_id, delivery_pipe_id, deliverable_type) VALUES (
         (SELECT id FROM rss_contents WHERE title='testi-rss'),
-        (SELECT id FROM services WHERE keyword='READ2' AND short_code=33070 AND operator='MTN'),
+        (SELECT id FROM delivery_pipes WHERE name='Test pipe 2'),
         'SCHEDULED'
 );
 INSERT INTO scheduled_deliverables (id, delivery_date) VALUES (
         (SELECT id FROM deliverables WHERE
                 content_id=(SELECT id FROM rss_contents WHERE title='testi-rss') AND
-                service_id=(SELECT id FROM services WHERE keyword='READ2' AND short_code=33070 AND operator='MTN') AND
+                delivery_pipe_id=(SELECT id FROM delivery_pipes WHERE name='Test pipe 2') AND
                 deliverable_type='SCHEDULED'
         ),
         CURDATE()

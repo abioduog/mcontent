@@ -22,9 +22,9 @@
             <label for="unsubscribeKeyword" th:text="#{service.unsubscribeKeyword}">Unsubscription keyword</label>
             <input type="text" required="true" name="unsubscribeKeyword" th:value="${service.unsubscribeKeyword}"/>
 
-            <label for="provider" th:text="#{service.provider}">Provider</label>
-            <select name="provider" th:field="${service.provider.id}">
-                <option th:each="provider : ${allProviders}" th:value="${provider.id}" th:text="${provider.username}">User name</option>
+            <label for="deliveryPipe" th:text="#{service.deliveryPipe}">Delivery pipe</label>
+            <select name="deliveryPipe" th:field="${service.deliveryPipe.id}">
+                <option th:each="deliveryPipe : ${allDeliveryPipes}" th:value="${deliveryPipe.id}" th:text="${deliveryPipe.name}">Delivery pipe name</option>
             </select>
 
             <label for="subscriptionPeriod" th:text="#{service.subscriptionPeriod}">Subscription period length</label>

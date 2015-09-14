@@ -13,6 +13,7 @@ import com.mnewservice.mcontent.repository.ServiceRepository;
 import com.mnewservice.mcontent.repository.SubscriptionRepository;
 import com.mnewservice.mcontent.repository.entity.AbstractContentEntity;
 import com.mnewservice.mcontent.repository.entity.CustomContentEntity;
+import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.ScheduledDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.SeriesDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.ServiceEntity;
@@ -92,9 +93,9 @@ public class DeliveryManager {
         for (ServiceEntity service : getServices(deliveryTime)) {
             LOG.info(String.format("Service in progress, id=%s", service.getId()));
             ScheduledDeliverableEntity scheduledDeliverable
-                    = getScheduledDeliverables(service);
+                    = getScheduledDeliverables(service.getDeliveryPipe());
             SeriesDeliverableEntity[] seriesDeliverables
-                    = getSeriesDeliverables(service);
+                    = getSeriesDeliverables(service.getDeliveryPipe());
 
             if (scheduledDeliverable != null || seriesDeliverables != null) {
                 doDeliverContent(
@@ -161,11 +162,12 @@ public class DeliveryManager {
         } while (subscriptionsPage.hasNext());
     }
 
-    private ScheduledDeliverableEntity getScheduledDeliverables(ServiceEntity service) {
+    private ScheduledDeliverableEntity getScheduledDeliverables(
+            DeliveryPipeEntity deliveryPipe) {
         LOG.info("Getting scheduled deliverables, start");
         ScheduledDeliverableEntity scheduledDeliverable
-                = scheduledDeliverableRepository.findByServiceAndDeliveryDate(
-                        service,
+                = scheduledDeliverableRepository.findByDeliveryPipeAndDeliveryDate(
+                        deliveryPipe,
                         DateUtils.getCurrentDateAtMidnight()
                 );
         LOG.info(String.format(
@@ -187,10 +189,10 @@ public class DeliveryManager {
 
     // returns list of SeriesDeliverableEntity ordered such, that in index i
     // there is deliverable, which deliveryDaysAfterSubscription is i
-    private SeriesDeliverableEntity[] getSeriesDeliverables(ServiceEntity service) {
+    private SeriesDeliverableEntity[] getSeriesDeliverables(DeliveryPipeEntity deliveryPipe) {
         LOG.info("Getting series deliverables, start");
         List<SeriesDeliverableEntity> seriesDeliverables
-                = seriesDeliverableRepository.findByService(service);
+                = seriesDeliverableRepository.findByDeliveryPipe(deliveryPipe);
         SeriesDeliverableEntity[] seriesDeliverablesOrdered
                 = new SeriesDeliverableEntity[MAXIMUM_LENGTH_FOR_SERIES + 1];
         for (SeriesDeliverableEntity deliverable : seriesDeliverables) {

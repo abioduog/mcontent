@@ -307,21 +307,15 @@ public class DeliveryManager {
         ((SmsMessage) message).getReceivers().add(phoneNumber);
     }
 
+    // TODO: support also for email message(?)
     private AbstractMessage createMessage(
             Map<AbstractContentEntity, AbstractMessage> messagesMap,
             AbstractContentEntity content,
             SubscriptionEntity subscription) throws UnsupportedOperationException {
         AbstractMessage message = messagesMap.get(content);
         if (message == null) {
-            // TODO: support also for email message(?)
             message = new SmsMessage();
-            if (content instanceof CustomContentEntity) {
-                message.setMessage(((CustomContentEntity) content).getContent());
-            } else {
-                // TODO: support rss content
-                throw new UnsupportedOperationException("not implemented");
-            }
-
+            message.setMessage(content.getSummary());
             messagesMap.put(content, message);
         }
         addPhoneNumberToMessage(subscription, message);

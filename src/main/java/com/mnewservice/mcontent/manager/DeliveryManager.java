@@ -112,7 +112,7 @@ public class DeliveryManager {
 
     }
 
-    //expiry notification X days before expiry (this is executed once a day)
+    //expiry notification (this is executed once a day)
     public void deliverExpirationNotification(DeliveryTime deliveryTime) {
         LOG.info(String.format(
                 "Delivering expiration notifications @ %s",
@@ -127,26 +127,28 @@ public class DeliveryManager {
             Integer expirationNotificationLeadInDays,
             Integer expirationNotificationMinDuration,
             Integer sendSize) {
-        Pageable page = new PageRequest(0, pageSize);
-        Page<SubscriptionEntity> subscriptionsPage;
+        Date expiryAt = DateUtils.addDays(
+                DateUtils.getCurrentDateAtMidnight(),
+                expirationNotificationLeadInDays
+        );
+        List<SubscriptionEntity> subscriptions;
+        boolean subscriptionsFound;
+        long startId = 0L;
         do {
             LOG.info("Getting subscriptions, start");
-            Date start
-                    = DateUtils.addDays(
-                            DateUtils.getCurrentDateAtMidnight(),
-                            expirationNotificationLeadInDays);
-            Date end = DateUtils.addDays(start, 1);
-            subscriptionsPage = subscriptionRepository
-                    .findByPeriodsEndBetween(start, end, page);
+            subscriptions = subscriptionRepository.findByExpiry(
+                    startId, pageSize, expiryAt, expirationNotificationMinDuration
+            );
+            subscriptionsFound = subscriptions != null && subscriptions.size() > 0;
 
-            if (subscriptionsPage.hasContent()) {
+            if (subscriptionsFound) {
                 LOG.info(String.format(
                         "Getting subscriptions, end (count %d)",
-                        subscriptionsPage.getContent().size())
+                        subscriptions.size())
                 );
-
+                startId = subscriptions.get(subscriptions.size() - 1).getId();
                 processExpiringSubscriptions(
-                        subscriptionsPage.getContent(),
+                        subscriptions,
                         String.format(
                                 DEFAULT_EXPIRY_MESSAGE,
                                 expirationNotificationLeadInDays
@@ -158,8 +160,7 @@ public class DeliveryManager {
                         0)
                 );
             }
-            page = subscriptionsPage.nextPageable();
-        } while (subscriptionsPage.hasNext());
+        } while (subscriptionsFound);
     }
 
     private ScheduledDeliverableEntity getScheduledDeliverables(

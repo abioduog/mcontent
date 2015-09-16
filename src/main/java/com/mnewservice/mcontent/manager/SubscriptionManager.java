@@ -10,7 +10,11 @@ import com.mnewservice.mcontent.repository.entity.ServiceEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriberEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionPeriodEntity;
+import com.mnewservice.mcontent.util.DateUtils;
 import java.util.Collection;
+import java.util.Date;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,11 +71,16 @@ public class SubscriptionManager {
                         serviceKeyword, serviceShortCode, serviceOperator, subscriberPhoneNumber
                 );
 
+        if (subscription.getPeriods() == null || subscription.getPeriods().size() != 1) {
+            throw new IllegalArgumentException("assumed one and only one period");
+        }
+
         if (subscriptionEntity != null) {
             Collection<SubscriptionPeriodEntity> periodEntities
                     = subscriptionPeriodMapper.toEntity(subscription.getPeriods());
-            // TODO: logic for merging periods
-            subscriptionEntity.getPeriods().addAll(periodEntities);
+            Optional<SubscriptionPeriodEntity> period = periodEntities.stream().findFirst();
+            mergePeriods(subscriptionEntity.getPeriods(), period.get());
+
         } else {
             subscriptionEntity = createSubscription(
                     subscription, serviceKeyword, serviceShortCode,
@@ -102,7 +111,31 @@ public class SubscriptionManager {
         return subscriptionEntity;
     }
 
+    private void mergePeriods(Set<SubscriptionPeriodEntity> periods,
+            SubscriptionPeriodEntity periodToBeMerged) {
+
+        Date currDate = DateUtils.getCurrentDateAtMidnight();
+        Date maxEndDate = periods.stream().map(p -> p.getEnd()).max(Date::compareTo).get();
+
+        if (currDate.compareTo(maxEndDate) < 0) {
+            // add periodToBeMerged after latest period
+            int diffInDays
+                    = DateUtils.calculateDifferenceInDays(
+                            maxEndDate, periodToBeMerged.getStart());
+            periodToBeMerged.setStart(
+                    DateUtils.addDays(periodToBeMerged.getStart(), diffInDays)
+            );
+            periodToBeMerged.setEnd(
+                    DateUtils.addDays(periodToBeMerged.getEnd(), diffInDays)
+            );
+
+        }
+
+        periods.add(periodToBeMerged);
+    }
+
     public boolean unRegisterSubscription(Subscription subscription) {
         throw new UnsupportedOperationException("not implemented yet");
     }
+
 }

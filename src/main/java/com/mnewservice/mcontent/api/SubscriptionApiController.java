@@ -1,4 +1,4 @@
-package com.mnewservice.mcontent.web;
+package com.mnewservice.mcontent.api;
 
 import com.mnewservice.mcontent.domain.DeliveryTime;
 import com.mnewservice.mcontent.domain.PhoneNumber;
@@ -7,20 +7,15 @@ import com.mnewservice.mcontent.domain.Subscriber;
 import com.mnewservice.mcontent.domain.Subscription;
 import com.mnewservice.mcontent.domain.SubscriptionPeriod;
 import com.mnewservice.mcontent.manager.ServiceManager;
-import com.mnewservice.mcontent.manager.SubscriberManager;
 import com.mnewservice.mcontent.manager.SubscriptionManager;
 import com.mnewservice.mcontent.util.DateUtils;
 import com.mnewservice.mcontent.util.DeliveryTimeUtils;
 import com.mnewservice.mcontent.util.ValidationUtils;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Marko Tuononen <marko.tuononen at nolwenture.com>
  */
 @RestController
-public class SubscriptionApiController {
+public class SubscriptionApiController extends AbstractApiController {
 
     @Autowired
     private SubscriptionManager subscriptionManager;
@@ -49,10 +44,6 @@ public class SubscriptionApiController {
     private static final String PARAM_MESSAGEID = "MESSAGEID";
     private static final String PARAM_OPERATOR = "OPERATOR";
     private static final String PARAM_TIMESTAMP = "TIMESTAMP";
-
-    private static final String[] MESSAGE_VALUES = new String[]{"READ", "READ2"};
-    private static final String RETURN_VALUE_SUCCESSFUL = "SUCCESSFUL";
-    private static final String RETURN_VALUE_UNSUCCESSFUL = "UNSUCCESSFUL";
 
     private static final String ERROR_SERVICE_NOT_FOUND
             = "Service was not found for the given parameters: "
@@ -79,19 +70,11 @@ public class SubscriptionApiController {
         }
     }
 
-    @ExceptionHandler
-    void handleIllegalArgumentException(IllegalArgumentException iae,
-            HttpServletResponse response) throws IOException {
-        LOG.error(iae.getMessage());
-        response.sendError(HttpStatus.BAD_REQUEST.value(), iae.getMessage());
-    }
-
     private void validateRequestParams(String message, int shortCode,
             String sender, Long messageId, String operator,
             String timestamp) throws IllegalArgumentException {
         LOG.debug(PARAM_MESSAGE + "=" + message);
-        ValidationUtils.validateValueIgnoreCase(
-                MESSAGE_VALUES, PARAM_MESSAGE, message);
+        ValidationUtils.validateNotNullOrEmpty(PARAM_MESSAGE, message);
 
         LOG.debug(PARAM_SHORTCODE + "=" + shortCode);
         ValidationUtils.validatePositive(PARAM_SHORTCODE, shortCode);
@@ -152,7 +135,7 @@ public class SubscriptionApiController {
             Service service, String message, int shortCode, String operator,
             String timestamp, Long messageId, String sender) {
         SubscriptionPeriod period = new SubscriptionPeriod();
-        period.setStart(getNextDeliveryDate(service.getDeliveryTime()));
+        period.setStart(getDeliveryStartDate(service.getDeliveryTime()));
         period.setEnd(
                 DateUtils.addDays(
                         period.getStart(),
@@ -186,17 +169,21 @@ public class SubscriptionApiController {
         return subscriber;
     }
 
-    private Date getNextDeliveryDate(DeliveryTime deliveryTime) {
+    // Subscription starts from today if before delivery time
+    // or tomorrow if after delivery time.
+    private Date getDeliveryStartDate(DeliveryTime deliveryTime) {
         Calendar currentTime = DateUtils.getCurrentCalendar();
         Calendar todaysRunTime = getTodaysRunTime(deliveryTime);
 
         // TODO: should we use some kind of threshold in comparison?
-        if (currentTime.compareTo(todaysRunTime) >= 0) {
+        if (currentTime.compareTo(todaysRunTime) < 0) {
+            return DateUtils.getCurrentCalendarAtMidnight().getTime();
+        } else {
             // today's execution has been passed, next delivery will be tomorrow..
-            todaysRunTime.add(Calendar.DAY_OF_MONTH, 1);
+            Calendar cal = DateUtils.getCurrentCalendarAtMidnight();
+            cal.add(Calendar.DAY_OF_MONTH, 1);
+            return cal.getTime();
         }
-
-        return todaysRunTime.getTime();
     }
 
     private Calendar getTodaysRunTime(DeliveryTime deliveryTime) {
@@ -208,4 +195,5 @@ public class SubscriptionApiController {
         todaysRunTime.set(Calendar.SECOND, parsedDeliveryTime[2]);
         return todaysRunTime;
     }
+
 }

@@ -17,6 +17,8 @@ import javax.persistence.Table;
 @DiscriminatorColumn(name = "contentType")
 public abstract class AbstractContentEntity extends AbstractEntity {
 
+    protected static final int MESSAGE_MAX_LENGTH = 160;
+
     private String contentType;
 
     public abstract String getSummary();

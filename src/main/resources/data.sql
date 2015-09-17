@@ -25,7 +25,7 @@ INSERT INTO users_roles (users_id, roles_id) VALUES (
 	(SELECT id FROM roles WHERE name='PROVIDER')
 );
 
-INSERT INTO delivery_pipes (name, deliverable_type) VALUES ('Test pipe','SCHEDULED');
+INSERT INTO delivery_pipes (name, deliverable_type) VALUES ('Test pipe','SERIES');
 INSERT INTO delivery_pipes_providers (delivery_pipes_id, providers_id) VALUES (
         (SELECT id FROM delivery_pipes WHERE name='Test pipe'),
         (SELECT id FROM users WHERE username='provider'));
@@ -42,15 +42,15 @@ INSERT INTO custom_contents (id, short_uuid, content) VALUES (
 INSERT INTO deliverables (content_id, delivery_pipe_id, deliverable_type) VALUES (
         (SELECT id FROM custom_contents WHERE short_uuid='9d37c676-2991-4267-9fcc-1bb133489c8c'),
         (SELECT id FROM delivery_pipes WHERE name='Test pipe'),
-        'SCHEDULED'
+        'SERIES'
 );
-INSERT INTO scheduled_deliverables (id, delivery_date) VALUES (
+INSERT INTO series_deliverables (id, delivery_days_after_subscription) VALUES (
         (SELECT id FROM deliverables WHERE
                 content_id=(SELECT id FROM custom_contents WHERE short_uuid='9d37c676-2991-4267-9fcc-1bb133489c8c') AND
                 delivery_pipe_id=(SELECT id FROM delivery_pipes WHERE name='Test pipe') AND
-                deliverable_type='SCHEDULED'
+                deliverable_type='SERIES'
         ),
-        CURDATE()
+        1
 );
 
 INSERT INTO delivery_pipes (name, deliverable_type) VALUES ('Test pipe 2','SCHEDULED');

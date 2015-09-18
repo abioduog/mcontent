@@ -19,12 +19,13 @@ import com.mnewservice.mcontent.repository.entity.ServiceEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionPeriodEntity;
 import com.mnewservice.mcontent.util.DateUtils;
-import java.util.ArrayList;
+import com.mnewservice.mcontent.util.exception.MessagingException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import javax.transaction.Transactional;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -234,6 +235,7 @@ public class DeliveryManager {
 
                 processSubscriptions(
                         subscriptionsPage.getContent(),
+                        service.getShortCode(),
                         scheduledDeliverable,
                         seriesDeliverables, sendSize);
             } else {
@@ -247,7 +249,7 @@ public class DeliveryManager {
     }
 
     private void processSubscriptions(List<SubscriptionEntity> subscriptions,
-            ScheduledDeliverableEntity scheduledDeliverable,
+            Integer shortCode, ScheduledDeliverableEntity scheduledDeliverable,
             SeriesDeliverableEntity[] seriesDeliverables,
             Integer sendSize) throws UnsupportedOperationException {
         LOG.info("Processing subscriptions, start");
@@ -265,13 +267,13 @@ public class DeliveryManager {
             AbstractMessage message = createMessage(messagesMap, content, subscription);
 
             if (((SmsMessage) message).getReceivers().size() >= sendSize) {
-                sendMessage(message);
+                sendMessage(message, shortCode);
                 messagesMap.remove(content);
             }
         }
         // send possible "leftover messages"
         for (Map.Entry<AbstractContentEntity, AbstractMessage> entry : messagesMap.entrySet()) {
-            sendMessage(entry.getValue());
+            sendMessage(entry.getValue(), shortCode);
         }
         LOG.info("Processing subscriptions, end");
     }
@@ -284,17 +286,19 @@ public class DeliveryManager {
             addPhoneNumberToMessage(subscription, message);
 
             if (((SmsMessage) message).getReceivers().size() >= sendSize) {
-                sendMessage(message);
+                sendMessage(message, EXPIRY_FROM_NUMBER);
                 message = createExpiryMessage(expiryMessage);
             }
         }
         // send possible "leftover message"
         if (((SmsMessage) message).getReceivers().size() > 0) {
-            sendMessage(message);
+            sendMessage(message, EXPIRY_FROM_NUMBER);
         }
 
         LOG.info("Processing expiring subscriptions, end");
     }
+    // TODO: Should expiry messages come from the actual services short number?
+    private static final int EXPIRY_FROM_NUMBER = 12345;
 
     private AbstractMessage createExpiryMessage(String expiryMessage) {
         // TODO: support also for email message(?)
@@ -326,13 +330,18 @@ public class DeliveryManager {
         return message;
     }
 
-    private void sendMessage(AbstractMessage message) {
+    private void sendMessage(AbstractMessage message, Integer shortCode) {
         LOG.info(String.format(
                 "Sending message, start (%d receivers)",
                 ((SmsMessage) message).getReceivers().size())
         );
-        messageCenter.sendMessage(message);
-        LOG.info("Sending message, end");
+        try {
+            messageCenter.sendMessage(message, shortCode);
+        } catch (MessagingException ex) {
+            LOG.error("Sending message failed: " + ex.getMessage());
+        } finally {
+            LOG.info("Sending message, end");
+        }
     }
 
     private AbstractContentEntity getContent(

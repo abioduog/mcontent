@@ -14,5 +14,5 @@ import org.springframework.stereotype.Repository;
 public interface SeriesDeliverableRepository
         extends CrudRepository<SeriesDeliverableEntity, Long> {
 
-    List<SeriesDeliverableEntity> findByDeliveryPipe(DeliveryPipeEntity deliveryPipe);
+    List<SeriesDeliverableEntity> findByDeliveryPipeOrderByDeliveryDaysAfterSubscriptionAsc(DeliveryPipeEntity deliveryPipe);
 }

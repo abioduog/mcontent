@@ -198,7 +198,7 @@ public class DeliveryManager {
     private SeriesDeliverableEntity[] getSeriesDeliverables(DeliveryPipeEntity deliveryPipe) {
         LOG.info("Getting series deliverables, start");
         List<SeriesDeliverableEntity> seriesDeliverables
-                = seriesDeliverableRepository.findByDeliveryPipe(deliveryPipe);
+                = seriesDeliverableRepository.findByDeliveryPipeOrderByDeliveryDaysAfterSubscriptionAsc(deliveryPipe);
         SeriesDeliverableEntity[] seriesDeliverablesOrdered
                 = new SeriesDeliverableEntity[MAXIMUM_LENGTH_FOR_SERIES + 1];
         for (SeriesDeliverableEntity deliverable : seriesDeliverables) {

@@ -7,12 +7,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"/>
         <link rel="stylesheet" href="css/lib/pure-0.6.0.min.css"/>
+        <link rel="stylesheet" href="css/lib/multi-select.css"/>
         <link rel="stylesheet" href="css/index.css"/>
     </head>
     <body>
         <div id="header" class="pure-menu pure-menu-horizontal">
             <ul id="menu" class="pure-menu-list">
-                <li class="pure-menu-item"><a class="pure-menu-link" th:href="@{/content}" onclick="loadToWorkArea(this, event);">Content management</a></li>
+                <li class="pure-menu-item"><a class="pure-menu-link" th:href="@{/content/list}" onclick="loadToWorkArea(this, event);">Content management</a></li>
                 <li class="pure-menu-item"><a class="pure-menu-link" th:href="@{/provider/list}" onclick="loadToWorkArea(this, event);">Provider management</a></li>
                 <!--<li class="pure-menu-item"><a class="pure-menu-link" th:href="@{/report}" onclick="loadToWorkArea(this, event);">Report management</a></li>-->
                 <li class="pure-menu-item"><a class="pure-menu-link" th:href="@{/service/list}" onclick="loadToWorkArea(this, event);">Service management</a></li>
@@ -38,6 +39,7 @@
             <h1 th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</h1>
         </div>
         <script src="js/lib/jquery-2.1.4.min.js"></script>
+        <script src="js/lib/jquery.multi-select.js"></script>
         <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
         <script src="js/common.js"></script>
     </body>

@@ -12,17 +12,20 @@ import com.mnewservice.mcontent.repository.SeriesDeliverableRepository;
 import com.mnewservice.mcontent.repository.ServiceRepository;
 import com.mnewservice.mcontent.repository.SubscriptionRepository;
 import com.mnewservice.mcontent.repository.entity.AbstractContentEntity;
-import com.mnewservice.mcontent.repository.entity.CustomContentEntity;
+import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.ScheduledDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.SeriesDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.ServiceEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionPeriodEntity;
 import com.mnewservice.mcontent.util.DateUtils;
+import com.mnewservice.mcontent.util.exception.MessagingException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import javax.transaction.Transactional;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +48,7 @@ public class DeliveryManager {
             + "your subscription, if you wish to receive messages also in the "
             + "future.";
     private static final int MAXIMUM_LENGTH_FOR_SERIES = 128;
+    private static final String OPERATOR_FILTER_SEPARATOR = ",";
     private static final Logger LOG = Logger.getLogger(DeliveryManager.class);
 
     @Value("${application.delivery.fetch.pageSize}")
@@ -58,6 +62,9 @@ public class DeliveryManager {
 
     @Value("${application.delivery.reminder.minDurationInDays}")
     private Integer leadInMinDuration;
+
+    @Value("${application.delivery.reminder.operatorFilter}")
+    private String operatorFilter;
 
     @Autowired
     private ServiceRepository serviceRepository;
@@ -80,9 +87,6 @@ public class DeliveryManager {
     @Autowired
     private DeliveryTimeMapper deliveryTimeMapper;
 
-    @Autowired
-    private SettingManager settingManager;
-
     public void deliverContent(DeliveryTime deliveryTime) {
         LOG.info(String.format(
                 "Delivering content @ %s",
@@ -92,9 +96,9 @@ public class DeliveryManager {
         for (ServiceEntity service : getServices(deliveryTime)) {
             LOG.info(String.format("Service in progress, id=%s", service.getId()));
             ScheduledDeliverableEntity scheduledDeliverable
-                    = getScheduledDeliverables(service);
+                    = getScheduledDeliverables(service.getDeliveryPipe());
             SeriesDeliverableEntity[] seriesDeliverables
-                    = getSeriesDeliverables(service);
+                    = getSeriesDeliverables(service.getDeliveryPipe());
 
             if (scheduledDeliverable != null || seriesDeliverables != null) {
                 doDeliverContent(
@@ -111,61 +115,79 @@ public class DeliveryManager {
 
     }
 
-    //expiry notification X days before expiry (this is executed once a day)
+    //expiry notification (this is executed once a day)
     public void deliverExpirationNotification(DeliveryTime deliveryTime) {
         LOG.info(String.format(
                 "Delivering expiration notifications @ %s",
                 deliveryTime.name())
         );
 
-        doDeliverExpirationNotification(pageSize, leadInDays, leadInMinDuration, sendSize);
+        Date expiryAt = DateUtils.addDays(
+                DateUtils.getCurrentDateAtMidnight(),
+                leadInDays
+        );
+
+        String expiryMessage = String.format(
+                DEFAULT_EXPIRY_MESSAGE,
+                leadInDays
+        );
+
+        List<ServiceEntity> services = serviceRepository.findByOperatorNotIn(
+                Arrays.asList(
+                        operatorFilter.split(OPERATOR_FILTER_SEPARATOR)
+                )
+        );
+        for (ServiceEntity service : services) {
+            LOG.info(String.format("Service in progress, id=%s", service.getId()));
+            doDeliverExpirationNotification(
+                    service, pageSize, expiryAt,
+                    expiryMessage, leadInMinDuration, sendSize
+            );
+        }
     }
 
     private void doDeliverExpirationNotification(
+            ServiceEntity service,
             Integer pageSize,
-            Integer expirationNotificationLeadInDays,
-            Integer expirationNotificationMinDuration,
+            Date expiryAt,
+            String expiryMessage,
+            Integer expiryMinDuration,
             Integer sendSize) {
-        Pageable page = new PageRequest(0, pageSize);
-        Page<SubscriptionEntity> subscriptionsPage;
+        List<SubscriptionEntity> subscriptions;
+        boolean subscriptionsFound;
+        long startId = 0L;
         do {
             LOG.info("Getting subscriptions, start");
-            Date start
-                    = DateUtils.addDays(
-                            DateUtils.getCurrentDateAtMidnight(),
-                            expirationNotificationLeadInDays);
-            Date end = DateUtils.addDays(start, 1);
-            subscriptionsPage = subscriptionRepository
-                    .findByPeriodsEndBetween(start, end, page);
+            subscriptions = subscriptionRepository.findByExpiry(
+                    startId, service.getId(), pageSize, expiryAt, expiryMinDuration);
+            subscriptionsFound = subscriptions != null && subscriptions.size() > 0;
 
-            if (subscriptionsPage.hasContent()) {
+            if (subscriptionsFound) {
                 LOG.info(String.format(
                         "Getting subscriptions, end (count %d)",
-                        subscriptionsPage.getContent().size())
+                        subscriptions.size())
                 );
-
-                processExpiringSubscriptions(
-                        subscriptionsPage.getContent(),
-                        String.format(
-                                DEFAULT_EXPIRY_MESSAGE,
-                                expirationNotificationLeadInDays
-                        ),
-                        sendSize);
+                startId = subscriptions.get(subscriptions.size() - 1).getId();
+                processExpiringSubscriptions(service,
+                        subscriptions,
+                        expiryMessage,
+                        sendSize
+                );
             } else {
                 LOG.info(String.format(
                         "Getting subscriptions, end (count %d)",
                         0)
                 );
             }
-            page = subscriptionsPage.nextPageable();
-        } while (subscriptionsPage.hasNext());
+        } while (subscriptionsFound);
     }
 
-    private ScheduledDeliverableEntity getScheduledDeliverables(ServiceEntity service) {
+    private ScheduledDeliverableEntity getScheduledDeliverables(
+            DeliveryPipeEntity deliveryPipe) {
         LOG.info("Getting scheduled deliverables, start");
         ScheduledDeliverableEntity scheduledDeliverable
-                = scheduledDeliverableRepository.findByServiceAndDeliveryDate(
-                        service,
+                = scheduledDeliverableRepository.findByDeliveryPipeAndDeliveryDate(
+                        deliveryPipe,
                         DateUtils.getCurrentDateAtMidnight()
                 );
         LOG.info(String.format(
@@ -187,10 +209,10 @@ public class DeliveryManager {
 
     // returns list of SeriesDeliverableEntity ordered such, that in index i
     // there is deliverable, which deliveryDaysAfterSubscription is i
-    private SeriesDeliverableEntity[] getSeriesDeliverables(ServiceEntity service) {
+    private SeriesDeliverableEntity[] getSeriesDeliverables(DeliveryPipeEntity deliveryPipe) {
         LOG.info("Getting series deliverables, start");
         List<SeriesDeliverableEntity> seriesDeliverables
-                = seriesDeliverableRepository.findByService(service);
+                = seriesDeliverableRepository.findByDeliveryPipeOrderByDeliveryDaysAfterSubscriptionAsc(deliveryPipe);
         SeriesDeliverableEntity[] seriesDeliverablesOrdered
                 = new SeriesDeliverableEntity[MAXIMUM_LENGTH_FOR_SERIES + 1];
         for (SeriesDeliverableEntity deliverable : seriesDeliverables) {
@@ -227,6 +249,7 @@ public class DeliveryManager {
 
                 processSubscriptions(
                         subscriptionsPage.getContent(),
+                        service.getShortCode(),
                         scheduledDeliverable,
                         seriesDeliverables, sendSize);
             } else {
@@ -240,7 +263,7 @@ public class DeliveryManager {
     }
 
     private void processSubscriptions(List<SubscriptionEntity> subscriptions,
-            ScheduledDeliverableEntity scheduledDeliverable,
+            Integer shortCode, ScheduledDeliverableEntity scheduledDeliverable,
             SeriesDeliverableEntity[] seriesDeliverables,
             Integer sendSize) throws UnsupportedOperationException {
         LOG.info("Processing subscriptions, start");
@@ -258,32 +281,33 @@ public class DeliveryManager {
             AbstractMessage message = createMessage(messagesMap, content, subscription);
 
             if (((SmsMessage) message).getReceivers().size() >= sendSize) {
-                sendMessage(message);
+                sendMessage(message, shortCode);
                 messagesMap.remove(content);
             }
         }
         // send possible "leftover messages"
         for (Map.Entry<AbstractContentEntity, AbstractMessage> entry : messagesMap.entrySet()) {
-            sendMessage(entry.getValue());
+            sendMessage(entry.getValue(), shortCode);
         }
         LOG.info("Processing subscriptions, end");
     }
 
     private void processExpiringSubscriptions(
-            List<SubscriptionEntity> subscriptions, String expiryMessage, Integer sendSize) {
+            ServiceEntity service, List<SubscriptionEntity> subscriptions,
+            String expiryMessage, Integer sendSize) {
         LOG.info("Processing expiring subscriptions, start");
         AbstractMessage message = createExpiryMessage(expiryMessage);
         for (SubscriptionEntity subscription : subscriptions) {
             addPhoneNumberToMessage(subscription, message);
 
             if (((SmsMessage) message).getReceivers().size() >= sendSize) {
-                sendMessage(message);
+                sendMessage(message, service.getShortCode());
                 message = createExpiryMessage(expiryMessage);
             }
         }
         // send possible "leftover message"
         if (((SmsMessage) message).getReceivers().size() > 0) {
-            sendMessage(message);
+            sendMessage(message, service.getShortCode());
         }
 
         LOG.info("Processing expiring subscriptions, end");
@@ -304,34 +328,33 @@ public class DeliveryManager {
         ((SmsMessage) message).getReceivers().add(phoneNumber);
     }
 
+    // TODO: support also for email message(?)
     private AbstractMessage createMessage(
             Map<AbstractContentEntity, AbstractMessage> messagesMap,
             AbstractContentEntity content,
             SubscriptionEntity subscription) throws UnsupportedOperationException {
         AbstractMessage message = messagesMap.get(content);
         if (message == null) {
-            // TODO: support also for email message(?)
             message = new SmsMessage();
-            if (content instanceof CustomContentEntity) {
-                message.setMessage(((CustomContentEntity) content).getContent());
-            } else {
-                // TODO: support rss content
-                throw new UnsupportedOperationException("not implemented");
-            }
-
+            message.setMessage(content.getSummary());
             messagesMap.put(content, message);
         }
         addPhoneNumberToMessage(subscription, message);
         return message;
     }
 
-    private void sendMessage(AbstractMessage message) {
+    private void sendMessage(AbstractMessage message, Integer shortCode) {
         LOG.info(String.format(
                 "Sending message, start (%d receivers)",
                 ((SmsMessage) message).getReceivers().size())
         );
-        messageCenter.sendMessage(message);
-        LOG.info("Sending message, end");
+        try {
+            messageCenter.sendMessage(message, shortCode);
+        } catch (MessagingException ex) {
+            LOG.error("Sending message failed: " + ex.getMessage());
+        } finally {
+            LOG.info("Sending message, end");
+        }
     }
 
     private AbstractContentEntity getContent(

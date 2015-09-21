@@ -40,10 +40,11 @@ public class ServiceEntity extends AbstractEntity {
     private String keyword;
     private int shortCode;
     private String operator;
-    @ManyToOne
-    private UserEntity provider;
     private String unsubscribeKeyword;
     private int subscriptionPeriod;
+
+    @ManyToOne
+    private DeliveryPipeEntity deliveryPipe;
 
     @Enumerated(EnumType.STRING)
     private DeliveryTime deliveryTime;
@@ -81,20 +82,20 @@ public class ServiceEntity extends AbstractEntity {
         this.operator = operator;
     }
 
-    public UserEntity getProvider() {
-        return provider;
-    }
-
-    public void setProvider(UserEntity provider) {
-        this.provider = provider;
-    }
-
     public int getSubscriptionPeriod() {
         return subscriptionPeriod;
     }
 
     public void setSubscriptionPeriod(int subscriptionPeriod) {
         this.subscriptionPeriod = subscriptionPeriod;
+    }
+
+    public DeliveryPipeEntity getDeliveryPipe() {
+        return deliveryPipe;
+    }
+
+    public void setDeliveryPipe(DeliveryPipeEntity deliveryPipe) {
+        this.deliveryPipe = deliveryPipe;
     }
 
     public DeliveryTime getDeliveryTime() {

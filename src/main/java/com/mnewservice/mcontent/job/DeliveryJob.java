@@ -38,7 +38,6 @@ public class DeliveryJob implements Job {
             deliveryManager.deliverContent(deliveryTime);
 
             if (DeliveryTime.T0800.equals(deliveryTime)) {
-                // TODO: check that this is fine
                 // send expiration notifications daily at 8am
                 deliveryManager.deliverExpirationNotification(deliveryTime);
             }

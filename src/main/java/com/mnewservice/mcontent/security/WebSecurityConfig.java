@@ -75,13 +75,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         @Autowired
         private UserDetailsService applicationUserDetailsManager;
 
-        @Value("${application.sms.gateway.url}")
-        private String smsGatewayUrl;
+        @Value("${application.sms.gateway.ip}")
+        private String smsGatewayIp;
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                    .authorizeRequests().antMatchers("/subscription").hasIpAddress(smsGatewayUrl)
+                    .authorizeRequests().antMatchers("/subscription").hasIpAddress(smsGatewayIp)
                     .and()
                     .authorizeRequests().antMatchers("/register/provider").permitAll()
                     .and()

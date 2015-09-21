@@ -1,9 +1,11 @@
 package com.mnewservice.mcontent.web;
 
+import com.mnewservice.mcontent.domain.DeliveryPipe;
 import com.mnewservice.mcontent.domain.DeliveryTime;
 import com.mnewservice.mcontent.domain.Role;
 import com.mnewservice.mcontent.domain.Service;
 import com.mnewservice.mcontent.domain.User;
+import com.mnewservice.mcontent.manager.DeliveryPipeManager;
 import com.mnewservice.mcontent.manager.ServiceManager;
 import com.mnewservice.mcontent.manager.UserManager;
 import java.util.Arrays;
@@ -33,7 +35,7 @@ public class ServiceController {
     private ServiceManager serviceManager;
 
     @Autowired
-    private UserManager userManager;
+    private DeliveryPipeManager deliveryPipeManager;
 
     @ModelAttribute("allServices")
     public List<Service> populateServices() {
@@ -41,10 +43,9 @@ public class ServiceController {
                 .stream().collect(Collectors.toList());
     }
 
-    @ModelAttribute("allProviders")
-    public List<User> populateProviders() {
-        return userManager.getAllUsersByRoleName(Role.PROVIDER_SHOULD_BE_ENUM)
-                .stream().collect(Collectors.toList());
+    @ModelAttribute("allDeliveryPipes")
+    public List<DeliveryPipe> populateDeliveryPipes() {
+        return deliveryPipeManager.getAllDeliveryPipes().stream().collect(Collectors.toList());
     }
 
     @ModelAttribute("allDeliveryTimes")

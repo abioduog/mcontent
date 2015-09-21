@@ -2,7 +2,6 @@ package com.mnewservice.mcontent.domain.mapper;
 
 import com.mnewservice.mcontent.domain.Service;
 import com.mnewservice.mcontent.repository.entity.ServiceEntity;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,12 +13,10 @@ import org.springframework.stereotype.Component;
 public class ServiceMapper extends AbstractMapper<Service, ServiceEntity> {
 
     @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
     private DeliveryTimeMapper deliveryTimeMapper;
 
-    private static final Logger LOG = Logger.getLogger(ServiceMapper.class);
+    @Autowired
+    private DeliveryPipeMapper deliveryPipeMapper;
 
     @Override
     public Service toDomain(ServiceEntity entity) {
@@ -31,9 +28,9 @@ public class ServiceMapper extends AbstractMapper<Service, ServiceEntity> {
         domain.setKeyword(entity.getKeyword());
         domain.setShortCode(entity.getShortCode());
         domain.setOperator(entity.getOperator());
-        domain.setProvider(userMapper.toDomain(entity.getProvider()));
         domain.setUnsubscribeKeyword(entity.getUnsubscribeKeyword());
         domain.setSubscriptionPeriod(entity.getSubscriptionPeriod());
+        domain.setDeliveryPipe(deliveryPipeMapper.toDomain(entity.getDeliveryPipe()));
         domain.setDeliveryTime(deliveryTimeMapper.toDomain(entity.getDeliveryTime()));
 
         return domain;
@@ -50,9 +47,9 @@ public class ServiceMapper extends AbstractMapper<Service, ServiceEntity> {
         entity.setKeyword(domain.getKeyword());
         entity.setShortCode(domain.getShortCode());
         entity.setOperator(domain.getOperator());
-        entity.setProvider(userMapper.toEntity(domain.getProvider()));
         entity.setUnsubscribeKeyword(domain.getUnsubscribeKeyword());
         entity.setSubscriptionPeriod(domain.getSubscriptionPeriod());
+        entity.setDeliveryPipe(deliveryPipeMapper.toEntity(domain.getDeliveryPipe()));
         entity.setDeliveryTime(deliveryTimeMapper.toEntity(domain.getDeliveryTime()));
 
         return entity;

@@ -16,11 +16,32 @@ public class RssContentEntity extends AbstractContentEntity {
 
     private String title;
     private String description;
-    private URI link;
+    private String link;
+    private static final String SUMMARY_TEMPLATE = "%s: %s (%s)";
 
     @Override
     public String getSummary() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int lengthWithoutDescription = String.format(
+                SUMMARY_TEMPLATE,
+                title,
+                "",
+                link
+        ).length();
+
+        int descriptionMaxLength
+                = (MESSAGE_MAX_LENGTH - lengthWithoutDescription > 0)
+                        ? MESSAGE_MAX_LENGTH - lengthWithoutDescription
+                        : 0;
+
+        return String.format(
+                SUMMARY_TEMPLATE,
+                title,
+                description.substring(
+                        0,
+                        Math.min(description.length(), descriptionMaxLength)
+                ),
+                link
+        );
     }
 
     public String getTitle() {
@@ -39,11 +60,11 @@ public class RssContentEntity extends AbstractContentEntity {
         this.description = description;
     }
 
-    public URI getLink() {
+    public String getLink() {
         return link;
     }
 
-    public void setLink(URI link) {
+    public void setLink(String link) {
         this.link = link;
     }
 

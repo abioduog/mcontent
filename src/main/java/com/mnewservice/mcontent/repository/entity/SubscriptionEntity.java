@@ -6,6 +6,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedNativeQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -15,6 +16,35 @@ import javax.persistence.UniqueConstraint;
  * @author Marko Tuononen <marko.tuononen at nolwenture.com>
  */
 @Entity
+@NamedNativeQuery(
+        name = "SubscriptionEntity.findByExpiry",
+        query
+        = "SELECT "
+        + "    s.id, s.service_id, s.subscriber_id "
+        + "FROM "
+        + "    subscriptions s "
+        + "    JOIN ( "
+        + "	    SELECT "
+        + "           s2.id s_id, max(p2.`end`) maxend "
+        + "         FROM "
+        + "           subscriptions s2 "
+        + "           JOIN subscriptions_periods sp2 ON s2.id=sp2.subscriptions_id "
+        + "           JOIN subscriptionperiods p2 ON p2.id=sp2.periods_id "
+        + "         GROUP BY "
+        + "           s2.id) smax ON smax.s_id=s.id "
+        + "    JOIN subscriptions_periods sp ON s.id=sp.subscriptions_id "
+        + "    JOIN subscriptionperiods p ON p.end=smax.maxend AND p.id=sp.periods_id "
+        + "WHERE "
+        + "    TIMESTAMPDIFF(DAY,p.`start`,p.`end`) >= :minDuration AND "
+        + "    p.`end`= DATE(:expiryAt) AND "
+        + "    p.`id` > :startId AND "
+        + "    s.service_id = :serviceId "
+        + "ORDER BY "
+        + "    s.id "
+        + "LIMIT "
+        + "    :limit ",
+        resultClass = SubscriptionEntity.class
+)
 @Table(
         name = "subscriptions",
         uniqueConstraints = @UniqueConstraint(

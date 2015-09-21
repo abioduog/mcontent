@@ -1,0 +1,9 @@
+<h1 th:inline="text">[[${deliveryPipe.name}]] content</h1>
+<div class="delivery-pipe-list">
+    <ol th:each="content : ${contents}">
+        <li><a th:href="@{|/content/${content.id}|}"
+               th:text="${content.content.title}" onclick="loadToContentEditor(this, event);">Content</a>
+        </li>
+    </ol>
+</div>
+<div id="content-editor"></div>

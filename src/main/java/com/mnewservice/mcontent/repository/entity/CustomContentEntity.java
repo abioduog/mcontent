@@ -24,8 +24,11 @@ public class CustomContentEntity extends AbstractContentEntity {
 
     @Override
     public String getSummary() {
-        // TODO: how to get summary out of HTML page: page title? description?
-        return content;
+        // TODO: how to really get summary out of HTML page: page title? description?
+        return content.substring(
+                0,
+                Math.min(content.length(), MESSAGE_MAX_LENGTH)
+        );
     }
 
     public String getShortUuid() {

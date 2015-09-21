@@ -1,7 +1,7 @@
 package com.mnewservice.mcontent.repository;
 
+import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.SeriesDeliverableEntity;
-import com.mnewservice.mcontent.repository.entity.ServiceEntity;
 import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -14,5 +14,5 @@ import org.springframework.stereotype.Repository;
 public interface SeriesDeliverableRepository
         extends CrudRepository<SeriesDeliverableEntity, Long> {
 
-    List<SeriesDeliverableEntity> findByService(ServiceEntity service);
+    List<SeriesDeliverableEntity> findByDeliveryPipeOrderByDeliveryDaysAfterSubscriptionAsc(DeliveryPipeEntity deliveryPipe);
 }

@@ -16,6 +16,9 @@ public interface ServiceRepository extends CrudRepository<ServiceEntity, Long> {
     public ServiceEntity findByKeywordAndShortCodeAndOperator(
             String keyword, int shortCode, String operator);
 
+    public ServiceEntity findByUnsubscribeKeywordAndShortCodeAndOperator(
+            String unsubscribeKeyword, int shortCode, String operator);
+
     public List<ServiceEntity> findByDeliveryTime(DeliveryTime deliveryTime);
 
     public List<ServiceEntity> findByOperatorNotIn(List<String> operators);

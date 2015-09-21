@@ -36,6 +36,19 @@ public class ServiceManager {
     }
 
     @Transactional(readOnly = true)
+    public Service getUnsubscribeService(String unsubscribeKeyword,
+            int shortCode, String operator) {
+        LOG.info("Looking service with unsubscribeKeyword=" + unsubscribeKeyword
+                + ", shortCode=" + shortCode
+                + ", and operator=" + operator);
+        ServiceEntity entity = repository
+                .findByUnsubscribeKeywordAndShortCodeAndOperator(
+                        unsubscribeKeyword, shortCode, operator
+                );
+        return mapper.toDomain(entity);
+    }
+
+    @Transactional(readOnly = true)
     public Collection<Service> getAllServices() {
         LOG.info("Getting all services");
         Collection<ServiceEntity> entities = mapper.makeCollection(repository.findAll());

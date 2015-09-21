@@ -61,13 +61,37 @@ public class SubscriptionApiController extends AbstractApiController {
 
         validateRequestParams(
                 message, shortCode, sender, messageId, operator, timestamp);
-        Subscription subscription = createSubscription(
-                message, shortCode, sender, messageId, operator, timestamp);
-        if (subscriptionManager.registerSubscription(subscription)) {
-            return RETURN_VALUE_SUCCESSFUL;
+
+        Service service = getService(message, shortCode, operator);
+        Subscription subscription
+                = createSubscription(
+                        service, message, shortCode, sender,
+                        messageId, operator, timestamp
+                );
+
+        boolean returnValue;
+        if (isRegisteringNewOne(service, message)) {
+            returnValue = subscriptionManager.registerSubscription(subscription);
         } else {
-            return RETURN_VALUE_UNSUCCESSFUL;
+            returnValue = subscriptionManager.unRegisterSubscription(subscription);
         }
+
+        return (returnValue) ? RETURN_VALUE_SUCCESSFUL : RETURN_VALUE_UNSUCCESSFUL;
+    }
+
+    private Service getService(String message, int shortCode, String operator) {
+        Service service;
+        try {
+            service = getSubscribeService(message, shortCode, operator);
+        } catch (IllegalArgumentException iae) {
+            LOG.debug("Tried to find service for subscribing: " + iae.getMessage());
+            service = null;
+        }
+        if (service == null) {
+            LOG.debug("Trying to find service for unsubscribing");
+            service = getUnsubscribeService(message, shortCode, operator);
+        }
+        return service;
     }
 
     private void validateRequestParams(String message, int shortCode,
@@ -95,14 +119,12 @@ public class SubscriptionApiController extends AbstractApiController {
                 timestamp);
     }
 
-    private Subscription createSubscription(String message, int shortCode,
-            String sender, Long messageId, String operator,
+    private Subscription createSubscription(Service service, String message,
+            int shortCode, String sender, Long messageId, String operator,
             String timestamp) {
-        Service service = getService(message, shortCode, operator);
-
         Subscription subscription = new Subscription();
         subscription.setSubscriber(createSubscriber(sender));
-        subscription.setService(createService(message, shortCode, operator));
+        subscription.setService(service);
         subscription.setPeriods(new ArrayList<>());
         subscription.getPeriods().add(
                 createSubscriptionPeriod(
@@ -113,21 +135,47 @@ public class SubscriptionApiController extends AbstractApiController {
         return subscription;
     }
 
-    private Service getService(String message,
+    private Service getSubscribeService(String subscribeMessage,
             int shortCode, String operator) throws IllegalArgumentException {
         Service service
-                = serviceManager.getService(message, shortCode, operator);
+                = serviceManager.getService(
+                        subscribeMessage, shortCode, operator
+                );
+
         if (service == null) {
             String msg = String.format(
                     ERROR_SERVICE_NOT_FOUND,
                     PARAM_MESSAGE,
-                    message,
+                    subscribeMessage,
                     PARAM_SHORTCODE,
                     shortCode,
                     PARAM_OPERATOR,
                     operator);
             throw new IllegalArgumentException(msg);
         }
+
+        return service;
+    }
+
+    private Service getUnsubscribeService(String unSubscribeMessage,
+            int shortCode, String operator) {
+        Service service
+                = serviceManager.getUnsubscribeService(
+                        unSubscribeMessage, shortCode, operator
+                );
+
+        if (service == null) {
+            String msg = String.format(
+                    ERROR_SERVICE_NOT_FOUND,
+                    PARAM_MESSAGE,
+                    unSubscribeMessage,
+                    PARAM_SHORTCODE,
+                    shortCode,
+                    PARAM_OPERATOR,
+                    operator);
+            throw new IllegalArgumentException(msg);
+        }
+
         return service;
     }
 
@@ -196,4 +244,7 @@ public class SubscriptionApiController extends AbstractApiController {
         return todaysRunTime;
     }
 
+    private boolean isRegisteringNewOne(Service service, String message) {
+        return service.getKeyword().equalsIgnoreCase(message);
+    }
 }

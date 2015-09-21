@@ -12,7 +12,6 @@ import com.mnewservice.mcontent.repository.SeriesDeliverableRepository;
 import com.mnewservice.mcontent.repository.ServiceRepository;
 import com.mnewservice.mcontent.repository.SubscriptionRepository;
 import com.mnewservice.mcontent.repository.entity.AbstractContentEntity;
-import com.mnewservice.mcontent.repository.entity.CustomContentEntity;
 import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.ScheduledDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.SeriesDeliverableEntity;
@@ -20,6 +19,8 @@ import com.mnewservice.mcontent.repository.entity.ServiceEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionPeriodEntity;
 import com.mnewservice.mcontent.util.DateUtils;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +47,7 @@ public class DeliveryManager {
             + "your subscription, if you wish to receive messages also in the "
             + "future.";
     private static final int MAXIMUM_LENGTH_FOR_SERIES = 128;
+    private static final String OPERATOR_FILTER_SEPARATOR = ",";
     private static final Logger LOG = Logger.getLogger(DeliveryManager.class);
 
     @Value("${application.delivery.fetch.pageSize}")
@@ -59,6 +61,9 @@ public class DeliveryManager {
 
     @Value("${application.delivery.reminder.minDurationInDays}")
     private Integer leadInMinDuration;
+
+    @Value("${application.delivery.reminder.operatorFilter}")
+    private String operatorFilter;
 
     @Autowired
     private ServiceRepository serviceRepository;
@@ -80,9 +85,6 @@ public class DeliveryManager {
 
     @Autowired
     private DeliveryTimeMapper deliveryTimeMapper;
-
-    @Autowired
-    private SettingManager settingManager;
 
     public void deliverContent(DeliveryTime deliveryTime) {
         LOG.info(String.format(
@@ -137,7 +139,9 @@ public class DeliveryManager {
         do {
             LOG.info("Getting subscriptions, start");
             subscriptions = subscriptionRepository.findByExpiry(
-                    startId, pageSize, expiryAt, expirationNotificationMinDuration
+                    startId, pageSize, expiryAt,
+                    expirationNotificationMinDuration,
+                    Arrays.asList(operatorFilter.split(OPERATOR_FILTER_SEPARATOR))
             );
             subscriptionsFound = subscriptions != null && subscriptions.size() > 0;
 

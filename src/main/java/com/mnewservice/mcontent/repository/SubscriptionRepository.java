@@ -38,5 +38,7 @@ public interface SubscriptionRepository
             @Param("startId") Long startId,
             @Param("limit") Integer limit,
             @Param("expiryAt") Date expiryAt,
-            @Param("minDuration") Integer minDuration);
+            @Param("minDuration") Integer minDuration,
+            @Param("operatorFilter") List<String> operatorFilter
+    );
 }

@@ -43,10 +43,6 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class DeliveryManager {
 
-    private static final String DEFAULT_EXPIRY_MESSAGE
-            = "Your mContent subscription is expiring in %d days. Please renew "
-            + "your subscription, if you wish to receive messages also in the "
-            + "future.";
     private static final int MAXIMUM_LENGTH_FOR_SERIES = 128;
     private static final String OPERATOR_FILTER_SEPARATOR = ",";
     private static final Logger LOG = Logger.getLogger(DeliveryManager.class);
@@ -127,11 +123,6 @@ public class DeliveryManager {
                 leadInDays
         );
 
-        String expiryMessage = String.format(
-                DEFAULT_EXPIRY_MESSAGE,
-                leadInDays
-        );
-
         List<ServiceEntity> services = serviceRepository.findByOperatorNotIn(
                 Arrays.asList(
                         operatorFilter.split(OPERATOR_FILTER_SEPARATOR)
@@ -139,6 +130,11 @@ public class DeliveryManager {
         );
         for (ServiceEntity service : services) {
             LOG.info(String.format("Service in progress, id=%s", service.getId()));
+            String expiryMessage = String.format(
+                    service.getExpireMessage(),
+                    leadInDays
+            );
+
             doDeliverExpirationNotification(
                     service, pageSize, expiryAt,
                     expiryMessage, leadInMinDuration, sendSize

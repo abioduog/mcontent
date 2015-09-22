@@ -13,6 +13,12 @@ public class Service {
     private String operator;
     private String unsubscribeKeyword;
     private int subscriptionPeriod;
+
+    private String welcomeMessage;
+    private String renewMessage;
+    private String expireMessage;
+    private String unsubscribeMessage;
+
     private DeliveryPipe deliveryPipe;
     private DeliveryTime deliveryTime;
 
@@ -63,6 +69,38 @@ public class Service {
 
     public void setSubscriptionPeriod(int subscriptionPeriod) {
         this.subscriptionPeriod = subscriptionPeriod;
+    }
+
+    public String getWelcomeMessage() {
+        return welcomeMessage;
+    }
+
+    public void setWelcomeMessage(String welcomeMessage) {
+        this.welcomeMessage = welcomeMessage;
+    }
+
+    public String getRenewMessage() {
+        return renewMessage;
+    }
+
+    public void setRenewMessage(String renewMessage) {
+        this.renewMessage = renewMessage;
+    }
+
+    public String getExpireMessage() {
+        return expireMessage;
+    }
+
+    public void setExpireMessage(String expireMessage) {
+        this.expireMessage = expireMessage;
+    }
+
+    public String getUnsubscribeMessage() {
+        return unsubscribeMessage;
+    }
+
+    public void setUnsubscribeMessage(String unsubscribeMessage) {
+        this.unsubscribeMessage = unsubscribeMessage;
     }
 
     public DeliveryPipe getDeliveryPipe() {

@@ -1,5 +1,6 @@
 package com.mnewservice.mcontent.repository.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -37,11 +38,29 @@ public class ServiceEntity extends AbstractEntity {
         T2200
     }
 
+    @Column(length = 160)
     private String keyword;
+
     private int shortCode;
+
     private String operator;
+
+    @Column(length = 160)
     private String unsubscribeKeyword;
+
     private int subscriptionPeriod;
+
+    @Column(length = 160)
+    private String welcomeMessage;
+
+    @Column(length = 160)
+    private String renewMessage;
+
+    @Column(length = 160)
+    private String expireMessage;
+
+    @Column(length = 160)
+    private String unsubscribeMessage;
 
     @ManyToOne
     private DeliveryPipeEntity deliveryPipe;
@@ -88,6 +107,38 @@ public class ServiceEntity extends AbstractEntity {
 
     public void setSubscriptionPeriod(int subscriptionPeriod) {
         this.subscriptionPeriod = subscriptionPeriod;
+    }
+
+    public String getWelcomeMessage() {
+        return welcomeMessage;
+    }
+
+    public void setWelcomeMessage(String welcomeMessage) {
+        this.welcomeMessage = welcomeMessage;
+    }
+
+    public String getRenewMessage() {
+        return renewMessage;
+    }
+
+    public void setRenewMessage(String renewMessage) {
+        this.renewMessage = renewMessage;
+    }
+
+    public String getExpireMessage() {
+        return expireMessage;
+    }
+
+    public void setExpireMessage(String expireMessage) {
+        this.expireMessage = expireMessage;
+    }
+
+    public String getUnsubscribeMessage() {
+        return unsubscribeMessage;
+    }
+
+    public void setUnsubscribeMessage(String unsubscribeMessage) {
+        this.unsubscribeMessage = unsubscribeMessage;
     }
 
     public DeliveryPipeEntity getDeliveryPipe() {

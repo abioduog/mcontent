@@ -30,7 +30,31 @@ INSERT INTO delivery_pipes_providers (delivery_pipes_id, providers_id) VALUES (
         (SELECT id FROM delivery_pipes WHERE name='Test pipe'),
         (SELECT id FROM users WHERE username='provider'));
 
-INSERT INTO services (keyword, short_code, operator, unsubscribe_keyword, subscription_period, delivery_pipe_id, delivery_time) VALUES ('READ', 33070, 'MTN', 'UNSUBSCRIBE READ', 7, (SELECT id FROM delivery_pipes WHERE name='Test pipe'), 'T1600');
+INSERT INTO services (
+        keyword,
+        short_code,
+        operator,
+        unsubscribe_keyword,
+        welcome_message,
+        renew_message,
+        expire_message,
+        unsubscribe_message,
+        subscription_period,
+        delivery_pipe_id,
+        delivery_time)
+VALUES (
+        'READ',
+        33070,
+        'MTN',
+        'UNSUBSCRIBE_READ',
+        'Welcome to an excellent SMS service 1. Your subscription is now valid for the next %d days.',
+        'You have renewed subscription for the excellent SMS service 1. Your subscription is now valid %d more days.',
+        'Your SMS service 1 subscription is expiring in %d days. Please renew your subscription, if you wish to receive messages also in the future.',
+        'You have unsubscribed from the excellent SMS service 1. Have a nice day and welcome back soon!',
+        7,
+        (SELECT id FROM delivery_pipes WHERE name='Test pipe'),
+        'T1600'
+);
 
 INSERT INTO contents (content_type) VALUES ('CUSTOM');
 INSERT INTO custom_contents (id, short_uuid, content) VALUES (
@@ -62,7 +86,31 @@ INSERT INTO delivery_pipes_providers (delivery_pipes_id, providers_id) VALUES (
         (SELECT id FROM delivery_pipes WHERE name='Test pipe 2'),
         (SELECT id FROM users WHERE username='z_provider'));
 
-INSERT INTO services (keyword, short_code, operator, unsubscribe_keyword, subscription_period, delivery_pipe_id, delivery_time) VALUES ('READ2', 33070, 'MTN', 'UNSUBSCRIBE READ2', 14, (SELECT id FROM delivery_pipes WHERE name='Test pipe 2'), 'T1000');
+INSERT INTO services (
+        keyword,
+        short_code,
+        operator,
+        unsubscribe_keyword,
+        welcome_message,
+        renew_message,
+        expire_message,
+        unsubscribe_message,
+        subscription_period,
+        delivery_pipe_id,
+        delivery_time)
+VALUES (
+        'READ2',
+        33070,
+        'XYZ',
+        'UNSUBSCRIBE_READ2',
+        'Welcome to an excellent SMS service 2. Your subscription is now valid for the next %d days.',
+        'You have renewed subscription for the excellent SMS service 2. Your subscription is now valid %d more days.',
+        'Your SMS service 2 subscription is expiring in %d days. Please renew your subscription, if you wish to receive messages also in the future.',
+        'You have unsubscribed from the excellent SMS service 2. Have a nice day and welcome back soon!',
+        14,
+        (SELECT id FROM delivery_pipes WHERE name='Test pipe 2'),
+        'T1000'
+);
 
 INSERT INTO contents (content_type) VALUES ('RSS');
 INSERT INTO rss_contents (id, title, description, link) VALUES (

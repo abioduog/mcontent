@@ -1,28 +1,148 @@
 INSERT INTO roles (name) VALUES ('ADMIN');
 INSERT INTO roles (name) VALUES ('PROVIDER');
 
-INSERT INTO users (username, password, email, active) VALUES ('admin', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'admin@admin.com', true);
+INSERT INTO users (username, password, active) VALUES (
+        'admin',
+        '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS',
+        true
+);
 INSERT INTO users_roles (users_id, roles_id) VALUES (
 	(SELECT id FROM users WHERE username='admin'),
 	(SELECT id FROM roles WHERE name='ADMIN')
 );
 
-INSERT INTO users (username, password, email, active) VALUES ('provider', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'provider@provider.com', true);
+INSERT INTO users (username, password, active) VALUES (
+        'provider',
+        '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS',
+        true
+);
 INSERT INTO users_roles (users_id, roles_id) VALUES (
 	(SELECT id FROM users WHERE username='provider'),
 	(SELECT id FROM roles WHERE name='PROVIDER')
 );
+INSERT INTO emails (address) VALUES ('popular@provider.com');
+INSERT INTO emails (address) VALUES ('contact.popular@provider.com');
+INSERT INTO phonenumbers (number) VALUES ('1234567890');
+INSERT INTO phonenumbers (number) VALUES ('1234567891');
+INSERT INTO providers (
+        name,
+        state,
+        country,
+        email_id,
+        phone_id,
+        user_id,
+        name_of_contact_person,
+        position_of_contact_person,
+        email_of_contact_person_id,
+        phone_of_contact_person_id,
+        content_name,
+        content_description)
+VALUES (
+        'Popular Provider',
+        'East State',
+        'Finland',
+        (SELECT id FROM emails WHERE address='popular@provider.com'),
+        (SELECT id FROM phonenumbers WHERE number='1234567890'),
+        (SELECT id FROM users WHERE username='provider'),
+        'Popular Contact',
+        'Head of Contacts',
+        (SELECT id FROM emails WHERE address='contact.popular@provider.com'),
+        (SELECT id FROM phonenumbers WHERE number='1234567891'),
+        'Popular Content',
+        'Provides the most popular content shared on the Social Media.'
+);
+INSERT INTO binary_contents (name, content) VALUES (
+        'Popularity Agreement',
+        'testisopimus'
+);
+INSERT INTO providers_correspondences (
+        providers_id,
+        correspondences_id)
+VALUES (
+        (SELECT id FROM providers WHERE name='Popular Provider'),
+        (SELECT id FROM binary_contents WHERE name='Popularity Agreement')
+);
 
-INSERT INTO users (username, password, email, active) VALUES ('a_provider', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'a_provider@provider.com', true);
+INSERT INTO users (username, password, active) VALUES (
+        'a_provider',
+        '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS',
+        true
+);
 INSERT INTO users_roles (users_id, roles_id) VALUES (
 	(SELECT id FROM users WHERE username='a_provider'),
 	(SELECT id FROM roles WHERE name='PROVIDER')
 );
+INSERT INTO emails (address) VALUES ('adorable@provider.com');
+INSERT INTO emails (address) VALUES ('contact.adorable@provider.com');
+INSERT INTO phonenumbers (number) VALUES ('1234567892');
+INSERT INTO phonenumbers (number) VALUES ('1234567893');
+INSERT INTO providers (
+        name,
+        state,
+        country,
+        email_id,
+        phone_id,
+        user_id,
+        name_of_contact_person,
+        position_of_contact_person,
+        email_of_contact_person_id,
+        phone_of_contact_person_id,
+        content_name,
+        content_description)
+VALUES (
+        'Adorable Provider',
+        'West State',
+        'Finland',
+        (SELECT id FROM emails WHERE address='adorable@provider.com'),
+        (SELECT id FROM phonenumbers WHERE number='1234567892'),
+        (SELECT id FROM users WHERE username='a_provider'),
+        'Adorable Contact',
+        'Head of Contacts',
+        (SELECT id FROM emails WHERE address='contact.adorable@provider.com'),
+        (SELECT id FROM phonenumbers WHERE number='1234567893'),
+        'Adorable Content',
+        'Most adorable cat photos from the late 90s.'
+);
 
-INSERT INTO users (username, password, email, active) VALUES ('z_provider', '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS', 'provider_z@provider.com', true);
+INSERT INTO users (username, password, active) VALUES (
+        'z_provider',
+        '$2a$10$4cX3TGhLiME0K0MJ8AgrA.QdiH/KGv4BOUCNZLisoCMIj0pEeuiGS',
+        true
+);
 INSERT INTO users_roles (users_id, roles_id) VALUES (
 	(SELECT id FROM users WHERE username='z_provider'),
 	(SELECT id FROM roles WHERE name='PROVIDER')
+);
+INSERT INTO emails (address) VALUES ('zestful@provider.com');
+INSERT INTO emails (address) VALUES ('contact.zestful@provider.com');
+INSERT INTO phonenumbers (number) VALUES ('1234567894');
+INSERT INTO phonenumbers (number) VALUES ('1234567895');
+INSERT INTO providers (
+        name,
+        state,
+        country,
+        email_id,
+        phone_id,
+        user_id,
+        name_of_contact_person,
+        position_of_contact_person,
+        email_of_contact_person_id,
+        phone_of_contact_person_id,
+        content_name,
+        content_description)
+VALUES (
+        'Zestful Provider',
+        'Lapland State',
+        'Finland',
+        (SELECT id FROM emails WHERE address='zestful@provider.com'),
+        (SELECT id FROM phonenumbers WHERE number='1234567894'),
+        (SELECT id FROM users WHERE username='z_provider'),
+        'Zestful Contact',
+        'Head of Contacts',
+        (SELECT id FROM emails WHERE address='contact.zestful@provider.com'),
+        (SELECT id FROM phonenumbers WHERE number='1234567895'),
+        'Zestful Content',
+        'Presenting Zestful lifestyle of the Sami people'
 );
 
 INSERT INTO delivery_pipes (name, deliverable_type) VALUES ('Test pipe','SERIES');

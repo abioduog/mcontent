@@ -28,18 +28,7 @@ public class UserController {
     @Autowired
     private UserManager userManager;
 
-    @ModelAttribute("allProviders")
-    public List<User> populateProviders() {
-        return userManager.getAllUsersByRoleName(Role.PROVIDER_SHOULD_BE_ENUM)
-                .stream().collect(Collectors.toList());
-    }
-
-    @RequestMapping({"/provider/list"})
-    public String listProviders() {
-        return "providerList";
-    }
-
-    @RequestMapping({"/provider/{id}/activate"})
+    @RequestMapping({"/user/{id}/activate"})
     @ResponseStatus(value = HttpStatus.OK)
     public void activateProvider(@PathVariable("id") long id) {
         User user = userManager.getUser(id);
@@ -52,7 +41,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping({"/provider/{id}/deactivate"})
+    @RequestMapping({"/user/{id}/deactivate"})
     @ResponseStatus(value = HttpStatus.OK)
     public void deactivateProvider(@PathVariable("id") long id) {
         User user = userManager.getUser(id);

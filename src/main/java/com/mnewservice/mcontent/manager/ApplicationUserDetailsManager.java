@@ -40,8 +40,11 @@ public class ApplicationUserDetailsManager implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("not found " + username);
         }
-        List<GrantedAuthority> authorities = buildUserAuthority(user.getRoles());
+        if (!user.isActive()) {
+            throw new UsernameNotFoundException("not active " + username);
+        }
 
+        List<GrantedAuthority> authorities = buildUserAuthority(user.getRoles());
         return buildUserForAuthentication(user, authorities);
 
     }

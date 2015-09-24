@@ -18,7 +18,6 @@ public class UserEntity extends AbstractEntity {
 
     private String username;
     private String password;
-    private String email;
     private boolean active;
 
     @ManyToMany
@@ -27,10 +26,9 @@ public class UserEntity extends AbstractEntity {
     public UserEntity() {
     }
 
-    public UserEntity(String username, String password, String email, Collection<RoleEntity> roles) {
+    public UserEntity(String username, String password, Collection<RoleEntity> roles) {
         this.username = username;
         this.password = PasswordEncrypter.getInstance().encrypt(password);
-        this.email = email;
         this.active = false;
         this.roles = roles.stream().collect(Collectors.toSet());
     }
@@ -50,14 +48,6 @@ public class UserEntity extends AbstractEntity {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public boolean isActive() {

@@ -122,28 +122,44 @@ public class DeliveryManager {
                 deliveryTime.name())
         );
 
-        doDeliverExpirationNotification(pageSize, leadInDays, leadInMinDuration, sendSize);
+        Date expiryAt = DateUtils.addDays(
+                DateUtils.getCurrentDateAtMidnight(),
+                leadInDays
+        );
+
+        String expiryMessage = String.format(
+                DEFAULT_EXPIRY_MESSAGE,
+                leadInDays
+        );
+
+        List<ServiceEntity> services = serviceRepository.findByOperatorNotIn(
+                Arrays.asList(
+                        operatorFilter.split(OPERATOR_FILTER_SEPARATOR)
+                )
+        );
+        for (ServiceEntity service : services) {
+            LOG.info(String.format("Service in progress, id=%s", service.getId()));
+            doDeliverExpirationNotification(
+                    service, pageSize, expiryAt,
+                    expiryMessage, leadInMinDuration, sendSize
+            );
+        }
     }
 
     private void doDeliverExpirationNotification(
+            ServiceEntity service,
             Integer pageSize,
-            Integer expirationNotificationLeadInDays,
-            Integer expirationNotificationMinDuration,
+            Date expiryAt,
+            String expiryMessage,
+            Integer expiryMinDuration,
             Integer sendSize) {
-        Date expiryAt = DateUtils.addDays(
-                DateUtils.getCurrentDateAtMidnight(),
-                expirationNotificationLeadInDays
-        );
         List<SubscriptionEntity> subscriptions;
         boolean subscriptionsFound;
         long startId = 0L;
         do {
             LOG.info("Getting subscriptions, start");
             subscriptions = subscriptionRepository.findByExpiry(
-                    startId, pageSize, expiryAt,
-                    expirationNotificationMinDuration,
-                    Arrays.asList(operatorFilter.split(OPERATOR_FILTER_SEPARATOR))
-            );
+                    startId, service.getId(), pageSize, expiryAt, expiryMinDuration);
             subscriptionsFound = subscriptions != null && subscriptions.size() > 0;
 
             if (subscriptionsFound) {
@@ -152,13 +168,11 @@ public class DeliveryManager {
                         subscriptions.size())
                 );
                 startId = subscriptions.get(subscriptions.size() - 1).getId();
-                processExpiringSubscriptions(
+                processExpiringSubscriptions(service,
                         subscriptions,
-                        String.format(
-                                DEFAULT_EXPIRY_MESSAGE,
-                                expirationNotificationLeadInDays
-                        ),
-                        sendSize);
+                        expiryMessage,
+                        sendSize
+                );
             } else {
                 LOG.info(String.format(
                         "Getting subscriptions, end (count %d)",
@@ -279,26 +293,25 @@ public class DeliveryManager {
     }
 
     private void processExpiringSubscriptions(
-            List<SubscriptionEntity> subscriptions, String expiryMessage, Integer sendSize) {
+            ServiceEntity service, List<SubscriptionEntity> subscriptions,
+            String expiryMessage, Integer sendSize) {
         LOG.info("Processing expiring subscriptions, start");
         AbstractMessage message = createExpiryMessage(expiryMessage);
         for (SubscriptionEntity subscription : subscriptions) {
             addPhoneNumberToMessage(subscription, message);
 
             if (((SmsMessage) message).getReceivers().size() >= sendSize) {
-                sendMessage(message, EXPIRY_FROM_NUMBER);
+                sendMessage(message, service.getShortCode());
                 message = createExpiryMessage(expiryMessage);
             }
         }
         // send possible "leftover message"
         if (((SmsMessage) message).getReceivers().size() > 0) {
-            sendMessage(message, EXPIRY_FROM_NUMBER);
+            sendMessage(message, service.getShortCode());
         }
 
         LOG.info("Processing expiring subscriptions, end");
     }
-    // TODO: Should expiry messages come from the actual services short number?
-    private static final int EXPIRY_FROM_NUMBER = 12345;
 
     private AbstractMessage createExpiryMessage(String expiryMessage) {
         // TODO: support also for email message(?)

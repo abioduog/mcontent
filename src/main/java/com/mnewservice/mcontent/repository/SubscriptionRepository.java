@@ -36,9 +36,9 @@ public interface SubscriptionRepository
     @Query(nativeQuery = true)
     List<SubscriptionEntity> findByExpiry(
             @Param("startId") Long startId,
+            @Param("serviceId") Long serviceId,
             @Param("limit") Integer limit,
             @Param("expiryAt") Date expiryAt,
-            @Param("minDuration") Integer minDuration,
-            @Param("operatorFilter") List<String> operatorFilter
+            @Param("minDuration") Integer minDuration
     );
 }

@@ -17,4 +17,6 @@ public interface ServiceRepository extends CrudRepository<ServiceEntity, Long> {
             String keyword, int shortCode, String operator);
 
     public List<ServiceEntity> findByDeliveryTime(DeliveryTime deliveryTime);
+
+    public List<ServiceEntity> findByOperatorNotIn(List<String> operators);
 }

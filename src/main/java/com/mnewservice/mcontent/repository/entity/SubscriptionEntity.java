@@ -38,7 +38,7 @@ import javax.persistence.UniqueConstraint;
         + "    TIMESTAMPDIFF(DAY,p.`start`,p.`end`) >= :minDuration AND "
         + "    p.`end`= DATE(:expiryAt) AND "
         + "    p.`id` > :startId AND "
-        + "    s.service_id NOT IN (SELECT id FROM services WHERE operator IN (:operatorFilter)) "
+        + "    s.service_id = :serviceId "
         + "ORDER BY "
         + "    s.id "
         + "LIMIT "

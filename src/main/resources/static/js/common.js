@@ -8,6 +8,13 @@ function loadToWorkArea(src, event) {
     return false;
 }
 
+function loadToContentEditorViaUrl(url) {
+    $.get( url, function( data ) {
+        $('#content-editor').html( data );
+    });
+    return false;
+}
+
 function loadToContentEditor(src, event) {
     event.preventDefault();
     $.get( $(src).attr('href'), function( data ) {

@@ -1,4 +1,8 @@
 <h1 th:inline="text">Service list</h1>
+<!-- style to look like a button (?) -->
+<a href="serviceDetail.html"
+   th:href="@{/service/create}"
+   th:text="#{general.createNew}" onclick="loadToPopup('Create service', this, event);">Create new</a>
 <div class="service-list" th:unless="${#lists.isEmpty(allServices)}">
     <table class="pure-table">
         <thead>
@@ -20,12 +24,8 @@
                 <td th:text="${service.deliveryPipe.name}">DELIVERY PIPE</td>
                 <td><!-- icon (?) -->
                     <a th:href="@{|/service/${service.id}|}"
-                       th:text="#{general.showDetails}" onclick="loadToPopup('Edit service', this, event);">Show details</a></td>
+                       th:text="#{general.edit}" onclick="loadToPopup('Edit service', this, event);">Edit</a></td>
             </tr>
         </tbody>
     </table>
 </div>
-<!-- style to look like a button (?) -->
-<p><a href="serviceDetail.html"
-      th:href="@{/service/create}"
-      th:text="#{general.createNew}" onclick="loadToPopup('Create service', this, event);">Create new</a></p>

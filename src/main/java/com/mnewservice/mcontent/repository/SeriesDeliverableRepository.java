@@ -15,4 +15,6 @@ public interface SeriesDeliverableRepository
         extends CrudRepository<SeriesDeliverableEntity, Long> {
 
     List<SeriesDeliverableEntity> findByDeliveryPipeOrderByDeliveryDaysAfterSubscriptionAsc(DeliveryPipeEntity deliveryPipe);
+
+    Long countByDeliveryPipeId(Long deliveryPipeId);
 }

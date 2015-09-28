@@ -1,5 +1,5 @@
 <div class="delivery-pipe-detail" th:unless="${#lists.isEmpty(deliveryPipe)}">
-    <form name="detail-form" class="pure-form pure-form-stacked" action="#" th:action="@{/content/deliverypipe/} + ${deliveryPipe.id}"
+    <form name="detail-form" class="pure-form pure-form-stacked" action="#" th:action="@{/deliverypipe/} + ${deliveryPipe.id}"
           method="post">
         <div class="form-fields">
             <div th:if="${error}" class="alert alert-error" th:text="#{deliveryPipe.error}">

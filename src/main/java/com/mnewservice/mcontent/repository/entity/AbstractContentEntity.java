@@ -19,10 +19,10 @@ public abstract class AbstractContentEntity extends AbstractEntity {
 
     protected static final int MESSAGE_MAX_LENGTH = 160;
 
-    private String contentType;
+//    private String contentType;
 
     public abstract String getSummary();
-
+/*
     public String getContentType() {
         return contentType;
     }
@@ -30,5 +30,5 @@ public abstract class AbstractContentEntity extends AbstractEntity {
     public void setContentType(String contentType) {
         this.contentType = contentType;
     }
-
+*/
 }

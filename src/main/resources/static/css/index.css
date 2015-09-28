@@ -1,3 +1,10 @@
+#header {
+    position: fixed;
+    top: 0;
+    border-bottom: 2px solid darkgray;
+    background-color: white;
+    z-index: 2;
+}
 #menu {
     float: left;
     clear: left;
@@ -15,5 +22,77 @@
 #workarea {
     clear: both;
     padding: 10px;
-    border-top: 2px solid darkgray;
+    margin-top: 37px;
+}
+
+
+
+
+
+.content-menu {
+    clear: left;
+    float: left;
+    padding-right: 20px;
+    border-right: 1px solid darkgray;
+}
+
+#content-editor {
+    float: left;
+    margin-left: 20px;
+}
+
+
+
+
+
+
+form[name='content-form']{
+    float: left;
+}
+
+#previewers {
+    float: left;
+    margin-left: 20px;
+}
+
+#previewers > div {
+    margin-bottom: 20px;
+    float: left;
+    clear: left;
+}
+
+#previewers .previewer-content {
+    overflow: hidden;
+}
+
+
+.iphone-previewer {
+    border: 10px solid black;
+    border-top-width: 39px;
+    border-bottom-width: 65px;
+    border-radius: 19px;
+    zoom: 0.4;
+}
+
+.iphone-previewer > .previewer-content {
+    width: 320px;
+    height: 568px;
+}
+
+.ipad-previewer {
+    border: 10px solid black;
+    border-left-width: 39px;
+    border-right-width: 65px;
+    border-radius: 19px;
+    zoom: 0.4;
+}
+
+.ipad-previewer > .previewer-content {
+    width: 1024px;
+    height: 768px;
+}
+
+.note-editor {
+    min-height: 300px;
+    width: 808px;
 }

@@ -1,0 +1,23 @@
+<h1 th:inline="text">[[${deliveryPipe.name}]] content</h1>
+<div class="content-menu">
+    <div class="calendar-menu"></div>
+    <script th:inline="javascript">
+        $(".calendar-menu").clndr({
+            weekOffset: 1,
+            events: /*[[${contents}]]*/ [],
+            clickEvents: {
+                click: function(target) {
+                    var urlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/scheduled/|}]]*/;
+                    if(target.events.length > 0) {
+                        loadToContentEditorViaUrl(urlBase + target.events[0].id);
+                    } else {
+                        console.log(target);
+                        window.debug = target;
+                        loadToContentEditorViaUrl(urlBase + "create?date="+target.date._i);
+                    }
+                }
+            }
+        });
+    </script>
+</div>
+<div id="content-editor"></div>

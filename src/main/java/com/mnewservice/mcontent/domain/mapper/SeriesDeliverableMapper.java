@@ -22,7 +22,11 @@ public class SeriesDeliverableMapper extends AbstractMapper<SeriesDeliverable, S
 
     @Override
     public SeriesDeliverableEntity toEntity(SeriesDeliverable domain) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SeriesDeliverableEntity entity = new SeriesDeliverableEntity();
+        entity.setId(domain.getId());
+        entity.setContent(contentMapper.toEntity(domain.getContent()));
+        entity.setDeliveryDaysAfterSubscription(domain.getDeliveryDaysAfterSubscription());
+        return entity;
     }
 
 }

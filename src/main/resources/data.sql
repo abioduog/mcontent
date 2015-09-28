@@ -57,9 +57,10 @@ VALUES (
 );
 
 INSERT INTO contents (content_type) VALUES ('CUSTOM');
-INSERT INTO custom_contents (id, short_uuid, content) VALUES (
+INSERT INTO custom_contents (id, short_uuid, title, content) VALUES (
         (SELECT id FROM contents WHERE content_type='CUSTOM'),
         '9d37c676-2991-4267-9fcc-1bb133489c8c',
+        'testi-title',
         'testi-content'
 );
 
@@ -112,22 +113,22 @@ VALUES (
         'T1000'
 );
 
-INSERT INTO contents (content_type) VALUES ('RSS');
-INSERT INTO rss_contents (id, title, description, link) VALUES (
-        (SELECT id FROM contents WHERE content_type='RSS'),
-        'testi-rss',
-        'tämä on RSS-testiviesti',
-        'http://www.mnewservice.com/'
+INSERT INTO contents (content_type) VALUES ('CUSTOM');
+INSERT INTO custom_contents (id, short_uuid, title, content) VALUES (
+        (SELECT id FROM contents ORDER BY id DESC LIMIT 1),
+        '82bd331d-c1bb-4788-801a-ff8f99631a9f',
+        'testi-title2',
+        'testi-content2'
 );
 
 INSERT INTO deliverables (content_id, delivery_pipe_id, deliverable_type) VALUES (
-        (SELECT id FROM rss_contents WHERE title='testi-rss'),
+        (SELECT id FROM contents ORDER BY id DESC LIMIT 1),
         (SELECT id FROM delivery_pipes WHERE name='Test pipe 2'),
         'SCHEDULED'
 );
 INSERT INTO scheduled_deliverables (id, delivery_date) VALUES (
         (SELECT id FROM deliverables WHERE
-                content_id=(SELECT id FROM rss_contents WHERE title='testi-rss') AND
+                content_id=(SELECT id FROM contents ORDER BY id DESC LIMIT 1) AND
                 delivery_pipe_id=(SELECT id FROM delivery_pipes WHERE name='Test pipe 2') AND
                 deliverable_type='SCHEDULED'
         ),

@@ -8,18 +8,30 @@ import org.springframework.stereotype.Component;
 @Component
 public class ContentMapper extends AbstractMapper<Content, AbstractContentEntity> {
 
+    @Override
     public Content toDomain(AbstractContentEntity entity) {
-        Content domain = new Content();
-        domain.setTitle(entity.getSummary());
-        if (entity instanceof CustomContentEntity) {
-            CustomContentEntity custom = (CustomContentEntity) entity;
-            domain.setContent(custom.getContent());
+        if(entity instanceof CustomContentEntity) {
+            return toDomain((CustomContentEntity)entity);
+        } else {
+            return null;
         }
+    }
+
+    public Content toDomain(CustomContentEntity entity) {
+        Content domain = new Content();
+        domain.setId(entity.getId());
+        domain.setUuid(entity.getShortUuid());
+        domain.setTitle(entity.getTitle());
+        domain.setContent(entity.getContent());
         return domain;
     }
 
     @Override
-    public AbstractContentEntity toEntity(Content domain) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public CustomContentEntity toEntity(Content domain) {
+        CustomContentEntity entity = new CustomContentEntity();
+        entity.setId(domain.getId());
+        entity.setTitle(domain.getTitle());
+        entity.setContent(domain.getContent());
+        return entity;
     }
 }

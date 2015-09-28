@@ -6,8 +6,8 @@
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"/>
-        <link rel="stylesheet" href="css/lib/pure-0.6.0.min.css"/>
-        <link rel="stylesheet" href="css/show.css"/>
+        <link rel="stylesheet" href="/mContent/css/lib/pure-0.6.0.min.css"/>
+        <link rel="stylesheet" href="/mContent/css/show.css"/>
     </head>
     <body>
         <div id="header">
@@ -15,7 +15,7 @@
                 Adds goes here
             </div>
         </div>
-        <div id="workarea" th:text="${content.content}">
+        <div id="workarea" th:utext="${content.content}">
 
         </div>
         <div id="footer">
@@ -26,8 +26,8 @@
                 <a href="#">Active subscriptions</a> | <a href="#">Discover content</a> | <a onclick="$('#logout').submit();">Logout</a>
             </div>
         </div>
-        <script src="js/lib/jquery-2.1.4.min.js"></script>
+        <script src="/mContent/js/lib/jquery.min.js"></script>
         <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-        <script src="js/show.js"></script>
+        <script src="/mContent/js/show.js"></script>
     </body>
 </html>

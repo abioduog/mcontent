@@ -19,6 +19,8 @@ public class CustomContentEntity extends AbstractContentEntity {
     @Column(updatable = false)
     private String shortUuid;
     private String title;
+
+    @Column(length=Integer.MAX_VALUE)
     private String content; // html
 
     @Override

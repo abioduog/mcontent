@@ -51,8 +51,9 @@ VALUES (
         'Popular Content',
         'Provides the most popular content shared on the Social Media.'
 );
-INSERT INTO binary_contents (name, content) VALUES (
-        'Popularity Agreement',
+INSERT INTO binary_contents (name, content_type, content) VALUES (
+        'popularity_agreement.txt',
+        'text/plain',
         'testisopimus'
 );
 INSERT INTO providers_correspondences (
@@ -60,7 +61,7 @@ INSERT INTO providers_correspondences (
         correspondences_id)
 VALUES (
         (SELECT id FROM providers WHERE name='Popular Provider'),
-        (SELECT id FROM binary_contents WHERE name='Popularity Agreement')
+        (SELECT id FROM binary_contents WHERE name='popularity_agreement.txt')
 );
 
 INSERT INTO users (username, password, active) VALUES (

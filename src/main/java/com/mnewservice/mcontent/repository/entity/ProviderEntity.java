@@ -22,21 +22,21 @@ public class ProviderEntity extends AbstractEntity {
     private String state;
     private String country;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private PhoneNumberEntity phone;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private EmailEntity email;
 
     // ** login info **
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private UserEntity user;
 
     // ** contact info **
     private String nameOfContactPerson;
     private String positionOfContactPerson;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private PhoneNumberEntity phoneOfContactPerson;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private EmailEntity emailOfContactPerson;
 
     // ** service info **

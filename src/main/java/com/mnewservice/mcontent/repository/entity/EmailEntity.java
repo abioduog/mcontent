@@ -2,13 +2,19 @@ package com.mnewservice.mcontent.repository.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 /**
  *
  * @author Marko Tuononen <marko.tuononen at nolwenture.com>
  */
 @Entity
-@Table(name = "emails")
+@Table(
+        name = "emails",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"address"}
+        )
+)
 public class EmailEntity extends AbstractEntity {
 
     private String address;

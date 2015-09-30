@@ -13,7 +13,6 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -53,6 +52,7 @@ public class CorrespondenceController {
         }
 
         try {
+            response.setContentType(correspondence.getContentType());
             InputStream is = new ByteArrayInputStream(correspondence.getContent());
             IOUtils.copy(is, response.getOutputStream());
             response.flushBuffer();

@@ -1,4 +1,4 @@
-package com.mnewservice.mcontent.web.formatter;
+package com.mnewservice.mcontent.domain.formatter;
 
 import com.mnewservice.mcontent.domain.User;
 import com.mnewservice.mcontent.manager.UserManager;

@@ -1,5 +1,6 @@
 package com.mnewservice.mcontent.domain;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -22,6 +23,15 @@ public class Provider {
     private String contentName;
     private String contentDescription;
     private Collection<BinaryContent> correspondences;
+
+    public Provider() {
+        phone = new PhoneNumber();
+        email = new Email();
+        user = new User();
+        phoneOfContactPerson = new PhoneNumber();
+        emailOfContactPerson = new Email();
+        correspondences = new ArrayList<>();
+    }
 
     public Long getId() {
         return id;

@@ -7,13 +7,19 @@ import java.util.stream.Collectors;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 /**
  *
  * @author Marko Tuononen <marko.tuononen at nolwenture.com>
  */
 @Entity
-@Table(name = "users")
+@Table(
+        name = "users",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"username"}
+        )
+)
 public class UserEntity extends AbstractEntity {
 
     private String username;

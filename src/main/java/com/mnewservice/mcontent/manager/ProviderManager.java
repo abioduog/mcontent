@@ -51,4 +51,10 @@ public class ProviderManager {
         return (repository.save(entity) != null);
     }
 
+    public Provider saveProvider(Provider provider) {
+        LOG.info("Saving provider with id=" + provider.getId());
+        ProviderEntity entity = mapper.toEntity(provider);
+        return mapper.toDomain(repository.save(entity));
+    }
+
 }

@@ -20,6 +20,7 @@ public class BinaryContentMapper
         BinaryContent domain = new BinaryContent();
         domain.setId(entity.getId());
         domain.setName(entity.getName());
+        domain.setContentType(entity.getContentType());
         domain.setContent(entity.getContent());
         return domain;
     }
@@ -32,6 +33,7 @@ public class BinaryContentMapper
         BinaryContentEntity entity = new BinaryContentEntity();
         entity.setId(domain.getId());
         entity.setName(domain.getName());
+        entity.setContentType(domain.getContentType());
         entity.setContent(domain.getContent());
         return entity;
     }

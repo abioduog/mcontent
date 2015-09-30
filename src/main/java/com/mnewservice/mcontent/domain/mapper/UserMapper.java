@@ -28,7 +28,6 @@ public class UserMapper extends AbstractMapper<User, UserEntity> {
         domain.setId(entity.getId());
         domain.setUsername(entity.getUsername());
         domain.setPassword(entity.getPassword());
-        domain.setEmail(entity.getEmail());
         domain.setActive(entity.isActive());
         domain.setRoles(roleMapper.toDomain(entity.getRoles()));
 
@@ -45,7 +44,6 @@ public class UserMapper extends AbstractMapper<User, UserEntity> {
         entity.setId(domain.getId());
         entity.setUsername(domain.getUsername());
         entity.setPassword(domain.getPassword());
-        entity.setEmail(domain.getEmail());
         entity.setActive(domain.isActive());
         Collection<RoleEntity> roles = roleMapper.toEntity(domain.getRoles());
         entity.setRoles(roles == null ? null : roles.stream().collect(Collectors.toSet()));

@@ -12,8 +12,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class PhoneNumberMapper extends AbstractMapper<PhoneNumber, PhoneNumberEntity> {
 
-    private static final Logger LOG = Logger.getLogger(PhoneNumberMapper.class);
-
     @Override
     public PhoneNumber toDomain(PhoneNumberEntity entity) {
         if (entity == null) {
@@ -21,9 +19,7 @@ public class PhoneNumberMapper extends AbstractMapper<PhoneNumber, PhoneNumberEn
         }
 
         PhoneNumber domain = new PhoneNumber();
-        LOG.debug("mapping id: " + entity.getId());
         domain.setId(entity.getId());
-        LOG.debug("mapping number: " + entity.getNumber());
         domain.setNumber(entity.getNumber());
 
         return domain;
@@ -36,9 +32,7 @@ public class PhoneNumberMapper extends AbstractMapper<PhoneNumber, PhoneNumberEn
         }
 
         PhoneNumberEntity entity = new PhoneNumberEntity();
-        LOG.debug("mapping id: " + domain.getId());
         entity.setId(domain.getId());
-        LOG.debug("mapping number: " + domain.getNumber());
         entity.setNumber(domain.getNumber());
 
         return entity;

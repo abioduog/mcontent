@@ -10,6 +10,9 @@ public class ContentMapper extends AbstractMapper<Content, AbstractContentEntity
 
     @Override
     public Content toDomain(AbstractContentEntity entity) {
+        if (entity == null) {
+            return null;
+        }
         if(entity instanceof CustomContentEntity) {
             return toDomain((CustomContentEntity)entity);
         } else {

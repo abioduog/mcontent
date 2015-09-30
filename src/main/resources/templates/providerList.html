@@ -3,22 +3,26 @@
     <table class="pure-table">
         <thead>
             <tr>
-                <th th:text="#{provider.username}">Username</th>
+                <th th:text="#{provider.name}">Name</th>
                 <th th:text="#{provider.email}">Email</th>
-                <th th:text="#{provider.status}">Status</th>
+                <th th:text="#{user.status}">Status</th>
+                <th>&nbsp;</th>
                 <th>&nbsp;</th>
             </tr>
         </thead>
         <tbody>
             <tr th:each="provider : ${allProviders}">
-                <td th:text="${provider.username}">NAME</td>
-                <td th:text="${provider.email}">EMAIL</td>
-                <td th:text="${provider.active} ? #{provider.status.active} : #{provider.status.inactive}">ACTIVE</td>
+                <td th:text="${provider.name}">NAME</td>
+                <td th:text="${provider.email.address}">EMAIL</td>
+                <td th:text="${provider.user.active} ? #{user.status.active} : #{user.status.inactive}">ACTIVE</td>
                 <td><!-- icon (?) -->
-                    <a th:unless="${provider.active}" th:href="@{|/provider/${provider.id}/activate|}" th:text="#{provider.status.activate}" onclick="callSimpleAction(this, event);">Activate</a>
-                    <a th:if="${provider.active}" th:href="@{|/provider/${provider.id}/deactivate|}" th:text="#{provider.status.deactivate}" onclick="callSimpleAction(this, event);">Deactivate</a>
+                    <a th:unless="${provider.user.active}" th:href="@{|/user/${provider.user.id}/activate|}" th:text="#{user.status.activate}" onclick="callSimpleAction(this, event);">Activate</a>
+                    <a th:if="${provider.user.active}" th:href="@{|/user/${provider.user.id}/deactivate|}" th:text="#{user.status.deactivate}" onclick="callSimpleAction(this, event);">Deactivate</a>
                 </td>
-            </tr>   
+                <td><!-- icon (?) -->
+                    <a th:href="@{|/provider/${provider.id}|}"
+                       th:text="#{general.showDetails}" onclick="loadToPopup('View provider', this, event);">Show details</a></td>
+            </tr>
         </tbody>
     </table>
 </div>

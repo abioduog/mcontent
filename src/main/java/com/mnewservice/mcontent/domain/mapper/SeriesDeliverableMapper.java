@@ -13,6 +13,9 @@ public class SeriesDeliverableMapper extends AbstractMapper<SeriesDeliverable, S
 
     @Override
     public SeriesDeliverable toDomain(SeriesDeliverableEntity entity) {
+        if (entity == null) {
+            return null;
+        }
         SeriesDeliverable domain = new SeriesDeliverable();
         domain.setId(entity.getId());
         domain.setContent(contentMapper.toDomain(entity.getContent()));

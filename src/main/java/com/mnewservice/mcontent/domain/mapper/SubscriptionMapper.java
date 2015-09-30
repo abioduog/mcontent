@@ -24,8 +24,6 @@ public class SubscriptionMapper extends AbstractMapper<Subscription, Subscriptio
     @Autowired
     private SubscriptionPeriodMapper subscriptionPeriodMapper;
 
-    private static final Logger LOG = Logger.getLogger(SubscriptionMapper.class);
-
     @Override
     public Subscription toDomain(SubscriptionEntity entity) {
         if (entity == null) {
@@ -41,18 +39,14 @@ public class SubscriptionMapper extends AbstractMapper<Subscription, Subscriptio
         }
 
         SubscriptionEntity entity = new SubscriptionEntity();
-
-        LOG.debug("mapping id: " + domain.getId());
         entity.setId(domain.getId());
-
-        LOG.debug("mapping service: " + domain.getService());
         entity.setService(serviceMapper.toEntity(domain.getService()));
-
-        LOG.debug("mapping subscriber: " + domain.getSubscriber());
         entity.setSubscriber(subscriberMapper.toEntity(domain.getSubscriber()));
-
-        LOG.debug("mapping periods: " + domain.getPeriods());
-        entity.setPeriods(subscriptionPeriodMapper.toEntity(domain.getPeriods()).stream().collect(Collectors.toSet()));
+        entity.setPeriods(
+                subscriptionPeriodMapper.toEntity(
+                        domain.getPeriods()).stream().collect(Collectors.toSet()
+                )
+        );
 
         return entity;
     }

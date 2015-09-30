@@ -1,6 +1,8 @@
 package com.mnewservice.mcontent.web;
 
-import com.mnewservice.mcontent.web.formatter.UserFormatter;
+import com.mnewservice.mcontent.domain.converter.StringToEmailConverter;
+import com.mnewservice.mcontent.domain.converter.StringToPhoneNumberConverter;
+import com.mnewservice.mcontent.domain.formatter.UserFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration.WebMvcAutoConfigurationAdapter;
 import org.springframework.context.annotation.Configuration;
@@ -17,9 +19,17 @@ public class MvcConfig extends WebMvcAutoConfigurationAdapter {
     @Autowired
     private UserFormatter userFormatter;
 
+    @Autowired
+    private StringToPhoneNumberConverter stringToPhoneNumberConverter;
+
+    @Autowired
+    private StringToEmailConverter stringToEmailConverter;
+
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addFormatter(userFormatter);
+        registry.addConverter(stringToPhoneNumberConverter);
+        registry.addConverter(stringToEmailConverter);
     }
 
     @Override

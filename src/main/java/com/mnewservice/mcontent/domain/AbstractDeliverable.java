@@ -6,6 +6,7 @@ public abstract class AbstractDeliverable {
 
     protected Long id;
     protected Content content;
+    protected DeliverableStatus status;
 
     public AbstractDeliverable(DeliverableType type) {
         this.type = type;
@@ -26,6 +27,14 @@ public abstract class AbstractDeliverable {
 
     public void setContent(Content content) {
         this.content = content;
+    }
+
+    public DeliverableStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(DeliverableStatus status) {
+        this.status = status;
     }
 
 }

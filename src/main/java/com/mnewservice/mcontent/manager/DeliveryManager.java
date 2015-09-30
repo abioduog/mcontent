@@ -12,6 +12,7 @@ import com.mnewservice.mcontent.repository.SeriesDeliverableRepository;
 import com.mnewservice.mcontent.repository.ServiceRepository;
 import com.mnewservice.mcontent.repository.SubscriptionRepository;
 import com.mnewservice.mcontent.repository.entity.AbstractContentEntity;
+import com.mnewservice.mcontent.repository.entity.AbstractDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.ScheduledDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.SeriesDeliverableEntity;
@@ -182,9 +183,10 @@ public class DeliveryManager {
             DeliveryPipeEntity deliveryPipe) {
         LOG.info("Getting scheduled deliverables, start");
         ScheduledDeliverableEntity scheduledDeliverable
-                = scheduledDeliverableRepository.findByDeliveryPipeAndDeliveryDate(
+                = scheduledDeliverableRepository.findByDeliveryPipeAndDeliveryDateAndStatus(
                         deliveryPipe,
-                        DateUtils.getCurrentDateAtMidnight()
+                        DateUtils.getCurrentDateAtMidnight(),
+                        AbstractDeliverableEntity.DeliverableStatusEnum.APPROVED
                 );
         LOG.info(String.format(
                 "Getting scheduled deliverables, end (count %d)",
@@ -208,7 +210,9 @@ public class DeliveryManager {
     private SeriesDeliverableEntity[] getSeriesDeliverables(DeliveryPipeEntity deliveryPipe) {
         LOG.info("Getting series deliverables, start");
         List<SeriesDeliverableEntity> seriesDeliverables
-                = seriesDeliverableRepository.findByDeliveryPipeOrderByDeliveryDaysAfterSubscriptionAsc(deliveryPipe);
+                = seriesDeliverableRepository.findByDeliveryPipeAndStatusOrderByDeliveryDaysAfterSubscriptionAsc(
+                        deliveryPipe,
+                        AbstractDeliverableEntity.DeliverableStatusEnum.APPROVED);
         SeriesDeliverableEntity[] seriesDeliverablesOrdered
                 = new SeriesDeliverableEntity[MAXIMUM_LENGTH_FOR_SERIES + 1];
         for (SeriesDeliverableEntity deliverable : seriesDeliverables) {

@@ -11,6 +11,9 @@ public class SeriesDeliverableMapper extends AbstractMapper<SeriesDeliverable, S
     @Autowired
     private ContentMapper contentMapper;
 
+    @Autowired
+    private DeliverableStatusMapper deliverableStatusMapper;
+
     @Override
     public SeriesDeliverable toDomain(SeriesDeliverableEntity entity) {
         if (entity == null) {
@@ -18,6 +21,7 @@ public class SeriesDeliverableMapper extends AbstractMapper<SeriesDeliverable, S
         }
         SeriesDeliverable domain = new SeriesDeliverable();
         domain.setId(entity.getId());
+        domain.setStatus(deliverableStatusMapper.toDomain(entity.getStatus()));
         domain.setContent(contentMapper.toDomain(entity.getContent()));
         domain.setDeliveryDaysAfterSubscription(entity.getDeliveryDaysAfterSubscription());
         return domain;
@@ -25,8 +29,12 @@ public class SeriesDeliverableMapper extends AbstractMapper<SeriesDeliverable, S
 
     @Override
     public SeriesDeliverableEntity toEntity(SeriesDeliverable domain) {
+        if (domain == null) {
+            return null;
+        }
         SeriesDeliverableEntity entity = new SeriesDeliverableEntity();
         entity.setId(domain.getId());
+        entity.setStatus(deliverableStatusMapper.toEntity(domain.getStatus()));
         entity.setContent(contentMapper.toEntity(domain.getContent()));
         entity.setDeliveryDaysAfterSubscription(domain.getDeliveryDaysAfterSubscription());
         return entity;

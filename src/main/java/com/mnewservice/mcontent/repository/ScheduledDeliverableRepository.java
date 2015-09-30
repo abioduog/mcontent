@@ -1,5 +1,6 @@
 package com.mnewservice.mcontent.repository;
 
+import com.mnewservice.mcontent.repository.entity.AbstractDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.ScheduledDeliverableEntity;
 import java.util.Date;
@@ -15,8 +16,9 @@ import org.springframework.stereotype.Repository;
 public interface ScheduledDeliverableRepository
         extends CrudRepository<ScheduledDeliverableEntity, Long> {
 
-    ScheduledDeliverableEntity findByDeliveryPipeAndDeliveryDate(
-            DeliveryPipeEntity deliveryPipe, Date deliveryDate);
+    ScheduledDeliverableEntity findByDeliveryPipeAndDeliveryDateAndStatus(
+            DeliveryPipeEntity deliveryPipe, Date deliveryDate,
+            AbstractDeliverableEntity.DeliverableStatusEnum status);
 
     List<ScheduledDeliverableEntity> findByDeliveryPipeOrderByDeliveryDateAsc(DeliveryPipeEntity entity);
 }

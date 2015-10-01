@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class SubscriberController {
 
-    private static final Logger LOG
-            = Logger.getLogger(SubscriberController.class);
-
     @Autowired
     private SubscriberManager subscriberManager;
 

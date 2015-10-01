@@ -168,7 +168,7 @@ public class SubscriptionManager {
                 phoneNumberMapper.toDomain(savedEntity.getSubscriber().getPhone())
         );
 
-        sendMessge(message, savedEntity.getService().getShortCode());
+        sendMessage(message, savedEntity.getService().getShortCode());
     }
 
     private void sendRenewMessage(SubscriptionEntity savedEntity) {
@@ -180,7 +180,7 @@ public class SubscriptionManager {
                 phoneNumberMapper.toDomain(savedEntity.getSubscriber().getPhone())
         );
 
-        sendMessge(message, savedEntity.getService().getShortCode());
+        sendMessage(message, savedEntity.getService().getShortCode());
     }
 
     @Transactional
@@ -249,7 +249,7 @@ public class SubscriptionManager {
                 phoneNumberMapper.toDomain(savedEntity.getSubscriber().getPhone())
         );
 
-        sendMessge(message, savedEntity.getService().getShortCode());
+        sendMessage(message, savedEntity.getService().getShortCode());
     }
 
     private SmsMessage createSmsMessage(String content, PhoneNumber receiver) {
@@ -259,13 +259,12 @@ public class SubscriptionManager {
         return message;
     }
 
-    private void sendMessge(SmsMessage message, int shortCode) {
+    private void sendMessage(SmsMessage message, int shortCode) {
         try {
             messageCenter.sendMessage(message, shortCode);
         } catch (MessagingException ex) {
             LOG.error("Sending message failed: " + ex.getMessage());
             throw new RuntimeException(ex);
-        } finally {
         }
     }
 }

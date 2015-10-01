@@ -10,8 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  */
 public class PasswordEncrypter {
 
-    private static final Logger LOG = Logger.getLogger(PasswordEncrypter.class);
-
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private static PasswordEncrypter instance;
 

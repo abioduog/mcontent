@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProviderRepository extends CrudRepository<ProviderEntity, Long> {
 
-    public ProviderEntity findByCorrespondencesId(Long correspondencesId);
+    ProviderEntity findByCorrespondencesId(Long correspondencesId);
 
-    public ProviderEntity findByUserId(Long userId);
+    ProviderEntity findByUserId(Long userId);
 
 }

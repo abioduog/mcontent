@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -47,7 +45,6 @@ public class MessageCenter {
             = "START: Sending message '%s' from %s to %s";
     private static final String MESSAGE_END_SENDING = "END: Sending message";
 
-    private static final String ERROR_NOT_IMPLEMENTED = "Not implemented";
     private static final String ERROR_URI_SYNTAX = "Error in URI syntax: %s";
     private static final String ERROR_ILLEGAL_NUMBER_OF_RECEIVERS
             = "Illegal number of receivers (valid range %d-%d)";

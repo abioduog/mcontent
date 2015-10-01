@@ -1,13 +1,17 @@
 package com.mnewservice.mcontent.web;
 
 import com.mnewservice.mcontent.domain.BinaryContent;
+import com.mnewservice.mcontent.domain.Email;
+import com.mnewservice.mcontent.domain.EmailMessage;
 import com.mnewservice.mcontent.domain.Provider;
 import com.mnewservice.mcontent.domain.Role;
-import com.mnewservice.mcontent.domain.Service;
+import com.mnewservice.mcontent.domain.SmsMessage;
 import com.mnewservice.mcontent.domain.User;
 import com.mnewservice.mcontent.manager.ProviderManager;
 import com.mnewservice.mcontent.manager.UserManager;
+import com.mnewservice.mcontent.messaging.MessageCenter;
 import com.mnewservice.mcontent.security.PasswordEncrypter;
+import com.mnewservice.mcontent.util.exception.MessagingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -40,11 +45,20 @@ public class ProviderController {
     private static final Logger LOG
             = Logger.getLogger(ProviderController.class);
 
+    @Value("${application.notification.admin.addresses}")
+    private String[] notificationAdminAddresses;
+
+    @Value("${application.notification.from.address}")
+    private String notificationFromAddress;
+
     @Autowired
     private UserManager userManager;
 
     @Autowired
     private ProviderManager providerManager;
+
+    @Autowired
+    private MessageCenter messageCenter;
 
     @ModelAttribute("allProviders")
     public List<Provider> populateProviders() {
@@ -97,6 +111,14 @@ public class ProviderController {
 
                 mav = new ModelAndView("providerRegistered");
                 mav.addObject("provider", savedProvider);
+
+                //  TODO: which subject?
+                String notificationSubject = "notification";
+                //  TODO: which message to send?
+                String notificationMessage = "provider created";
+
+                notify(notificationSubject, notificationMessage);
+
             } catch (Exception ex) {
                 LOG.error(ex);
                 mav.addObject("provider", provider);
@@ -152,6 +174,48 @@ public class ProviderController {
         );
         user.setActive(false);
         return user;
+    }
+
+    private void notify(String notificationSubject, String notificationMessage) {
+        EmailMessage message = new EmailMessage();
+        message.setSender(createEmail(notificationFromAddress));
+        message.getReceivers().addAll(createEmails(notificationAdminAddresses));
+        message.setSubject(notificationSubject);
+        message.setMessage(notificationMessage);
+
+        sendMessage(message);
+    }
+
+    private void sendMessage(EmailMessage message) {
+        LOG.info(String.format(
+                "Sending message, start (%d receivers)",
+                message.getReceivers().size())
+        );
+        try {
+            messageCenter.sendMessage(message);
+        } catch (MessagingException ex) {
+            LOG.error("Sending message failed: " + ex.getMessage());
+        } finally {
+            LOG.info("Sending message, end");
+        }
+    }
+
+    private Collection<Email> createEmails(String[] addresses) {
+        if (notificationAdminAddresses == null) {
+            return null;
+        }
+        Collection<Email> emails = new ArrayList<>();
+        for (String address : addresses) {
+            Email email = createEmail(address);
+            emails.add(email);
+        }
+        return emails;
+    }
+
+    private Email createEmail(String address) {
+        Email email = new Email();
+        email.setAddress(address);
+        return email;
     }
 
 }

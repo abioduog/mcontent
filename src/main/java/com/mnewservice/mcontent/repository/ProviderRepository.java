@@ -13,4 +13,6 @@ public interface ProviderRepository extends CrudRepository<ProviderEntity, Long>
 
     public ProviderEntity findByCorrespondencesId(Long correspondencesId);
 
+    public ProviderEntity findByUserId(Long userId);
+
 }

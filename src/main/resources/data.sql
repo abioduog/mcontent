@@ -185,10 +185,11 @@ INSERT INTO custom_contents (id, short_uuid, title, content) VALUES (
         'testi-content'
 );
 
-INSERT INTO deliverables (content_id, delivery_pipe_id, deliverable_type) VALUES (
+INSERT INTO deliverables (content_id, delivery_pipe_id, deliverable_type, status) VALUES (
         (SELECT id FROM custom_contents WHERE short_uuid='9d37c676-2991-4267-9fcc-1bb133489c8c'),
         (SELECT id FROM delivery_pipes WHERE name='Test pipe'),
-        'SERIES'
+        'SERIES',
+        'PENDING_APPROVAL'
 );
 INSERT INTO series_deliverables (id, delivery_days_after_subscription) VALUES (
         (SELECT id FROM deliverables WHERE
@@ -242,10 +243,11 @@ INSERT INTO custom_contents (id, short_uuid, title, content) VALUES (
         'testi-content2'
 );
 
-INSERT INTO deliverables (content_id, delivery_pipe_id, deliverable_type) VALUES (
+INSERT INTO deliverables (content_id, delivery_pipe_id, deliverable_type, status) VALUES (
         (SELECT id FROM contents ORDER BY id DESC LIMIT 1),
         (SELECT id FROM delivery_pipes WHERE name='Test pipe 2'),
-        'SCHEDULED'
+        'SCHEDULED',
+        'PENDING_APPROVAL'
 );
 INSERT INTO scheduled_deliverables (id, delivery_date) VALUES (
         (SELECT id FROM deliverables WHERE

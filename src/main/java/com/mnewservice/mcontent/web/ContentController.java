@@ -2,15 +2,20 @@ package com.mnewservice.mcontent.web;
 
 import com.mnewservice.mcontent.domain.*;
 import com.mnewservice.mcontent.manager.DeliveryPipeManager;
+import com.mnewservice.mcontent.manager.NotificationManager;
+import com.mnewservice.mcontent.manager.ProviderManager;
 import com.mnewservice.mcontent.manager.UserManager;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -18,6 +23,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -31,6 +37,12 @@ public class ContentController {
 
     @Autowired
     private UserManager userManager;
+
+    @Autowired
+    private ProviderManager providerManager;
+
+    @Autowired
+    private NotificationManager notificationManager;
 
     @ModelAttribute("allDeliverableTypes")
     public List<DeliverableType> populateDeliverableTypes() {
@@ -136,29 +148,113 @@ public class ContentController {
 
 //<editor-fold defaultstate="collapsed" desc="Series content">
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/create"})
-    public ModelAndView createSeriesContent(@PathVariable("deliveryPipeId") long deliveryPipeId) {
+    public ModelAndView createSeriesContent(
+            @PathVariable("deliveryPipeId") long deliveryPipeId) {
         ModelAndView mav = new ModelAndView("content");
         SeriesDeliverable newDeliverable = new SeriesDeliverable();
         newDeliverable.setContent(new Content());
 
         mav.addObject("deliveryPipeId", deliveryPipeId);
-        mav.addObject("deliverable", deliveryPipeManager.saveSeriesContent(deliveryPipeId, newDeliverable));
+        mav.addObject(
+                "deliverable",
+                deliveryPipeManager.saveSeriesContent(deliveryPipeId, newDeliverable));
+
+        //  TODO: which subject?
+        String notificationSubject = "notification";
+        //  TODO: which message to send?
+        String notificationMessage = "new content has been created: " + "series";
+
+        notificationManager.notifyAdmin(notificationSubject, notificationMessage);
         return mav;
     }
 
     @RequestMapping({"/deliverypipe/{deliveryPipeId}/series/{contentId}"})
-    public ModelAndView viewSeriesContent(@PathVariable("deliveryPipeId") long deliveryPipeId, @PathVariable("contentId") long contentId) {
+    public ModelAndView viewSeriesContent(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId) {
         ModelAndView mav = new ModelAndView("content");
         mav.addObject("deliveryPipeId", deliveryPipeId);
-        mav.addObject("deliverable", deliveryPipeManager.getSeriesContent(contentId));
+        mav.addObject(
+                "deliverable",
+                deliveryPipeManager.getSeriesContent(contentId));
         return mav;
+    }
+
+    @RequestMapping({"/deliverypipe/{deliveryPipeId}/series/{contentId}/approve"})
+    @ResponseStatus(value = HttpStatus.OK)
+    public void approveSeriesContent(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId) throws Exception {
+        SeriesDeliverable content = getSeriesContent(contentId, DeliverableStatus.APPROVED);
+        DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
+
+        content.setStatus(DeliverableStatus.APPROVED);
+        deliveryPipeManager.saveSeriesContent(deliveryPipeId, content);
+
+        String notificationSubject = "notification";
+        String notificationMessage = "series deliverable was approved";
+        notify(deliveryPipe.getProviders(), notificationSubject, notificationMessage);
+    }
+
+    private DeliveryPipe getDeliveryPipe(long deliveryPipeId) throws Exception {
+        DeliveryPipe deliveryPipe = deliveryPipeManager.getDeliveryPipe(deliveryPipeId);
+        if (deliveryPipe == null) {
+            throw new IllegalArgumentException(
+                    "delivery pipe was not found with id=" + deliveryPipeId);
+        }
+        return deliveryPipe;
+    }
+
+    private SeriesDeliverable getSeriesContent(long contentId,
+            DeliverableStatus disallowedStatus) throws Exception {
+        SeriesDeliverable content = deliveryPipeManager.getSeriesContent(contentId);
+        if (content == null) {
+            throw new IllegalArgumentException(
+                    "series deliverable was not found with id=" + contentId);
+        }
+        if (disallowedStatus.equals(content.getStatus())) {
+            throw new IllegalStateException(
+                    "series deliverable is already on the desired state");
+        }
+        return content;
+    }
+
+    @RequestMapping({"/deliverypipe/{deliveryPipeId}/series/{contentId}/disapprove"})
+    @ResponseStatus(value = HttpStatus.OK)
+    public void disapproveSeriesContent(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId) throws Exception {
+        SeriesDeliverable content
+                = getSeriesContent(contentId, DeliverableStatus.PENDING_APPROVAL);
+        DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
+
+        content.setStatus(DeliverableStatus.PENDING_APPROVAL);
+        deliveryPipeManager.saveSeriesContent(deliveryPipeId, content);
+
+        String notificationSubject = "notification";
+        String notificationMessage = "series deliverable was disapproved";
+        notify(deliveryPipe.getProviders(), notificationSubject, notificationMessage);
+    }
+
+    private void notify(Collection<User> users, String notificationSubject,
+            String notificationMessage) {
+        Collection<Provider> providers = new ArrayList<>();
+        for (User user : users) {
+            Provider provider = providerManager.findByUserId(user.getId());
+            if (provider != null) {
+                providers.add(provider);
+            }
+        }
+
+        notificationManager.notifyProviders(
+                providers, notificationSubject, notificationMessage);
     }
 
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/{contentId}"}, params = {"save"})
     public ModelAndView saveSeriesContent(@PathVariable("deliveryPipeId") long deliveryPipeId, @PathVariable("contentId") long contentId,
-                                             final SeriesDeliverable deliverable,
-                                             final BindingResult bindingResult,
-                                             final ModelMap model) {
+            final SeriesDeliverable deliverable,
+            final BindingResult bindingResult,
+            final ModelMap model) {
         ModelAndView mav = new ModelAndView("content");
 
         if (bindingResult.hasErrors()) {
@@ -198,6 +294,13 @@ public class ContentController {
         }
         mav.addObject("deliveryPipeId", deliveryPipeId);
         mav.addObject("deliverable", deliveryPipeManager.saveScheduledContent(deliveryPipeId, newDeliverable));
+
+        //  TODO: which subject?
+        String notificationSubject = "notification";
+        //  TODO: which message to send?
+        String notificationMessage = "new content has been created: " + "scheduled";
+
+        notificationManager.notifyAdmin(notificationSubject, notificationMessage);
         return mav;
     }
 
@@ -238,9 +341,54 @@ public class ContentController {
 
         return mav;
     }
+
+    @RequestMapping({"/deliverypipe/{deliveryPipeId}/scheduled/{contentId}/approve"})
+    @ResponseStatus(value = HttpStatus.OK)
+    public void approveScheduledContent(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId) throws Exception {
+        ScheduledDeliverable content = getScheduledContent(contentId, DeliverableStatus.APPROVED);
+        DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
+
+        content.setStatus(DeliverableStatus.APPROVED);
+        deliveryPipeManager.saveScheduledContent(deliveryPipeId, content);
+
+        String notificationSubject = "notification";
+        String notificationMessage = "scheduled deliverable was approved";
+        notify(deliveryPipe.getProviders(), notificationSubject, notificationMessage);
+    }
+
+    @RequestMapping({"/deliverypipe/{deliveryPipeId}/scheduled/{contentId}/disapprove"})
+    @ResponseStatus(value = HttpStatus.OK)
+    public void disapproveScheduledContent(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId) throws Exception {
+        ScheduledDeliverable content = getScheduledContent(contentId, DeliverableStatus.PENDING_APPROVAL);
+        DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
+
+        content.setStatus(DeliverableStatus.PENDING_APPROVAL);
+        deliveryPipeManager.saveScheduledContent(deliveryPipeId, content);
+
+        String notificationSubject = "notification";
+        String notificationMessage = "scheduled deliverable was disapproved";
+        notify(deliveryPipe.getProviders(), notificationSubject, notificationMessage);
+    }
+
+    private ScheduledDeliverable getScheduledContent(long contentId,
+            DeliverableStatus disallowedStatus) {
+        ScheduledDeliverable content = deliveryPipeManager.getScheduledContent(contentId);
+        if (content == null) {
+            throw new IllegalArgumentException(
+                    "scheduled deliverable was not found with id=" + contentId);
+        }
+        if (disallowedStatus.equals(content.getStatus())) {
+            throw new IllegalStateException(
+                    "scheduled deliverable is already on the desired state");
+        }
+        return content;
+    }
+
 //</editor-fold>
-
-
     @RequestMapping({"/show/a/{short_uuid}"})
     public ModelAndView showContent(@PathVariable("short_uuid") String shortUuid) {
         ModelAndView mav = new ModelAndView("show");

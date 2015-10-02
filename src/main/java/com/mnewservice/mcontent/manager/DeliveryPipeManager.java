@@ -13,6 +13,7 @@ import com.mnewservice.mcontent.repository.DeliveryPipeRepository;
 import com.mnewservice.mcontent.repository.ScheduledDeliverableRepository;
 import com.mnewservice.mcontent.repository.SeriesDeliverableRepository;
 import com.mnewservice.mcontent.repository.entity.AbstractContentEntity;
+import com.mnewservice.mcontent.repository.entity.AbstractDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.ScheduledDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.SeriesDeliverableEntity;
@@ -111,10 +112,10 @@ public class DeliveryPipeManager {
     }
 //</editor-fold>
 
-
     public SeriesDeliverable saveSeriesContent(long deliveryPipeId, SeriesDeliverable deliverable) {
         SeriesDeliverableEntity entity = seriesMapper.toEntity(deliverable);
         if (deliverable.getId() == null || deliverable.getId() == 0) {
+            entity.setStatus(AbstractDeliverableEntity.DeliverableStatusEnum.PENDING_APPROVAL);
             entity.setDeliveryPipe(repository.findOne(deliveryPipeId));
             entity.setDeliveryDaysAfterSubscription((int) (seriesRepository.countByDeliveryPipeId(deliveryPipeId) + 1));
         }
@@ -124,6 +125,7 @@ public class DeliveryPipeManager {
     public ScheduledDeliverable saveScheduledContent(long deliveryPipeId, ScheduledDeliverable deliverable) {
         ScheduledDeliverableEntity entity = scheduledMapper.toEntity(deliverable);
         if (deliverable.getId() == null || deliverable.getId() == 0) {
+            entity.setStatus(AbstractDeliverableEntity.DeliverableStatusEnum.PENDING_APPROVAL);
             entity.setDeliveryPipe(repository.findOne(deliveryPipeId));
         }
         return scheduledMapper.toDomain(scheduledRepository.save(entity));

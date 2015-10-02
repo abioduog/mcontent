@@ -1,16 +1,12 @@
 package com.mnewservice.mcontent.web;
 
-import com.mnewservice.mcontent.domain.Email;
-import com.mnewservice.mcontent.domain.EmailMessage;
 import com.mnewservice.mcontent.domain.Provider;
 import com.mnewservice.mcontent.domain.User;
+import com.mnewservice.mcontent.manager.NotificationManager;
 import com.mnewservice.mcontent.manager.ProviderManager;
 import com.mnewservice.mcontent.manager.UserManager;
-import com.mnewservice.mcontent.messaging.MessageCenter;
-import com.mnewservice.mcontent.util.exception.MessagingException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,9 +19,6 @@ public class UserController {
     private static final Logger LOG
             = Logger.getLogger(UserController.class);
 
-    @Value("${application.notification.from.address}")
-    private String notificationFromAddress;
-
     @Autowired
     private UserManager userManager;
 
@@ -33,7 +26,7 @@ public class UserController {
     private ProviderManager providerManager;
 
     @Autowired
-    private MessageCenter messageCenter;
+    private NotificationManager notificationManager;
 
     @RequestMapping({"/user/{id}/activate"})
     @ResponseStatus(value = HttpStatus.OK)
@@ -75,28 +68,11 @@ public class UserController {
             String notificationMessage) {
         Provider provider = providerManager.findByUserId(user.getId());
         if (provider != null) {
-            Email senderEmail = new Email();
-            senderEmail.setAddress(notificationFromAddress);
-            EmailMessage message = new EmailMessage();
-            message.setSender(senderEmail);
-            message.getReceivers().add(provider.getEmail());
-            message.setSubject(notificationSubject);
-            message.setMessage(notificationMessage);
-            sendMessage(message);
+            notificationManager.notifyProvider(
+                    provider, notificationSubject, notificationMessage);
+        } else {
+            LOG.info(user);
         }
     }
 
-    private void sendMessage(EmailMessage message) {
-        LOG.info(String.format(
-                "Sending message, start (%d receivers)",
-                message.getReceivers().size())
-        );
-        try {
-            messageCenter.sendMessage(message);
-        } catch (MessagingException ex) {
-            LOG.error("Sending message failed: " + ex.getMessage());
-        } finally {
-            LOG.info("Sending message, end");
-        }
-    }
 }

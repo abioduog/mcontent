@@ -7,6 +7,7 @@ import com.mnewservice.mcontent.manager.ProviderManager;
 import com.mnewservice.mcontent.manager.UserManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,18 @@ public class UserController {
 
     private static final Logger LOG
             = Logger.getLogger(UserController.class);
+
+    @Value("${application.notification.provider.activated.message.subject}")
+    private String providerActivatedMessageSubject;
+
+    @Value("${application.notification.provider.activated.message.text}")
+    private String providerActivatedMessageText;
+
+    @Value("${application.notification.provider.deactivated.message.subject}")
+    private String providerDeactivatedMessageSubject;
+
+    @Value("${application.notification.provider.deactivated.message.text}")
+    private String providerDeactivatedMessageText;
 
     @Autowired
     private UserManager userManager;
@@ -38,12 +51,7 @@ public class UserController {
         user.setActive(true);
         userManager.saveUser(user);
 
-        //  TODO: which subject?
-        String notificationSubject = "notification";
-        //  TODO: which message to send?
-        String notificationMessage = "your account has been activated";
-
-        notify(user, notificationSubject, notificationMessage);
+        activationNotification(user);
     }
 
     @RequestMapping({"/user/{id}/deactivate"})
@@ -56,10 +64,25 @@ public class UserController {
         user.setActive(false);
         userManager.saveUser(user);
 
-        //  TODO: which subject?
-        String notificationSubject = "notification";
-        //  TODO: which message to send?
-        String notificationMessage = "your account has been deactivated";
+        deactivationNotification(user);
+    }
+
+    private void activationNotification(User user) {
+        String notificationSubject = String.format(
+                providerActivatedMessageSubject);
+        String notificationMessage = String.format(
+                providerActivatedMessageText,
+                user.getUsername());
+
+        notify(user, notificationSubject, notificationMessage);
+    }
+
+    private void deactivationNotification(User user) {
+        String notificationSubject = String.format(
+                providerDeactivatedMessageSubject);
+        String notificationMessage = String.format(
+                providerDeactivatedMessageText,
+                user.getUsername());
 
         notify(user, notificationSubject, notificationMessage);
     }

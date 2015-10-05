@@ -4,6 +4,7 @@ import com.mnewservice.mcontent.domain.*;
 import com.mnewservice.mcontent.manager.DeliveryPipeManager;
 import com.mnewservice.mcontent.manager.NotificationManager;
 import com.mnewservice.mcontent.manager.ProviderManager;
+import com.mnewservice.mcontent.manager.SeriesDeliverableManager;
 import com.mnewservice.mcontent.manager.UserManager;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -32,8 +34,29 @@ public class ContentController {
     private static final Logger LOG
             = Logger.getLogger(ContentController.class);
 
+    @Value("${application.notification.deliverable.created.message.subject}")
+    private String deliverableCreatedMessageSubject;
+
+    @Value("${application.notification.deliverable.created.message.text}")
+    private String deliverableCreatedMessageText;
+
+    @Value("${application.notification.deliverable.approved.message.subject}")
+    private String deliverableApprovedMessageSubject;
+
+    @Value("${application.notification.deliverable.approved.message.text}")
+    private String deliverableApprovedMessageText;
+
+    @Value("${application.notification.deliverable.disapproved.message.subject}")
+    private String deliverableDisapprovedMessageSubject;
+
+    @Value("${application.notification.deliverable.disapproved.message.text}")
+    private String deliverableDisapprovedMessageText;
+
     @Autowired
     private DeliveryPipeManager deliveryPipeManager;
+
+    @Autowired
+    private SeriesDeliverableManager seriesManager;
 
     @Autowired
     private UserManager userManager;
@@ -153,18 +176,15 @@ public class ContentController {
         ModelAndView mav = new ModelAndView("content");
         SeriesDeliverable newDeliverable = new SeriesDeliverable();
         newDeliverable.setContent(new Content());
+        newDeliverable.setStatus(DeliverableStatus.PENDING_APPROVAL);
+        newDeliverable.setDeliveryDaysAfterSubscription(
+                seriesManager.getNextDeliveryDay(deliveryPipeId));
 
         mav.addObject("deliveryPipeId", deliveryPipeId);
         mav.addObject(
                 "deliverable",
-                deliveryPipeManager.saveSeriesContent(deliveryPipeId, newDeliverable));
-
-        //  TODO: which subject?
-        String notificationSubject = "notification";
-        //  TODO: which message to send?
-        String notificationMessage = "new content has been created: " + "series";
-
-        notificationManager.notifyAdmin(notificationSubject, notificationMessage);
+                newDeliverable
+        );
         return mav;
     }
 
@@ -191,9 +211,7 @@ public class ContentController {
         content.setStatus(DeliverableStatus.APPROVED);
         deliveryPipeManager.saveSeriesContent(deliveryPipeId, content);
 
-        String notificationSubject = "notification";
-        String notificationMessage = "series deliverable was approved";
-        notify(deliveryPipe.getProviders(), notificationSubject, notificationMessage);
+        contentApproveNotification(content, deliveryPipe);
     }
 
     private DeliveryPipe getDeliveryPipe(long deliveryPipeId) throws Exception {
@@ -231,27 +249,13 @@ public class ContentController {
         content.setStatus(DeliverableStatus.PENDING_APPROVAL);
         deliveryPipeManager.saveSeriesContent(deliveryPipeId, content);
 
-        String notificationSubject = "notification";
-        String notificationMessage = "series deliverable was disapproved";
-        notify(deliveryPipe.getProviders(), notificationSubject, notificationMessage);
-    }
-
-    private void notify(Collection<User> users, String notificationSubject,
-            String notificationMessage) {
-        Collection<Provider> providers = new ArrayList<>();
-        for (User user : users) {
-            Provider provider = providerManager.findByUserId(user.getId());
-            if (provider != null) {
-                providers.add(provider);
-            }
-        }
-
-        notificationManager.notifyProviders(
-                providers, notificationSubject, notificationMessage);
+        contentDisapproveNotification(content, deliveryPipe);
     }
 
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/{contentId}"}, params = {"save"})
-    public ModelAndView saveSeriesContent(@PathVariable("deliveryPipeId") long deliveryPipeId, @PathVariable("contentId") long contentId,
+    public ModelAndView saveSeriesContent(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") String contentId,
             final SeriesDeliverable deliverable,
             final BindingResult bindingResult,
             final ModelMap model) {
@@ -265,11 +269,16 @@ public class ContentController {
             mav.addObject("error", true);
         } else {
             try {
-                // persist the object "scheduledDeliverable"
+                DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
                 SeriesDeliverable savedContent = deliveryPipeManager.saveSeriesContent(deliveryPipeId, deliverable);
+
                 mav.addObject("deliveryPipeId", deliveryPipeId);
                 mav.addObject("deliverable", savedContent);
                 mav.addObject("saved", true);
+                if (deliverable.getId() == null) {
+                    contentCreationNotification(savedContent, deliveryPipe);
+                }
+
             } catch (Exception ex) {
                 LOG.error(ex);
                 mav.addObject("deliverable", deliverable);
@@ -279,9 +288,9 @@ public class ContentController {
 
         return mav;
     }
-//</editor-fold>
+    //</editor-fold>
 
-//<editor-fold defaultstate="collapsed" desc="Scheduled content">
+    //<editor-fold defaultstate="collapsed" desc="Scheduled content">
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/scheduled/create"}, params = {"date"})
     public ModelAndView createScheduledContent(@PathVariable("deliveryPipeId") long deliveryPipeId, @RequestParam(value = "date") String date) {
         ModelAndView mav = new ModelAndView("content");
@@ -293,14 +302,7 @@ public class ContentController {
             LOG.error("Failed to parse date " + date, ex);
         }
         mav.addObject("deliveryPipeId", deliveryPipeId);
-        mav.addObject("deliverable", deliveryPipeManager.saveScheduledContent(deliveryPipeId, newDeliverable));
-
-        //  TODO: which subject?
-        String notificationSubject = "notification";
-        //  TODO: which message to send?
-        String notificationMessage = "new content has been created: " + "scheduled";
-
-        notificationManager.notifyAdmin(notificationSubject, notificationMessage);
+        mav.addObject("deliverable", newDeliverable);
         return mav;
     }
 
@@ -313,7 +315,9 @@ public class ContentController {
     }
 
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/scheduled/{contentId}"}, params = {"save"})
-    public ModelAndView saveScheduledContent(@PathVariable("deliveryPipeId") long deliveryPipeId, @PathVariable("contentId") long contentId,
+    public ModelAndView saveScheduledContent(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") String contentId,
             final ScheduledDeliverable deliverable,
             final BindingResult bindingResult,
             final ModelMap model) {
@@ -323,15 +327,23 @@ public class ContentController {
             bindingResult.getAllErrors().stream().forEach((error) -> {
                 LOG.error(error.toString());
             });
-            mav.addObject("deliverable", model.getOrDefault("deliverable", new ScheduledDeliverable()));
+            mav.addObject(
+                    "deliverable",
+                    model.getOrDefault("deliverable", new ScheduledDeliverable())
+            );
             mav.addObject("error", true);
         } else {
             try {
-                // persist the object "scheduledDeliverable"
+                DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
                 ScheduledDeliverable savedContent = deliveryPipeManager.saveScheduledContent(deliveryPipeId, deliverable);
                 mav.addObject("deliveryPipeId", deliveryPipeId);
                 mav.addObject("deliverable", savedContent);
                 mav.addObject("saved", true);
+
+                if (deliverable.getId() == null) {
+                    contentCreationNotification(savedContent, deliveryPipe);
+                }
+
             } catch (Exception ex) {
                 LOG.error(ex);
                 mav.addObject("deliverable", deliverable);
@@ -353,9 +365,7 @@ public class ContentController {
         content.setStatus(DeliverableStatus.APPROVED);
         deliveryPipeManager.saveScheduledContent(deliveryPipeId, content);
 
-        String notificationSubject = "notification";
-        String notificationMessage = "scheduled deliverable was approved";
-        notify(deliveryPipe.getProviders(), notificationSubject, notificationMessage);
+        contentApproveNotification(content, deliveryPipe);
     }
 
     @RequestMapping({"/deliverypipe/{deliveryPipeId}/scheduled/{contentId}/disapprove"})
@@ -369,9 +379,7 @@ public class ContentController {
         content.setStatus(DeliverableStatus.PENDING_APPROVAL);
         deliveryPipeManager.saveScheduledContent(deliveryPipeId, content);
 
-        String notificationSubject = "notification";
-        String notificationMessage = "scheduled deliverable was disapproved";
-        notify(deliveryPipe.getProviders(), notificationSubject, notificationMessage);
+        contentDisapproveNotification(content, deliveryPipe);
     }
 
     private ScheduledDeliverable getScheduledContent(long contentId,
@@ -387,8 +395,63 @@ public class ContentController {
         }
         return content;
     }
+    //</editor-fold>
 
-//</editor-fold>
+    //<editor-fold defaultstate="collapsed" desc="notifications">
+    private void contentCreationNotification(AbstractDeliverable deliverable,
+            DeliveryPipe deliveryPipe) {
+        String notificationSubject = String.format(
+                deliverableCreatedMessageSubject,
+                deliverable.getContent().getTitle());
+        String notificationMessage = String.format(
+                deliverableCreatedMessageText,
+                deliverable.getContent().getTitle(),
+                deliveryPipe.getName());
+
+        notificationManager.notifyAdmin(notificationSubject, notificationMessage);
+    }
+
+    private void contentApproveNotification(
+            AbstractDeliverable deliverable, DeliveryPipe deliveryPipe) {
+        String notificationSubject = String.format(
+                deliverableApprovedMessageSubject,
+                deliverable.getContent().getTitle());
+        String notificationMessage = String.format(
+                deliverableApprovedMessageText,
+                deliverable.getContent().getTitle(),
+                deliveryPipe.getName());
+
+        notify(deliveryPipe.getProviders(), notificationSubject, notificationMessage);
+    }
+
+    private void contentDisapproveNotification(
+            AbstractDeliverable deliverable, DeliveryPipe deliveryPipe) {
+        String notificationSubject = String.format(
+                deliverableDisapprovedMessageSubject,
+                deliverable.getContent().getTitle());
+        String notificationMessage = String.format(
+                deliverableDisapprovedMessageText,
+                deliverable.getContent().getTitle(),
+                deliveryPipe.getName());
+
+        notify(deliveryPipe.getProviders(), notificationSubject, notificationMessage);
+    }
+
+    private void notify(Collection<User> users, String notificationSubject,
+            String notificationMessage) {
+        Collection<Provider> providers = new ArrayList<>();
+        for (User user : users) {
+            Provider provider = providerManager.findByUserId(user.getId());
+            if (provider != null) {
+                providers.add(provider);
+            }
+        }
+
+        notificationManager.notifyProviders(
+                providers, notificationSubject, notificationMessage);
+    }
+    //</editor-fold>
+
     @RequestMapping({"/show/a/{short_uuid}"})
     public ModelAndView showContent(@PathVariable("short_uuid") String shortUuid) {
         ModelAndView mav = new ModelAndView("show");

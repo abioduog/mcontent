@@ -29,7 +29,7 @@
 
                 <input type="hidden" th:name="save" />
                 <input th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)}" type="hidden" th:name="deliveryDaysAfterSubscription" th:value="${deliverable.deliveryDaysAfterSubscription}"/>
-                <input th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.ScheduledDeliverable)}" type="hidden" th:name="deliveryDate" th:value="${deliverable.deliveryDate}"/>
+                <input th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.ScheduledDeliverable)}" type="hidden" th:name="deliveryDate" th:field="${deliverable.deliveryDate}"/>
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             </div>
             <div class="form-actions">

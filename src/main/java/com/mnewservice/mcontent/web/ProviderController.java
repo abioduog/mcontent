@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -39,6 +40,12 @@ public class ProviderController {
     private static final String REASON_READING_FAILED = "reading file failed";
     private static final Logger LOG
             = Logger.getLogger(ProviderController.class);
+
+    @Value("${application.notification.provider.registered.message.subject}")
+    private String providerRegisteredMessageSubject;
+
+    @Value("${application.notification.provider.registered.message.text}")
+    private String providerRegisteredMessageText;
 
     @Autowired
     private UserManager userManager;
@@ -101,12 +108,7 @@ public class ProviderController {
                 mav = new ModelAndView("providerRegistered");
                 mav.addObject("provider", savedProvider);
 
-                //  TODO: which subject?
-                String notificationSubject = "notification";
-                //  TODO: which message to send?
-                String notificationMessage = "provider created";
-
-                notificationManager.notifyAdmin(notificationSubject, notificationMessage);
+                registrationNotification(savedProvider);
 
             } catch (Exception ex) {
                 LOG.error(ex);
@@ -116,6 +118,18 @@ public class ProviderController {
         }
 
         return mav;
+    }
+
+    private void registrationNotification(Provider savedProvider) {
+        String notificationSubject = String.format(
+                providerRegisteredMessageSubject,
+                savedProvider.getName());
+        String notificationMessage = String.format(
+                providerRegisteredMessageText,
+                savedProvider.getName(),
+                savedProvider.getUser().getUsername());
+
+        notificationManager.notifyAdmin(notificationSubject, notificationMessage);
     }
 
     private Collection<BinaryContent> createCorrespondences(

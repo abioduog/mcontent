@@ -3,8 +3,8 @@ package com.mnewservice.mcontent.web;
 import com.mnewservice.mcontent.domain.BinaryContent;
 import com.mnewservice.mcontent.domain.Provider;
 import com.mnewservice.mcontent.domain.Role;
-import com.mnewservice.mcontent.domain.Service;
 import com.mnewservice.mcontent.domain.User;
+import com.mnewservice.mcontent.manager.NotificationManager;
 import com.mnewservice.mcontent.manager.ProviderManager;
 import com.mnewservice.mcontent.manager.UserManager;
 import com.mnewservice.mcontent.security.PasswordEncrypter;
@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -40,11 +41,20 @@ public class ProviderController {
     private static final Logger LOG
             = Logger.getLogger(ProviderController.class);
 
+    @Value("${application.notification.provider.registered.message.subject}")
+    private String providerRegisteredMessageSubject;
+
+    @Value("${application.notification.provider.registered.message.text}")
+    private String providerRegisteredMessageText;
+
     @Autowired
     private UserManager userManager;
 
     @Autowired
     private ProviderManager providerManager;
+
+    @Autowired
+    private NotificationManager notificationManager;
 
     @ModelAttribute("allProviders")
     public List<Provider> populateProviders() {
@@ -97,6 +107,9 @@ public class ProviderController {
 
                 mav = new ModelAndView("providerRegistered");
                 mav.addObject("provider", savedProvider);
+
+                registrationNotification(savedProvider);
+
             } catch (Exception ex) {
                 LOG.error(ex);
                 mav.addObject("provider", provider);
@@ -105,6 +118,18 @@ public class ProviderController {
         }
 
         return mav;
+    }
+
+    private void registrationNotification(Provider savedProvider) {
+        String notificationSubject = String.format(
+                providerRegisteredMessageSubject,
+                savedProvider.getName());
+        String notificationMessage = String.format(
+                providerRegisteredMessageText,
+                savedProvider.getName(),
+                savedProvider.getUser().getUsername());
+
+        notificationManager.notifyAdmin(notificationSubject, notificationMessage);
     }
 
     private Collection<BinaryContent> createCorrespondences(
@@ -153,5 +178,4 @@ public class ProviderController {
         user.setActive(false);
         return user;
     }
-
 }

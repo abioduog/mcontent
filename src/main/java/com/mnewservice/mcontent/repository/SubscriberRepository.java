@@ -10,5 +10,5 @@ import org.springframework.data.repository.CrudRepository;
 public interface SubscriberRepository
         extends CrudRepository<SubscriberEntity, Long> {
 
-    public SubscriberEntity findByPhoneNumber(String number);
+    SubscriberEntity findByPhoneNumber(String number);
 }

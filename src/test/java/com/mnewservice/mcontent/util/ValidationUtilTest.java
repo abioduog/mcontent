@@ -1,6 +1,5 @@
 package com.mnewservice.mcontent.util;
 
-import com.mnewservice.mcontent.util.ValidationUtils;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import org.junit.After;

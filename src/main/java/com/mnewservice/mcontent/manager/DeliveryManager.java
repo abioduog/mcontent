@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import javax.transaction.Transactional;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -278,16 +277,16 @@ public class DeliveryManager {
                 continue;
             }
 
-            AbstractMessage message = createMessage(messagesMap, content, subscription);
+            SmsMessage message = createMessage(messagesMap, content, subscription);
 
-            if (((SmsMessage) message).getReceivers().size() >= sendSize) {
+            if (message.getReceivers().size() >= sendSize) {
                 sendMessage(message, shortCode);
                 messagesMap.remove(content);
             }
         }
         // send possible "leftover messages"
         for (Map.Entry<AbstractContentEntity, AbstractMessage> entry : messagesMap.entrySet()) {
-            sendMessage(entry.getValue(), shortCode);
+            sendMessage((SmsMessage) entry.getValue(), shortCode);
         }
         LOG.info("Processing subscriptions, end");
     }
@@ -296,11 +295,11 @@ public class DeliveryManager {
             ServiceEntity service, List<SubscriptionEntity> subscriptions,
             String expiryMessage, Integer sendSize) {
         LOG.info("Processing expiring subscriptions, start");
-        AbstractMessage message = createExpiryMessage(expiryMessage);
+        SmsMessage message = createExpiryMessage(expiryMessage);
         for (SubscriptionEntity subscription : subscriptions) {
             addPhoneNumberToMessage(subscription, message);
 
-            if (((SmsMessage) message).getReceivers().size() >= sendSize) {
+            if (message.getReceivers().size() >= sendSize) {
                 sendMessage(message, service.getShortCode());
                 message = createExpiryMessage(expiryMessage);
             }
@@ -313,9 +312,8 @@ public class DeliveryManager {
         LOG.info("Processing expiring subscriptions, end");
     }
 
-    private AbstractMessage createExpiryMessage(String expiryMessage) {
-        // TODO: support also for email message(?)
-        AbstractMessage message = new SmsMessage();
+    private SmsMessage createExpiryMessage(String expiryMessage) {
+        SmsMessage message = new SmsMessage();
         message.setMessage(expiryMessage);
         return message;
     }
@@ -328,8 +326,7 @@ public class DeliveryManager {
         ((SmsMessage) message).getReceivers().add(phoneNumber);
     }
 
-    // TODO: support also for email message(?)
-    private AbstractMessage createMessage(
+    private SmsMessage createMessage(
             Map<AbstractContentEntity, AbstractMessage> messagesMap,
             AbstractContentEntity content,
             SubscriptionEntity subscription) throws UnsupportedOperationException {
@@ -340,13 +337,13 @@ public class DeliveryManager {
             messagesMap.put(content, message);
         }
         addPhoneNumberToMessage(subscription, message);
-        return message;
+        return (SmsMessage) message;
     }
 
-    private void sendMessage(AbstractMessage message, Integer shortCode) {
+    private void sendMessage(SmsMessage message, Integer shortCode) {
         LOG.info(String.format(
                 "Sending message, start (%d receivers)",
-                ((SmsMessage) message).getReceivers().size())
+                message.getReceivers().size())
         );
         try {
             messageCenter.sendMessage(message, shortCode);

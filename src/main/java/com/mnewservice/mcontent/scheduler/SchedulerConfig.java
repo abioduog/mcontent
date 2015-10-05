@@ -35,8 +35,6 @@ public class SchedulerConfig {
 
     private static final String GROUP_MESSAGE_DELIVERY = "messageDelivery";
 
-    private static final Logger LOG = Logger.getLogger(SchedulerConfig.class);
-
     @Bean
     public JobFactory jobFactory(ApplicationContext applicationContext) {
         AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();

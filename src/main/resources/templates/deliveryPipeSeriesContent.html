@@ -1,11 +1,30 @@
 <h1 th:inline="text">[[${deliveryPipe.name}]] content</h1>
 <div class="content-menu">
-    <ol>
-        <li th:each="content : ${contents}">
-            <a th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}|}"
-               th:text="${content.content.title}" onclick="loadToContentEditor(this, event);">Content</a>
-        </li>
-    </ol>
+    <table class="pure-table" th:unless="${#lists.isEmpty(contents)}">
+        <thead>
+            <tr>
+                <th th:text="#{deliverable.title}">Title</th>
+                <th th:text="#{deliverable.status}">Status</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="content : ${contents}">
+                <td th:text="${content.content.title}">Title</td>
+                <td th:text="${content.status}">Status</td>
+                <td><!-- icon (?) -->
+                    <a th:unless="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/approve|}" th:text="#{deliverable.status.approve}" onclick="callSimpleAction(this, event);">Approve</a>
+                    <a th:if="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/disapprove|}" th:text="#{deliverable.status.disapprove}" onclick="callSimpleAction(this, event);">Disapprove</a>
+                </td>
+                <td>
+                    <a th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}|}"
+                       th:text="#{general.edit}" onclick="loadToContentEditor(this, event);">Edit</a>
+                </td>
+
+            </tr>
+        </tbody>
+    </table>
     <a th:href="@{|/deliverypipe/${deliveryPipe.id}/series/create|}"
        th:text="#{content.series.add}" onclick="loadToContentEditor(this, event);">Add new</a>
 </div>

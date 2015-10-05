@@ -1,6 +1,6 @@
 package com.mnewservice.mcontent.messaging;
 
-import com.mnewservice.mcontent.domain.AbstractMessage;
+import com.mnewservice.mcontent.domain.EmailMessage;
 import com.mnewservice.mcontent.domain.PhoneNumber;
 import com.mnewservice.mcontent.domain.SmsMessage;
 import com.mnewservice.mcontent.util.StreamUtils;
@@ -19,6 +19,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 /**
@@ -30,20 +33,18 @@ public class MessageCenter {
 
     private static final Logger LOG = Logger.getLogger(MessageCenter.class);
 
-    private static final String PROTOCOL = "http";
-    private static final String PARAMETER_USERNAME = "username";
-    private static final String PARAMETER_PASSWORD = "password";
-    private static final String PARAMETER_TO = "to";
-    private static final String PARAMETER_FROM = "from";
-    private static final String PARAMETER_MESSAGE = "text";
-
-    private static final String RECEIVER_SEPARATOR = " ";
+    private static final String SMS_PROTOCOL = "http";
+    private static final String SMS_PARAMETER_USERNAME = "username";
+    private static final String SMS_PARAMETER_PASSWORD = "password";
+    private static final String SMS_PARAMETER_TO = "to";
+    private static final String SMS_PARAMETER_FROM = "from";
+    private static final String SMS_PARAMETER_MESSAGE = "text";
+    private static final String SMS_RECEIVER_SEPARATOR = " ";
 
     private static final String MESSAGE_START_SENDING
             = "START: Sending message '%s' from %s to %s";
     private static final String MESSAGE_END_SENDING = "END: Sending message";
 
-    private static final String ERROR_NOT_IMPLEMENTED = "Not implemented";
     private static final String ERROR_URI_SYNTAX = "Error in URI syntax: %s";
     private static final String ERROR_ILLEGAL_NUMBER_OF_RECEIVERS
             = "Illegal number of receivers (valid range %d-%d)";
@@ -52,6 +53,9 @@ public class MessageCenter {
     private static final String ERROR_INVALID_STATUS
             = "Invalid status: %d (reason: %s)";
     private static final String ERROR_COMMUNICATION = "Communication error";
+
+    @Autowired
+    private JavaMailSender javaMailSender;
 
     @Autowired
     private CloseableHttpClient httpClient;
@@ -69,19 +73,48 @@ public class MessageCenter {
     @Value("${application.sms.gateway.maxRecipients}")
     private int maxRecipients;
 
-    public void sendMessage(AbstractMessage message, int fromNumber)
-            throws MessagingException {
-        if (!(message instanceof SmsMessage)) {
-            // TODO
-            throw new UnsupportedOperationException(ERROR_NOT_IMPLEMENTED);
+    public void sendMessage(EmailMessage message) throws MessagingException {
+        try {
+            // TODO: record sent messages somewhere?
+            doSendEmailMessage(
+                    message.getSender().getAddress(),
+                    message.getReceivers().stream().map(r -> r.getAddress()).toArray(size -> new String[size]),
+                    message.getSubject(),
+                    message.getMessage()
+            );
+        } catch (MailException me) {
+            String msg = me.getMessage();
+            LOG.error(msg);
+            throw new MessagingException(msg, me);
         }
+    }
 
-        SmsMessage smsMessage = (SmsMessage) message;
-        String receiverNumbers = buildReceiverNumbers(smsMessage);
+    private void doSendEmailMessage(String from, String[] to,
+            String subject, String text) {
+        LOG.debug(String.format(MESSAGE_START_SENDING,
+                subject + ": " + text,
+                from,
+                String.join(" ", to))
+        );
+        try {
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            mailMessage.setFrom(from);
+            mailMessage.setTo(to);
+            mailMessage.setSubject(subject);
+            mailMessage.setText(text);
+            javaMailSender.send(mailMessage);
+        } finally {
+            LOG.debug(MESSAGE_END_SENDING);
+        }
+    }
+
+    public void sendMessage(SmsMessage message, int fromNumber)
+            throws MessagingException {
+        String receiverNumbers = buildReceiverNumbers(message);
 
         try {
             // TODO: record sent messages somewhere?
-            doSendMessage(
+            doSendSmsMessage(
                     message.getMessage(),
                     receiverNumbers,
                     Integer.toString(fromNumber)
@@ -113,14 +146,14 @@ public class MessageCenter {
         for (PhoneNumber phoneNumber : receivers) {
             receiverNumbers
                     .append(phoneNumber.getNumber())
-                    .append(RECEIVER_SEPARATOR);
+                    .append(SMS_RECEIVER_SEPARATOR);
         }
         receiverNumbers.deleteCharAt(receiverNumbers.length() - 1);
 
         return receiverNumbers.toString();
     }
 
-    private void doSendMessage(
+    private void doSendSmsMessage(
             String message, String receiverNumbers, String fromNumber)
             throws MessagingException, URISyntaxException {
         LOG.debug(String.format(MESSAGE_START_SENDING,
@@ -130,14 +163,14 @@ public class MessageCenter {
         );
 
         URI uri = new URIBuilder()
-                .setScheme(PROTOCOL)
+                .setScheme(SMS_PROTOCOL)
                 .setHost(gatewayIp).setPort(gatewayPort)
                 .setPath(gatewayPath)
-                .setParameter(PARAMETER_USERNAME, gatewayUsername)
-                .setParameter(PARAMETER_PASSWORD, gatewayPassword)
-                .setParameter(PARAMETER_TO, receiverNumbers)
-                .setParameter(PARAMETER_FROM, fromNumber)
-                .setParameter(PARAMETER_MESSAGE, message)
+                .setParameter(SMS_PARAMETER_USERNAME, gatewayUsername)
+                .setParameter(SMS_PARAMETER_PASSWORD, gatewayPassword)
+                .setParameter(SMS_PARAMETER_TO, receiverNumbers)
+                .setParameter(SMS_PARAMETER_FROM, fromNumber)
+                .setParameter(SMS_PARAMETER_MESSAGE, message)
                 .build();
 
         try (CloseableHttpResponse response = httpClient.execute(new HttpGet(uri))) {
@@ -191,5 +224,4 @@ public class MessageCenter {
             }
         }
     }
-
 }

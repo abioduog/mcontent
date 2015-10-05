@@ -199,14 +199,6 @@ public class SubscriptionApiController extends AbstractApiController {
         return period;
     }
 
-    private Service createService(String message, int shortCode, String operator) {
-        Service service = new Service();
-        service.setKeyword(message);
-        service.setShortCode(shortCode);
-        service.setOperator(operator);
-        return service;
-    }
-
     private Subscriber createSubscriber(String sender) {
         PhoneNumber phoneNumber = new PhoneNumber();
         phoneNumber.setNumber(sender);

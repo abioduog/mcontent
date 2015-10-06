@@ -6,7 +6,7 @@
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"/>
-        <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.1/css/bootstrap.min.css" rel="stylesheet"/> 
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.1/css/bootstrap.min.css" rel="stylesheet"/>
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet"/>
         <link rel="stylesheet" href="css/lib/pure-0.6.0.min.css"/>
         <link rel="stylesheet" href="css/lib/multi-select.css"/>
@@ -17,11 +17,10 @@
     <body>
         <div id="header" class="pure-menu pure-menu-horizontal">
             <ul id="menu" class="pure-menu-list">
-                <li class="pure-menu-item"><a class="pure-menu-link" th:href="@{/content/list}" onclick="loadToWorkArea(this, event);">Content management</a></li>
-                <li class="pure-menu-item"><a class="pure-menu-link" th:href="@{/provider/list}" onclick="loadToWorkArea(this, event);">Provider management</a></li>
-                <!--<li class="pure-menu-item"><a class="pure-menu-link" th:href="@{/report}" onclick="loadToWorkArea(this, event);">Report management</a></li>-->
-                <li class="pure-menu-item"><a class="pure-menu-link" th:href="@{/service/list}" onclick="loadToWorkArea(this, event);">Service management</a></li>
-                <li class="pure-menu-item"><a class="pure-menu-link" th:href="@{/subscriber/list}" onclick="loadToWorkArea(this, event);">Subscriber management</a></li>
+                <li sec:authorize="hasAnyRole('ADMIN','PROVIDER')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/content/list}" onclick="loadToWorkArea(this, event);">Content management</a></li>
+                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/provider/list}" onclick="loadToWorkArea(this, event);">Provider management</a></li>
+                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/service/list}" onclick="loadToWorkArea(this, event);">Service management</a></li>
+                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/subscriber/list}" onclick="loadToWorkArea(this, event);">Subscriber management</a></li>
             </ul>
             <div id="session-control" class="pure-menu">
                 <ul class="pure-menu-list">
@@ -39,12 +38,13 @@
                 </ul>
             </div>
         </div>
-        <div id="workarea">    
+        <div id="workarea">
             <h1 th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</h1>
         </div>
+
         <script src="js/lib/jquery.min.js"></script>
         <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.1/js/bootstrap.min.js"></script> 
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.1/js/bootstrap.min.js"></script>
         <script src="js/lib/jquery.multi-select.js"></script>
         <script src="js/lib/underscore.min.js"></script>
         <script src="js/lib/moment.min.js"></script>

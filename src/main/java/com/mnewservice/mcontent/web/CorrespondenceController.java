@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +40,7 @@ public class CorrespondenceController {
     @Autowired
     private ProviderManager providerManager;
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/correspondence/{id}/view"})
     @ResponseStatus(value = HttpStatus.OK)
     public void viewCorrespondenceContent(
@@ -62,13 +64,16 @@ public class CorrespondenceController {
         }
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/correspondence/add"})
     @ResponseStatus(value = HttpStatus.OK)
     public void addCorrespondence(
             @RequestParam("correspondenceFile") MultipartFile correspondenceFile) {
         LOG.info("correspondenceFile=" + correspondenceFile);
+        throw new UnsupportedOperationException("not implemented");
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/correspondence/{id}/remove"})
     @ResponseStatus(value = HttpStatus.OK)
     public void removeCorrespondence(@PathVariable("id") long id) {

@@ -1,8 +1,10 @@
 <h1 th:inline="text">Delivery pipe list</h1>
-<!-- style to look like a button (?) -->
-<a href="deliveryPipeDetail.html"
-   th:href="@{/deliverypipe/create}"
-   th:text="#{general.createNew}" onclick="loadToPopup('Create delivery pipe', this, event);">Create new</a>
+<div sec:authorize="hasRole('ADMIN')">
+    <!-- style to look like a button (?) -->
+    <a href="deliveryPipeDetail.html"
+       th:href="@{/deliverypipe/create}"
+       th:text="#{general.createNew}" onclick="loadToPopup('Create delivery pipe', this, event);">Create new</a>
+</div>
 <div class="delivery-pipe-list" th:unless="${#lists.isEmpty(allDeliveryPipes)}">
     <table class="pure-table">
         <thead>
@@ -19,9 +21,9 @@
                 <td th:text="${delieryPipe.deliverableType}">TYPE</td>
                 <td>0</td>
                 <td><!-- icon (?) -->
-                    <a th:href="@{|/deliverypipe/${delieryPipe.id}|}"
+                    <a sec:authorize="hasRole('ADMIN')" th:href="@{|/deliverypipe/${delieryPipe.id}|}"
                        th:text="#{general.edit}" onclick="loadToPopup('Edit delivery pipe', this, event);">Edit</a>
-                    <a th:href="@{|/deliverypipe/${delieryPipe.id}/content/list|}"
+                    <a sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:href="@{|/deliverypipe/${delieryPipe.id}/content/list|}"
                        th:text="#{deliverypipe.viewcontent}" onclick="loadToWorkArea(this, event);">View content</a></td>
             </tr>
         </tbody>

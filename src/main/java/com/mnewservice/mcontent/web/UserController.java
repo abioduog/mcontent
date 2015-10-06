@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +42,7 @@ public class UserController {
     @Autowired
     private NotificationManager notificationManager;
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/user/{id}/activate"})
     @ResponseStatus(value = HttpStatus.OK)
     public void activateProvider(@PathVariable("id") long id) {
@@ -54,6 +56,7 @@ public class UserController {
         activationNotification(user);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/user/{id}/deactivate"})
     @ResponseStatus(value = HttpStatus.OK)
     public void deactivateProvider(@PathVariable("id") long id) {

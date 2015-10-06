@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -34,27 +35,32 @@ public class ServiceController {
     @Autowired
     private DeliveryPipeManager deliveryPipeManager;
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ModelAttribute("allServices")
     public List<Service> populateServices() {
         return serviceManager.getAllServices()
                 .stream().collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ModelAttribute("allDeliveryPipes")
     public List<DeliveryPipe> populateDeliveryPipes() {
         return deliveryPipeManager.getAllDeliveryPipes().stream().collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ModelAttribute("allDeliveryTimes")
     public List<DeliveryTime> populateDeliveryTimes() {
         return Arrays.asList(DeliveryTime.values());
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/service/list"})
     public String listServices() {
         return "serviceList";
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/service/create"})
     public ModelAndView viewService() {
         ModelAndView mav = new ModelAndView("serviceDetail");
@@ -62,6 +68,7 @@ public class ServiceController {
         return mav;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/service/{id}"})
     public ModelAndView viewService(@PathVariable("id") long id) {
         ModelAndView mav = new ModelAndView("serviceDetail");
@@ -69,6 +76,7 @@ public class ServiceController {
         return mav;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = {"/service/{id}"}, params = {"save"})
     public ModelAndView saveService(
             @PathVariable("id") String id,

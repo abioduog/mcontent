@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -67,29 +68,34 @@ public class ContentController {
     @Autowired
     private NotificationManager notificationManager;
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @ModelAttribute("allDeliverableTypes")
     public List<DeliverableType> populateDeliverableTypes() {
         return Arrays.asList(DeliverableType.values());
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @ModelAttribute("allDeliveryPipes")
     public List<DeliveryPipe> populateServices() {
         return deliveryPipeManager.getAllDeliveryPipes()
                 .stream().collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @ModelAttribute("allProviders")
     public List<User> populateProviders() {
         return userManager.getAllUsersByRoleName(Role.PROVIDER_SHOULD_BE_ENUM)
                 .stream().collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping({"/content/list"})
     public String listServices() {
         return "deliveryPipeList";
     }
 
 //<editor-fold defaultstate="collapsed" desc="Delivery pipe">
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/create"})
     public ModelAndView viewDeliveryPipe() {
         ModelAndView mav = new ModelAndView("deliveryPipeDetail");
@@ -97,6 +103,7 @@ public class ContentController {
         return mav;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/{id}"})
     public ModelAndView viewDeliveryPipe(@PathVariable("id") long id) {
         ModelAndView mav = new ModelAndView("deliveryPipeDetail");
@@ -104,6 +111,7 @@ public class ContentController {
         return mav;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = {"/deliverypipe/{id}"}, params = {"save"})
     public ModelAndView saveDeliveryPipe(
             @PathVariable("id") String id,
@@ -136,6 +144,7 @@ public class ContentController {
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Content list">
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping({"/deliverypipe/{id}/content/list"})
     public ModelAndView viewDeliveryPipeContent(@PathVariable("id") long id) {
         ModelAndView mav;
@@ -170,6 +179,7 @@ public class ContentController {
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Series content">
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/create"})
     public ModelAndView createSeriesContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId) {
@@ -188,6 +198,7 @@ public class ContentController {
         return mav;
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping({"/deliverypipe/{deliveryPipeId}/series/{contentId}"})
     public ModelAndView viewSeriesContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
@@ -200,6 +211,7 @@ public class ContentController {
         return mav;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/{deliveryPipeId}/series/{contentId}/approve"})
     @ResponseStatus(value = HttpStatus.OK)
     public void approveSeriesContent(
@@ -237,6 +249,7 @@ public class ContentController {
         return content;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/{deliveryPipeId}/series/{contentId}/disapprove"})
     @ResponseStatus(value = HttpStatus.OK)
     public void disapproveSeriesContent(
@@ -252,6 +265,7 @@ public class ContentController {
         contentDisapproveNotification(content, deliveryPipe);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/{contentId}"}, params = {"save"})
     public ModelAndView saveSeriesContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
@@ -291,6 +305,7 @@ public class ContentController {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Scheduled content">
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/scheduled/create"}, params = {"date"})
     public ModelAndView createScheduledContent(@PathVariable("deliveryPipeId") long deliveryPipeId, @RequestParam(value = "date") String date) {
         ModelAndView mav = new ModelAndView("content");
@@ -306,6 +321,7 @@ public class ContentController {
         return mav;
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping({"/deliverypipe/{deliveryPipeId}/scheduled/{contentId}"})
     public ModelAndView viewScheduledContent(@PathVariable("deliveryPipeId") long deliveryPipeId, @PathVariable("contentId") long contentId) {
         ModelAndView mav = new ModelAndView("content");
@@ -314,6 +330,7 @@ public class ContentController {
         return mav;
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/scheduled/{contentId}"}, params = {"save"})
     public ModelAndView saveScheduledContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
@@ -354,6 +371,7 @@ public class ContentController {
         return mav;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/{deliveryPipeId}/scheduled/{contentId}/approve"})
     @ResponseStatus(value = HttpStatus.OK)
     public void approveScheduledContent(
@@ -368,6 +386,7 @@ public class ContentController {
         contentApproveNotification(content, deliveryPipe);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/{deliveryPipeId}/scheduled/{contentId}/disapprove"})
     @ResponseStatus(value = HttpStatus.OK)
     public void disapproveScheduledContent(

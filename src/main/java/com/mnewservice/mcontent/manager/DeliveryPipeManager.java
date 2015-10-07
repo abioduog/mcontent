@@ -61,7 +61,11 @@ public class DeliveryPipeManager {
     @Transactional(readOnly = true)
     public Collection<DeliveryPipe> getAllDeliveryPipes() {
         LOG.info("Getting all delivery pipes");
+        // TODO: implement the filtering of the delivery pipes list
+        //if user role is ADMIN
         Collection<DeliveryPipeEntity> entities = mapper.makeCollection(repository.findAll());
+        //else
+        //Collection<DeliveryPipeEntity> entities = mapper.makeCollection(repository.findByProvidersUsername(username);
         return mapper.toDomain(entities);
     }
 
@@ -94,8 +98,20 @@ public class DeliveryPipeManager {
         SeriesDeliverableEntity content = seriesRepository.findOne(id);
         return seriesMapper.toDomain(content);
     }
-//</editor-fold>
 
+    public SeriesDeliverable saveSeriesContent(long deliveryPipeId, SeriesDeliverable deliverable) {
+        SeriesDeliverableEntity entity = seriesMapper.toEntity(deliverable);
+        if (deliverable.getId() == null || deliverable.getId() == 0) {
+            entity.setStatus(AbstractDeliverableEntity.DeliverableStatusEnum.PENDING_APPROVAL);
+            entity.setDeliveryPipe(repository.findOne(deliveryPipeId));
+            entity.setDeliveryDaysAfterSubscription((int) (seriesRepository.countByDeliveryPipeId(deliveryPipeId) + 1));
+        }
+
+        // TODO: for the providers: allow save if and only if status == PENDING_APPROVAL
+        return seriesMapper.toDomain(seriesRepository.save(entity));
+    }
+
+//</editor-fold>
 //<editor-fold defaultstate="collapsed" desc="scheduled content">
     @Transactional(readOnly = true)
     public Collection<ScheduledDeliverable> getDeliveryPipeScheduledContent(long id) {
@@ -110,17 +126,6 @@ public class DeliveryPipeManager {
         ScheduledDeliverableEntity content = scheduledRepository.findOne(id);
         return scheduledMapper.toDomain(content);
     }
-//</editor-fold>
-
-    public SeriesDeliverable saveSeriesContent(long deliveryPipeId, SeriesDeliverable deliverable) {
-        SeriesDeliverableEntity entity = seriesMapper.toEntity(deliverable);
-        if (deliverable.getId() == null || deliverable.getId() == 0) {
-            entity.setStatus(AbstractDeliverableEntity.DeliverableStatusEnum.PENDING_APPROVAL);
-            entity.setDeliveryPipe(repository.findOne(deliveryPipeId));
-            entity.setDeliveryDaysAfterSubscription((int) (seriesRepository.countByDeliveryPipeId(deliveryPipeId) + 1));
-        }
-        return seriesMapper.toDomain(seriesRepository.save(entity));
-    }
 
     public ScheduledDeliverable saveScheduledContent(long deliveryPipeId, ScheduledDeliverable deliverable) {
         ScheduledDeliverableEntity entity = scheduledMapper.toEntity(deliverable);
@@ -128,8 +133,11 @@ public class DeliveryPipeManager {
             entity.setStatus(AbstractDeliverableEntity.DeliverableStatusEnum.PENDING_APPROVAL);
             entity.setDeliveryPipe(repository.findOne(deliveryPipeId));
         }
+
+        // TODO: for the providers: allow save if and only if status == PENDING_APPROVAL
         return scheduledMapper.toDomain(scheduledRepository.save(entity));
     }
+//</editor-fold>
 
     public Content getContentByUuid(String shortUuid) {
         AbstractContentEntity entity = contentRepository.findByShortUuid(shortUuid);

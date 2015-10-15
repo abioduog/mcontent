@@ -1,0 +1,8 @@
+#header, #footer {
+    background-color: green;
+}
+
+img {
+    width: 50% !important;
+    float: right;
+}

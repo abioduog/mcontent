@@ -1,11 +1,7 @@
 package com.mnewservice.mcontent.repository.entity;
 
 import java.util.Set;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  *
@@ -38,8 +34,13 @@ public class DeliveryPipeEntity extends AbstractEntity { // aka Devil Pipe
     @Enumerated(EnumType.STRING)
     private DeliverableTypeEnum deliverableType;
 
+    private String theme;
+
     @ManyToMany
     private Set<UserEntity> providers;
+
+    @OneToMany(mappedBy = "deliveryPipe")
+    private Set<AbstractDeliverableEntity> deliverables;
 
     public String getName() {
         return name;
@@ -57,6 +58,14 @@ public class DeliveryPipeEntity extends AbstractEntity { // aka Devil Pipe
         this.deliverableType = deliverableType;
     }
 
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(String theme) {
+        this.theme = theme;
+    }
+
     public Set<UserEntity> getProviders() {
         return providers;
     }
@@ -65,4 +74,11 @@ public class DeliveryPipeEntity extends AbstractEntity { // aka Devil Pipe
         this.providers = providers;
     }
 
+    public Set<AbstractDeliverableEntity> getDeliverables() {
+        return deliverables;
+    }
+
+    public void setDeliverables(Set<AbstractDeliverableEntity> deliverables) {
+        this.deliverables = deliverables;
+    }
 }

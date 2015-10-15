@@ -1,0 +1,18 @@
+#header, #footer {
+    background-color: transparent;
+}
+
+#header {
+    height: 327px;
+    background-image: url("http://cdn1.sciencefiction.com/wp-content/uploads/2012/04/The-Avengers-movie-banner.png");
+    background-size: cover;
+    background-position: bottom;
+}
+
+#footer {
+    border-top: 3px solid darkslategray;
+}
+
+img {
+    width: 100% !important;
+}

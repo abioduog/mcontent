@@ -183,7 +183,7 @@ public class MessageCenter {
             logHeadersAndContent(response, entity);
 
             int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
+            if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_ACCEPTED) {
                 String reason = response.getStatusLine().getReasonPhrase();
                 String msg = String.format(
                         ERROR_INVALID_STATUS, statusCode, reason

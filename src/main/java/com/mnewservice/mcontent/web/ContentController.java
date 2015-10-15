@@ -8,12 +8,9 @@ import com.mnewservice.mcontent.manager.SeriesDeliverableManager;
 import com.mnewservice.mcontent.manager.UserManager;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,6 +50,9 @@ public class ContentController {
     @Value("${application.notification.deliverable.disapproved.message.text}")
     private String deliverableDisapprovedMessageText;
 
+    @Value("${application.content.themes}")
+    private String themes;
+
     @Autowired
     private DeliveryPipeManager deliveryPipeManager;
 
@@ -75,10 +75,16 @@ public class ContentController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @ModelAttribute("allThemes")
+    public List<String> populateThemes() {
+        return Arrays.asList(themes.split(",")).stream().map(s -> s.trim()).collect(Collectors.toList());
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @ModelAttribute("allDeliveryPipes")
     public List<DeliveryPipe> populateServices() {
-        return deliveryPipeManager.getAllDeliveryPipes()
-                .stream().collect(Collectors.toList());
+       return deliveryPipeManager.getAllDeliveryPipes()
+               .stream().collect(Collectors.toList());
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
@@ -93,7 +99,6 @@ public class ContentController {
     public String listServices() {
         return "deliveryPipeList";
     }
-
 //<editor-fold defaultstate="collapsed" desc="Delivery pipe">
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/create"})
@@ -470,11 +475,4 @@ public class ContentController {
                 providers, notificationSubject, notificationMessage);
     }
     //</editor-fold>
-
-    @RequestMapping({"/show/a/{short_uuid}"})
-    public ModelAndView showContent(@PathVariable("short_uuid") String shortUuid) {
-        ModelAndView mav = new ModelAndView("show");
-        mav.addObject("content", deliveryPipeManager.getContentByUuid(shortUuid));
-        return mav;
-    }
 }

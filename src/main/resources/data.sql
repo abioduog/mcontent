@@ -146,7 +146,7 @@ VALUES (
         'Presenting Zestful lifestyle of the Sami people'
 );
 
-INSERT INTO delivery_pipes (name, deliverable_type) VALUES ('Test pipe','SERIES');
+INSERT INTO delivery_pipes (name, deliverable_type, theme) VALUES ('Test pipe','SERIES', 'comics');
 INSERT INTO delivery_pipes_providers (delivery_pipes_id, providers_id) VALUES (
         (SELECT id FROM delivery_pipes WHERE name='Test pipe'),
         (SELECT id FROM users WHERE username='provider'));
@@ -177,30 +177,29 @@ VALUES (
         'T1600'
 );
 
-INSERT INTO contents (content_type) VALUES ('CUSTOM');
-INSERT INTO custom_contents (id, short_uuid, title, content) VALUES (
-        (SELECT id FROM contents WHERE content_type='CUSTOM'),
-        '9d37c676-2991-4267-9fcc-1bb133489c8c',
+INSERT INTO contents (content_type, short_uuid) VALUES ('CUSTOM', '9d37c676-2991-4267-9fcc-1bb133489c8c');
+INSERT INTO custom_contents (id, title, content) VALUES (
+        (SELECT id FROM contents WHERE short_uuid='9d37c676-2991-4267-9fcc-1bb133489c8c'),
         'testi-title',
         'testi-content'
 );
 
 INSERT INTO deliverables (content_id, delivery_pipe_id, deliverable_type, status) VALUES (
-        (SELECT id FROM custom_contents WHERE short_uuid='9d37c676-2991-4267-9fcc-1bb133489c8c'),
+        (SELECT id FROM contents WHERE short_uuid='9d37c676-2991-4267-9fcc-1bb133489c8c'),
         (SELECT id FROM delivery_pipes WHERE name='Test pipe'),
         'SERIES',
         'PENDING_APPROVAL'
 );
 INSERT INTO series_deliverables (id, delivery_days_after_subscription) VALUES (
         (SELECT id FROM deliverables WHERE
-                content_id=(SELECT id FROM custom_contents WHERE short_uuid='9d37c676-2991-4267-9fcc-1bb133489c8c') AND
+                content_id=(SELECT id FROM contents WHERE short_uuid='9d37c676-2991-4267-9fcc-1bb133489c8c') AND
                 delivery_pipe_id=(SELECT id FROM delivery_pipes WHERE name='Test pipe') AND
                 deliverable_type='SERIES'
         ),
         1
 );
 
-INSERT INTO delivery_pipes (name, deliverable_type) VALUES ('Test pipe 2','SCHEDULED');
+INSERT INTO delivery_pipes (name, deliverable_type, theme) VALUES ('Test pipe 2','SCHEDULED', 'fashion');
 INSERT INTO delivery_pipes_providers (delivery_pipes_id, providers_id) VALUES (
         (SELECT id FROM delivery_pipes WHERE name='Test pipe 2'),
         (SELECT id FROM users WHERE username='a_provider'));
@@ -235,23 +234,22 @@ VALUES (
         'T1000'
 );
 
-INSERT INTO contents (content_type) VALUES ('CUSTOM');
-INSERT INTO custom_contents (id, short_uuid, title, content) VALUES (
-        (SELECT id FROM contents ORDER BY id DESC LIMIT 1),
-        '82bd331d-c1bb-4788-801a-ff8f99631a9f',
+INSERT INTO contents (content_type, short_uuid) VALUES ('CUSTOM', '82bd331d-c1bb-4788-801a-ff8f99631a9f');
+INSERT INTO custom_contents (id, title, content) VALUES (
+        (SELECT id FROM contents WHERE short_uuid='82bd331d-c1bb-4788-801a-ff8f99631a9f'),
         'testi-title2',
         'testi-content2'
 );
 
 INSERT INTO deliverables (content_id, delivery_pipe_id, deliverable_type, status) VALUES (
-        (SELECT id FROM contents ORDER BY id DESC LIMIT 1),
+        (SELECT id FROM contents WHERE short_uuid='82bd331d-c1bb-4788-801a-ff8f99631a9f'),
         (SELECT id FROM delivery_pipes WHERE name='Test pipe 2'),
         'SCHEDULED',
         'PENDING_APPROVAL'
 );
 INSERT INTO scheduled_deliverables (id, delivery_date) VALUES (
         (SELECT id FROM deliverables WHERE
-                content_id=(SELECT id FROM contents ORDER BY id DESC LIMIT 1) AND
+                content_id=(SELECT id FROM contents WHERE short_uuid='82bd331d-c1bb-4788-801a-ff8f99631a9f') AND
                 delivery_pipe_id=(SELECT id FROM delivery_pipes WHERE name='Test pipe 2') AND
                 deliverable_type='SCHEDULED'
         ),

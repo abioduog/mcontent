@@ -81,7 +81,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                    .authorizeRequests().antMatchers("/subscription").hasIpAddress(smsGatewayIp)
+                    .authorizeRequests().antMatchers("/subscription").permitAll()//.hasIpAddress(smsGatewayIp)
                     .and()
                     .authorizeRequests().antMatchers("/register/provider").permitAll()
                     .and()

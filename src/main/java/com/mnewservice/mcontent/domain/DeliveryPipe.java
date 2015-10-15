@@ -12,6 +12,7 @@ public class DeliveryPipe {
 
     private String name;
     private DeliverableType deliverableType;
+    private String theme;
     private Collection<User> providers;
 
     public Long getId() {
@@ -36,6 +37,14 @@ public class DeliveryPipe {
 
     public void setDeliverableType(DeliverableType deliverableType) {
         this.deliverableType = deliverableType;
+    }
+
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(String theme) {
+        this.theme = theme;
     }
 
     public Collection<User> getProviders() {

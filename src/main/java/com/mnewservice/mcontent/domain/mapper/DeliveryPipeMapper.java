@@ -31,6 +31,7 @@ public class DeliveryPipeMapper extends AbstractMapper<DeliveryPipe, DeliveryPip
         domain.setName(entity.getName());
         domain.setDeliverableType(
                 deliverableTypeMapper.toDomain(entity.getDeliverableType()));
+        domain.setTheme(entity.getTheme());
         domain.setProviders(userMapper.toDomain(entity.getProviders()));
         return domain;
 
@@ -46,6 +47,7 @@ public class DeliveryPipeMapper extends AbstractMapper<DeliveryPipe, DeliveryPip
         entity.setName(domain.getName());
         entity.setDeliverableType(
                 deliverableTypeMapper.toEntity(domain.getDeliverableType()));
+        entity.setTheme(domain.getTheme());
         Collection<UserEntity> providers = userMapper.toEntity(domain.getProviders());
         entity.setProviders((providers == null)
                 ? null

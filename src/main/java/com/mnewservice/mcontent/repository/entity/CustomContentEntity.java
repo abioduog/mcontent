@@ -8,16 +8,11 @@ import javax.persistence.*;
  */
 @Entity
 @Table(
-        name = "custom_contents",
-        uniqueConstraints = @UniqueConstraint(
-                columnNames = {"shortUuid"}
-        )
+        name = "custom_contents"
 )
 @DiscriminatorValue("CUSTOM")
 public class CustomContentEntity extends AbstractContentEntity {
 
-    @Column(updatable = false)
-    private String shortUuid;
     private String title;
 
     @Column(length=Integer.MAX_VALUE)
@@ -33,14 +28,6 @@ public class CustomContentEntity extends AbstractContentEntity {
                 0,
                 Math.min(content.length(), MESSAGE_MAX_LENGTH)
         );
-    }
-
-    public String getShortUuid() {
-        return shortUuid;
-    }
-
-    public void setShortUuid(String shortUuid) {
-        this.shortUuid = shortUuid;
     }
 
     public String getTitle() {

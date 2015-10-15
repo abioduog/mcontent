@@ -18,6 +18,12 @@
                 <option th:each="deliverableType : ${allDeliverableTypes}" th:value="${deliverableType}"
                         th:text="${deliverableType}">Delivery type</option>
             </select>
+
+            <label for="theme" th:text="#{deliveryPipe.theme}">Theme</label>
+            <select name="theme" th:field="${deliveryPipe.theme}">
+                <option th:each="theme : ${allThemes}" th:value="${theme}"
+                        th:text="${theme}">Theme</option>
+            </select>
             
             <label for="providers" th:text="#{deliveryPipe.providers}">Providers</label>
             <select multiple="multiple" name="providers" th:field="${deliveryPipe.providers}">

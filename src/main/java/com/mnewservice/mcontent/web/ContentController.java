@@ -264,17 +264,16 @@ public class ContentController {
                 = getSeriesContent(contentId, DeliverableStatus.PENDING_APPROVAL);
         DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
 
-        content.setStatus(DeliverableStatus.PENDING_APPROVAL);
+        content.setStatus(DeliverableStatus.DISAPPROVED);
         deliveryPipeManager.saveSeriesContent(deliveryPipeId, content);
 
         contentDisapproveNotification(content, deliveryPipe);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
-    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/{contentId}"}, params = {"save"})
+    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/"}, params = {"save"})
     public ModelAndView saveSeriesContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
-            @PathVariable("contentId") String contentId,
             final SeriesDeliverable deliverable,
             final BindingResult bindingResult,
             final ModelMap model) {
@@ -336,10 +335,9 @@ public class ContentController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
-    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/scheduled/{contentId}"}, params = {"save"})
+    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/scheduled"}, params = {"save"})
     public ModelAndView saveScheduledContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
-            @PathVariable("contentId") String contentId,
             final ScheduledDeliverable deliverable,
             final BindingResult bindingResult,
             final ModelMap model) {
@@ -400,7 +398,7 @@ public class ContentController {
         ScheduledDeliverable content = getScheduledContent(contentId, DeliverableStatus.PENDING_APPROVAL);
         DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
 
-        content.setStatus(DeliverableStatus.PENDING_APPROVAL);
+        content.setStatus(DeliverableStatus.DISAPPROVED);
         deliveryPipeManager.saveScheduledContent(deliveryPipeId, content);
 
         contentDisapproveNotification(content, deliveryPipe);

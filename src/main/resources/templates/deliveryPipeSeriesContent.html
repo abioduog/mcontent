@@ -14,11 +14,9 @@
                 <td th:text="${content.content.title}">Title</td>
                 <td th:text="${content.status}">Status</td>
                 <td sec:authorize="hasRole('ADMIN')"><!-- icon (?) -->
-                    <a th:unless="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                       th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/approve|}"
+                    <a th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/approve|}"
                        th:text="#{deliverable.status.approve}" onclick="callSimpleAction(this, event);">Approve</a>
-                    <a th:if="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                       th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/disapprove|}"
+                    <a th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/disapprove|}"
                        th:text="#{deliverable.status.disapprove}" onclick="callSimpleAction(this, event);">Disapprove</a>
                 </td>
                 <td sec:authorize="hasAnyRole('ADMIN','PROVIDER')">

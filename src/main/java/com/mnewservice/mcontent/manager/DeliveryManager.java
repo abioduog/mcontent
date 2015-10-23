@@ -1,9 +1,6 @@
 package com.mnewservice.mcontent.manager;
 
-import com.mnewservice.mcontent.domain.AbstractMessage;
-import com.mnewservice.mcontent.domain.DeliveryTime;
-import com.mnewservice.mcontent.domain.PhoneNumber;
-import com.mnewservice.mcontent.domain.SmsMessage;
+import com.mnewservice.mcontent.domain.*;
 import com.mnewservice.mcontent.domain.mapper.DeliveryTimeMapper;
 import com.mnewservice.mcontent.domain.mapper.PhoneNumberMapper;
 import com.mnewservice.mcontent.messaging.MessageCenter;
@@ -21,11 +18,14 @@ import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionPeriodEntity;
 import com.mnewservice.mcontent.util.DateUtils;
 import com.mnewservice.mcontent.util.exception.MessagingException;
+
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.text.DateFormatter;
 import javax.transaction.Transactional;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +46,9 @@ public class DeliveryManager {
     private static final int MAXIMUM_LENGTH_FOR_SERIES = 128;
     private static final String OPERATOR_FILTER_SEPARATOR = ",";
     private static final Logger LOG = Logger.getLogger(DeliveryManager.class);
+
+    @Value("${application.delivery.contentUrl}")
+    private String contentUrl;
 
     @Value("${application.delivery.fetch.pageSize}")
     private Integer pageSize;
@@ -266,26 +269,26 @@ public class DeliveryManager {
             SeriesDeliverableEntity[] seriesDeliverables,
             Integer sendSize) throws UnsupportedOperationException {
         LOG.info("Processing subscriptions, start");
-        Map<AbstractContentEntity, AbstractMessage> messagesMap = new HashMap<>();
+        Map<AbstractDeliverableEntity, AbstractMessage> messagesMap = new HashMap<>();
         for (SubscriptionEntity subscription : subscriptions) {
-            AbstractContentEntity content
-                    = getContent(subscription, scheduledDeliverable, seriesDeliverables);
+            AbstractDeliverableEntity deliverable
+                    = getDeliverable(subscription, scheduledDeliverable, seriesDeliverables);
 
-            if (content == null) {
+            if (deliverable == null) {
                 // nothing to deliver
                 LOG.debug("Nothing to deliver for subscription, id=" + subscription.getId());
                 continue;
             }
 
-            SmsMessage message = createMessage(messagesMap, content, subscription);
+            SmsMessage message = createMessage(messagesMap, deliverable, subscription);
 
             if (message.getReceivers().size() >= sendSize) {
                 sendMessage(message, shortCode);
-                messagesMap.remove(content);
+                messagesMap.remove(deliverable);
             }
         }
         // send possible "leftover messages"
-        for (Map.Entry<AbstractContentEntity, AbstractMessage> entry : messagesMap.entrySet()) {
+        for (Map.Entry<AbstractDeliverableEntity, AbstractMessage> entry : messagesMap.entrySet()) {
             sendMessage((SmsMessage) entry.getValue(), shortCode);
         }
         LOG.info("Processing subscriptions, end");
@@ -327,14 +330,28 @@ public class DeliveryManager {
     }
 
     private SmsMessage createMessage(
-            Map<AbstractContentEntity, AbstractMessage> messagesMap,
-            AbstractContentEntity content,
+            Map<AbstractDeliverableEntity, AbstractMessage> messagesMap,
+            AbstractDeliverableEntity deliverable,
             SubscriptionEntity subscription) throws UnsupportedOperationException {
-        AbstractMessage message = messagesMap.get(content);
+        AbstractMessage message = messagesMap.get(deliverable);
         if (message == null) {
             message = new SmsMessage();
-            message.setMessage(content.getSummary());
-            messagesMap.put(content, message);
+            String messageContent = "";
+            if(deliverable.getDeliveryPipe().getDeliverableType() == DeliveryPipeEntity.DeliverableTypeEnum.SCHEDULED) {
+                messageContent += String.format("%s %s: ",
+                        deliverable.getDeliveryPipe().getName(),
+                        new SimpleDateFormat().format(((ScheduledDeliverableEntity) deliverable).getDeliveryDate())
+                );
+            } else if(deliverable.getDeliveryPipe().getDeliverableType() == DeliveryPipeEntity.DeliverableTypeEnum.SERIES) {
+                messageContent += String.format("%s #%s: ",
+                        deliverable.getDeliveryPipe().getName(),
+                        ((SeriesDeliverableEntity) deliverable).getDeliveryDaysAfterSubscription()
+                );
+            }
+            messageContent += String.format(contentUrl, deliverable.getContent().getShortUuid());
+
+            message.setMessage(messageContent);
+            messagesMap.put(deliverable, message);
         }
         addPhoneNumberToMessage(subscription, message);
         return (SmsMessage) message;
@@ -354,13 +371,13 @@ public class DeliveryManager {
         }
     }
 
-    private AbstractContentEntity getContent(
+    private AbstractDeliverableEntity getDeliverable(
             SubscriptionEntity subscription,
             ScheduledDeliverableEntity scheduledDeliverable,
             SeriesDeliverableEntity[] seriesDeliverableOrdered) {
         // assumption: there is either one scheduledDeliverable..
         if (scheduledDeliverable != null) {
-            return scheduledDeliverable.getContent();
+            return scheduledDeliverable;
         }
 
         // ..or one or more seriesDeliverables
@@ -378,8 +395,7 @@ public class DeliveryManager {
             SeriesDeliverableEntity deliverable
                     = seriesDeliverableOrdered[days];
             if (deliverable != null) {
-                // TODO: is it possible to have more than one active period?
-                return deliverable.getContent();
+                return deliverable;
             }
         }
 

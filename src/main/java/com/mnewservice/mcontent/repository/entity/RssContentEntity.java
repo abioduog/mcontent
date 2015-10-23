@@ -17,32 +17,6 @@ public class RssContentEntity extends AbstractContentEntity {
     private String title;
     private String description;
     private String link;
-    private static final String SUMMARY_TEMPLATE = "%s: %s (%s)";
-
-    @Override
-    public String getSummary() {
-        int lengthWithoutDescription = String.format(
-                SUMMARY_TEMPLATE,
-                title,
-                "",
-                link
-        ).length();
-
-        int descriptionMaxLength
-                = (MESSAGE_MAX_LENGTH - lengthWithoutDescription > 0)
-                        ? MESSAGE_MAX_LENGTH - lengthWithoutDescription
-                        : 0;
-
-        return String.format(
-                SUMMARY_TEMPLATE,
-                title,
-                description.substring(
-                        0,
-                        Math.min(description.length(), descriptionMaxLength)
-                ),
-                link
-        );
-    }
 
     public String getTitle() {
         return title;

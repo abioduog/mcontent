@@ -14,7 +14,7 @@ public class ValidationUtils {
     private static final Logger LOG = Logger.getLogger(ValidationUtils.class);
 
     public static final SimpleDateFormat FORMAT_MMDDYYYY_HHMM_AA
-            = new SimpleDateFormat("MM/dd/yyyy hh:mm aa", Locale.UK);
+            = new SimpleDateFormat("MM/dd/yyyy-hh:mm aa", Locale.UK);
 
     private static final String ERROR_PARAM_EMPTY
             = "The '%s' parameter must not be null or empty";

@@ -2,22 +2,83 @@
 <div class="content-menu">
     <div class="calendar-menu"></div>
     <script th:inline="javascript">
+        function editContent() {
+            var urlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/scheduled/|}]]*/;
+            loadToContentEditorViaUrl(urlBase + $.lastClickedScheduledDay.events[0].id);
+            return false;
+        };
+
+        function createContent() {
+            var urlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/scheduled/|}]]*/;
+            loadToContentEditorViaUrl(urlBase + "create?date=" + $.lastClickedScheduledDay.date._i);
+            return false;
+        };
+
+        function approve(event) {    event.preventDefault();
+            var urlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/scheduled/|}]]*/;
+            $.ajax({
+                type: "GET",
+                url: urlBase + $.lastClickedScheduledDay.events[0].id + "/approve",
+                success: function (data)
+                {
+                    window.alert("Success");
+                }
+            });
+            return false;
+        }
+
+        function disapprove(event) {    event.preventDefault();
+            var urlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/scheduled/|}]]*/;
+            $.ajax({
+                type: "GET",
+                url: urlBase + $.lastClickedScheduledDay.events[0].id + "/disapprove",
+                success: function (data)
+                {
+                    window.alert("Success");
+                }
+            });
+            return false;
+        }
+
         $(".calendar-menu").clndr({
             weekOffset: 1,
             events: /*[[${contents}]]*/ [],
             clickEvents: {
                 click: function(target) {
-                    var urlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/scheduled/|}]]*/;
-                    if(target.events.length > 0) {
-                        loadToContentEditorViaUrl(urlBase + target.events[0].id);
-                    } else {
-                        console.log(target);
-                        window.debug = target;
-                        loadToContentEditorViaUrl(urlBase + "create?date="+target.date._i);
-                    }
+                    $.lastClickedScheduledDay = target;
                 }
             }
         });
+        $(".calendar-menu").find(".day:not(.past):not(.event)").attr("data-jq-dropdown", "#create-content-context-menu");
+        $(".calendar-menu").find(".day:not(.past).event").attr("data-jq-dropdown", "#edit-content-context-menu");
+        $(".calendar-menu").find(".day.past.event").attr("data-jq-dropdown", "#view-content-context-menu");
+/*        $('#jq-dropdown-1').on('show', function(event, dropdownData) {
+            console.log(dropdownData.trigger.context);
+        }).on('hide', function(event, dropdownData) {
+            $.lastClickedScheduledDay = null;
+        });*/
     </script>
+    <div id="create-content-context-menu" class="jq-dropdown jq-dropdown-tip">
+        <ul class="jq-dropdown-menu">
+            <li><a onclick="createContent();">Create</a></li>
+        </ul>
+    </div>
+    <div id="edit-content-context-menu" class="jq-dropdown jq-dropdown-tip">
+        <ul class="jq-dropdown-menu">
+            <li><a onclick="editContent();">Edit</a></li>
+            <li class="jq-dropdown-divider" sec:authorize="hasRole('ADMIN')"></li>
+            <li sec:authorize="hasRole('ADMIN')">
+                <a th:text="#{deliverable.status.approve}" onclick="approve(event);">Approve</a>
+            </li>
+            <li sec:authorize="hasRole('ADMIN')">
+                <a th:text="#{deliverable.status.disapprove}" onclick="disapprove(event);">Disapprove</a>
+            </li>
+        </ul>
+    </div>
+    <div id="view-content-context-menu" class="jq-dropdown jq-dropdown-tip">
+        <ul class="jq-dropdown-menu">
+            <li><a onclick="editContent();">View</a></li>
+        </ul>
+    </div>
 </div>
 <div id="content-editor"></div>

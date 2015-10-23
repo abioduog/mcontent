@@ -14,8 +14,10 @@ public abstract class AbstractDeliverableEntity extends AbstractEntity {
 
     public enum DeliverableStatusEnum {
 
+        DRAFT,
         PENDING_APPROVAL,
-        APPROVED
+        APPROVED,
+        DISAPPROVED
     }
 
     @ManyToOne

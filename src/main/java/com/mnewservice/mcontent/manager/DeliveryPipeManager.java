@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
+import com.mnewservice.mcontent.util.ShortUrlUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -111,6 +112,13 @@ public class DeliveryPipeManager {
             entity.setDeliveryPipe(repository.findOne(deliveryPipeId));
             entity.setDeliveryDaysAfterSubscription((int) (seriesRepository.countByDeliveryPipeId(deliveryPipeId) + 1));
         }
+        if(entity.getContent().getShortUuid() == null) {
+            String shortUuid = ShortUrlUtils.getRandomShortIdentifier();
+            while(contentRepository.findByShortUuid(shortUuid) != null) {
+                shortUuid = ShortUrlUtils.getRandomShortIdentifier();
+            }
+            entity.getContent().setShortUuid(shortUuid);
+        }
 
         // TODO: for the providers: allow save if and only if status == PENDING_APPROVAL
         return seriesMapper.toDomain(seriesRepository.save(entity));
@@ -137,6 +145,13 @@ public class DeliveryPipeManager {
         if (deliverable.getId() == null || deliverable.getId() == 0) {
             entity.setStatus(AbstractDeliverableEntity.DeliverableStatusEnum.PENDING_APPROVAL);
             entity.setDeliveryPipe(repository.findOne(deliveryPipeId));
+        }
+        if(entity.getContent().getShortUuid() == null) {
+            String shortUuid = ShortUrlUtils.getRandomShortIdentifier();
+            while(contentRepository.findByShortUuid(shortUuid) != null) {
+                shortUuid = ShortUrlUtils.getRandomShortIdentifier();
+            }
+            entity.getContent().setShortUuid(shortUuid);
         }
 
         // TODO: for the providers: allow save if and only if status == PENDING_APPROVAL

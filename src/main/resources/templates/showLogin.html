@@ -18,7 +18,7 @@
                         You have been logged out.
                     </div>
                     <label for="username" th:text="#{loginShow.phoneNumber}">Phone number</label>
-                    <input type="text" name="username"/>
+                    <input type="text" name="username" placeholder="e.g. 2348012345678" pattern="234[0-9]{10}" oninvalid="setCustomValidity('Please type the number in correct format e.g. 2348012345678')" onblur="$(this).val($(this).val().replace(/ /g, '').replace(/^0/i, '234'))"/>
                     <input type="hidden" name="password" value=" "/>
                     <input type="hidden" name="remember-me" value="true"/>
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -28,5 +28,6 @@
                 </fieldset>
             </form>
         </div>
+        <script src="/mContent/js/lib/jquery.min.js"></script>
     </body>
 </html>

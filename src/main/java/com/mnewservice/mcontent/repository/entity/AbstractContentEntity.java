@@ -16,12 +16,8 @@ import javax.persistence.*;
 @DiscriminatorColumn(name = "contentType")
 public abstract class AbstractContentEntity extends AbstractEntity {
 
-    protected static final int MESSAGE_MAX_LENGTH = 160;
-
     @Column(updatable = false)
     private String shortUuid;
-
-    public abstract String getSummary();
 
     public String getShortUuid() {
         return shortUuid;

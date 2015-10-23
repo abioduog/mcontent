@@ -6,6 +6,8 @@ package com.mnewservice.mcontent.domain;
  */
 public enum DeliverableStatus {
 
+    DRAFT,
     PENDING_APPROVAL,
-    APPROVED
+    APPROVED,
+    DISAPPROVED
 }

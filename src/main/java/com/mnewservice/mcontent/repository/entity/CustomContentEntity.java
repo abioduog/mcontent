@@ -18,18 +18,6 @@ public class CustomContentEntity extends AbstractContentEntity {
     @Column(length=Integer.MAX_VALUE)
     private String content; // html
 
-    @Override
-    public String getSummary() {
-        // TODO: how to really get summary out of HTML page: page title? description?
-        if(content == null) {
-            return "";
-        }
-        return content.substring(
-                0,
-                Math.min(content.length(), MESSAGE_MAX_LENGTH)
-        );
-    }
-
     public String getTitle() {
         return title;
     }

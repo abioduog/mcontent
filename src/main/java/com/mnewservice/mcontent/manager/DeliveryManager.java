@@ -1,6 +1,7 @@
 package com.mnewservice.mcontent.manager;
 
 import com.mnewservice.mcontent.domain.*;
+import com.mnewservice.mcontent.domain.mapper.ContentMapper;
 import com.mnewservice.mcontent.domain.mapper.DeliveryTimeMapper;
 import com.mnewservice.mcontent.domain.mapper.PhoneNumberMapper;
 import com.mnewservice.mcontent.messaging.MessageCenter;
@@ -8,7 +9,6 @@ import com.mnewservice.mcontent.repository.ScheduledDeliverableRepository;
 import com.mnewservice.mcontent.repository.SeriesDeliverableRepository;
 import com.mnewservice.mcontent.repository.ServiceRepository;
 import com.mnewservice.mcontent.repository.SubscriptionRepository;
-import com.mnewservice.mcontent.repository.entity.AbstractContentEntity;
 import com.mnewservice.mcontent.repository.entity.AbstractDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.ScheduledDeliverableEntity;
@@ -19,13 +19,11 @@ import com.mnewservice.mcontent.repository.entity.SubscriptionPeriodEntity;
 import com.mnewservice.mcontent.util.DateUtils;
 import com.mnewservice.mcontent.util.exception.MessagingException;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.swing.text.DateFormatter;
 import javax.transaction.Transactional;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +77,9 @@ public class DeliveryManager {
 
     @Autowired
     private MessageCenter messageCenter;
+
+    @Autowired
+    private ContentMapper contentMapper;
 
     @Autowired
     private PhoneNumberMapper phoneNumberMapper;
@@ -336,21 +337,7 @@ public class DeliveryManager {
         AbstractMessage message = messagesMap.get(deliverable);
         if (message == null) {
             message = new SmsMessage();
-            String messageContent = "";
-            if(deliverable.getDeliveryPipe().getDeliverableType() == DeliveryPipeEntity.DeliverableTypeEnum.SCHEDULED) {
-                messageContent += String.format("%s %s: ",
-                        deliverable.getDeliveryPipe().getName(),
-                        new SimpleDateFormat().format(((ScheduledDeliverableEntity) deliverable).getDeliveryDate())
-                );
-            } else if(deliverable.getDeliveryPipe().getDeliverableType() == DeliveryPipeEntity.DeliverableTypeEnum.SERIES) {
-                messageContent += String.format("%s #%s: ",
-                        deliverable.getDeliveryPipe().getName(),
-                        ((SeriesDeliverableEntity) deliverable).getDeliveryDaysAfterSubscription()
-                );
-            }
-            messageContent += String.format(contentUrl, deliverable.getContent().getShortUuid());
-
-            message.setMessage(messageContent);
+            message.setMessage(contentMapper.toDomain(deliverable.getContent()).getSmsMessageContent());
             messagesMap.put(deliverable, message);
         }
         addPhoneNumberToMessage(subscription, message);

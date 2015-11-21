@@ -2,40 +2,43 @@
 <div class="content-menu">
     <div class="calendar-menu"></div>
     <script th:inline="javascript">
-        function editContent() {
-            var urlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/scheduled/|}]]*/;
-            loadToContentEditorViaUrl(urlBase + $.lastClickedScheduledDay.events[0].id);
+        var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipe.id}/content/list|}]]*/;
+        var contentUrlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/scheduled/|}]]*/;
+
+        function createContent(event) {
+            event.preventDefault();
+            mContent.loaders.contentEditor(contentUrlBase + "create?date=" + $.lastClickedScheduledDay.date._i);
             return false;
         };
 
-        function createContent() {
-            var urlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/scheduled/|}]]*/;
-            loadToContentEditorViaUrl(urlBase + "create?date=" + $.lastClickedScheduledDay.date._i);
+        function editContent(event) {
+            event.preventDefault();
+            mContent.loaders.contentEditor(contentUrlBase + $.lastClickedScheduledDay.events[0].id);
             return false;
         };
 
-        function approve(event) {    event.preventDefault();
-            var urlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/scheduled/|}]]*/;
-            $.ajax({
-                type: "GET",
-                url: urlBase + $.lastClickedScheduledDay.events[0].id + "/approve",
-                success: function (data)
-                {
-                    window.alert("Success");
-                }
+        function approve(event) {
+            event.preventDefault();
+            mContent.ajax.get(contentUrlBase + $.lastClickedScheduledDay.events[0].id + "/approve", function (data) {
+                mContent.notify("Content approved.", "info");
+                mContent.loaders.workArea(deliveryPipeContentListUrl);
+            }, function (error) {
+                console.log(error);
+                mContent.notify("Failed to approve content.", "warning");
+                mContent.loaders.workArea(deliveryPipeContentListUrl);
             });
             return false;
         }
 
-        function disapprove(event) {    event.preventDefault();
-            var urlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/scheduled/|}]]*/;
-            $.ajax({
-                type: "GET",
-                url: urlBase + $.lastClickedScheduledDay.events[0].id + "/disapprove",
-                success: function (data)
-                {
-                    window.alert("Success");
-                }
+        function disapprove(event) {
+            event.preventDefault();
+            mContent.ajax.get(contentUrlBase + $.lastClickedScheduledDay.events[0].id + "/disapprove", function (data) {
+                mContent.notify("Content disapproved.", "info");
+                mContent.loaders.workArea(deliveryPipeContentListUrl);
+            }, function (error) {
+                console.log(error);
+                mContent.notify("Failed to disapprove content.", "warning");
+                mContent.loaders.workArea(deliveryPipeContentListUrl);
             });
             return false;
         }
@@ -45,7 +48,11 @@
             events: /*[[${contents}]]*/ [],
             clickEvents: {
                 click: function(target) {
+                    window.debug = target;
                     $.lastClickedScheduledDay = target;
+                    if(target.events.length > 0) {
+                        $(".context-menu-content-title").text(target.events[0].title);
+                    }
                 }
             }
         });
@@ -60,12 +67,14 @@
     </script>
     <div id="create-content-context-menu" class="jq-dropdown jq-dropdown-tip">
         <ul class="jq-dropdown-menu">
-            <li><a onclick="createContent();">Create</a></li>
+            <li><a onclick="createContent(event);">Create</a></li>
         </ul>
     </div>
     <div id="edit-content-context-menu" class="jq-dropdown jq-dropdown-tip">
         <ul class="jq-dropdown-menu">
-            <li><a onclick="editContent();">Edit</a></li>
+            <li class="context-menu-content-title"></li>
+            <li class="jq-dropdown-divider"></li>
+            <li><a onclick="editContent(event);">Edit</a></li>
             <li class="jq-dropdown-divider" sec:authorize="hasRole('ADMIN')"></li>
             <li sec:authorize="hasRole('ADMIN')">
                 <a th:text="#{deliverable.status.approve}" onclick="approve(event);">Approve</a>
@@ -77,6 +86,8 @@
     </div>
     <div id="view-content-context-menu" class="jq-dropdown jq-dropdown-tip">
         <ul class="jq-dropdown-menu">
+            <li class="context-menu-content-title"></li>
+            <li class="jq-dropdown-divider"></li>
             <li><a onclick="editContent();">View</a></li>
         </ul>
     </div>

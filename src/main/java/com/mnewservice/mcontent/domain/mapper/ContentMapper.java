@@ -25,6 +25,7 @@ public class ContentMapper extends AbstractMapper<Content, AbstractContentEntity
         domain.setId(entity.getId());
         domain.setUuid(entity.getShortUuid());
         domain.setTitle(entity.getTitle());
+        domain.setMessage(entity.getMessage());
         domain.setContent(entity.getContent());
         return domain;
     }
@@ -34,6 +35,7 @@ public class ContentMapper extends AbstractMapper<Content, AbstractContentEntity
         CustomContentEntity entity = new CustomContentEntity();
         entity.setId(domain.getId());
         entity.setTitle(domain.getTitle());
+        entity.setMessage(domain.getMessage());
         entity.setContent(domain.getContent());
         return entity;
     }

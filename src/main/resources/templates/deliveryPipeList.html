@@ -1,9 +1,9 @@
 <h1 th:inline="text">Delivery pipe list</h1>
 <div sec:authorize="hasRole('ADMIN')">
     <!-- style to look like a button (?) -->
-    <a href="deliveryPipeDetail.html"
+    <a class="create-pipe"
        th:href="@{/deliverypipe/create}"
-       th:text="#{general.createNew}" onclick="loadToPopup('Create delivery pipe', this, event);">Create new</a>
+       th:text="#{general.createNew}">Create new</a>
 </div>
 <div class="delivery-pipe-list" th:unless="${#lists.isEmpty(allDeliveryPipes)}">
     <table class="pure-table">
@@ -16,16 +16,33 @@
             </tr>
         </thead>
         <tbody>
-            <tr th:each="delieryPipe : ${allDeliveryPipes}">
-                <td th:text="${delieryPipe.name}">NAME</td>
-                <td th:text="${delieryPipe.deliverableType}">TYPE</td>
+            <tr th:each="deliveryPipe : ${allDeliveryPipes}">
+                <td th:text="${deliveryPipe.name}">NAME</td>
+                <td th:text="${deliveryPipe.deliverableType}">TYPE</td>
                 <td>0</td>
                 <td><!-- icon (?) -->
-                    <a sec:authorize="hasRole('ADMIN')" th:href="@{|/deliverypipe/${delieryPipe.id}|}"
-                       th:text="#{general.edit}" onclick="loadToPopup('Edit delivery pipe', this, event);">Edit</a>
-                    <a sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:href="@{|/deliverypipe/${delieryPipe.id}/content/list|}"
-                       th:text="#{deliverypipe.viewcontent}" onclick="loadToWorkArea(this, event);">View content</a></td>
+                    <a class="edit-pipe" sec:authorize="hasRole('ADMIN')" th:href="@{|/deliverypipe/${deliveryPipe.id}|}"
+                       th:text="#{general.edit}">Edit</a>
+                    <a class="edit-content" sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:href="@{|/deliverypipe/${deliveryPipe.id}/content/list|}"
+                       th:text="#{deliverypipe.viewcontent}">View content</a></td>
             </tr>
         </tbody>
     </table>
 </div>
+<script sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
+    $(".create-pipe").click(function() {
+        event.preventDefault();
+        mContent.popup.load('Create delivery pipe', $(this).attr("href"));
+        return false;
+    });
+    $(".edit-pipe").click(function() {
+        event.preventDefault();
+        mContent.popup.load('Edit delivery pipe', $(this).attr("href"));
+        return false;
+    });
+    $(".edit-content").click(function(event) {
+        event.preventDefault();
+        mContent.loaders.workArea($(this).attr("href"));
+        return false;
+    });
+</script>

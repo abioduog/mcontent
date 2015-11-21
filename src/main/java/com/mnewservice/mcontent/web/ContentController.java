@@ -271,7 +271,7 @@ public class ContentController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
-    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/"}, params = {"save"})
+    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series"}, params = {"save"})
     public ModelAndView saveSeriesContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             final SeriesDeliverable deliverable,

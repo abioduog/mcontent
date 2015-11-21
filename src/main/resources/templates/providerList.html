@@ -16,12 +16,12 @@
                 <td th:text="${provider.email.address}">EMAIL</td>
                 <td th:text="${provider.user.active} ? #{user.status.active} : #{user.status.inactive}">ACTIVE</td>
                 <td><!-- icon (?) -->
-                    <a th:unless="${provider.user.active}" th:href="@{|/user/${provider.user.id}/activate|}" th:text="#{user.status.activate}" onclick="callSimpleAction(this, event);">Activate</a>
-                    <a th:if="${provider.user.active}" th:href="@{|/user/${provider.user.id}/deactivate|}" th:text="#{user.status.deactivate}" onclick="callSimpleAction(this, event);">Deactivate</a>
+                    <a class="activate" th:unless="${provider.user.active}" th:href="@{|/user/${provider.user.id}/activate|}" th:text="#{user.status.activate}">Activate</a>
+                    <a class="deactivate" th:if="${provider.user.active}" th:href="@{|/user/${provider.user.id}/deactivate|}" th:text="#{user.status.deactivate}">Deactivate</a>
                 </td>
                 <td><!-- icon (?) -->
-                    <a th:href="@{|/provider/${provider.id}|}"
-                       th:text="#{general.view}" onclick="loadToPopup('View provider', this, event);">View</a></td>
+                    <a class="view-provider" th:href="@{|/provider/${provider.id}|}"
+                       th:text="#{general.view}">View</a></td>
             </tr>
         </tbody>
     </table>
@@ -32,3 +32,38 @@
       th:href="@{/service/create}"
       th:text="#{general.createNew}" onclick="loadToPopup('Create service', this, event);">Create new</a></p>
 -->
+<script th:inline="javascript">
+    var providerListUrl = /*[[@{|/provider/list|}]]*/;
+
+    $(".activate").click(function (event) {
+        event.preventDefault();
+        mContent.ajax.get($(this).attr('href'), function (data) {
+            mContent.notify("Provider activated.", "info");
+            mContent.loaders.workArea(providerListUrl);
+        }, function (error) {
+            console.log(error);
+            mContent.notify("Failed to activate provider.", "warning");
+            mContent.loaders.workArea(providerListUrl);
+        });
+        return false;
+    });
+
+    $(".deactivate").click(function (event) {
+        event.preventDefault();
+        mContent.ajax.get($(this).attr('href'), function (data) {
+            mContent.notify("Provider deactivated.", "info");
+            mContent.loaders.workArea(providerListUrl);
+        }, function (error) {
+            console.log(error);
+            mContent.notify("Failed to deactivate provider.", "warning");
+            mContent.loaders.workArea(providerListUrl);
+        });
+        return false;
+    });
+
+    $(".view-provider").click(function() {
+        event.preventDefault();
+        mContent.popup.load('View provider', $(this).attr("href"));
+        return false;
+    });
+</script>

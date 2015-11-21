@@ -14,24 +14,63 @@
                 <td th:text="${content.content.title}">Title</td>
                 <td th:text="${content.status}">Status</td>
                 <td sec:authorize="hasRole('ADMIN')"><!-- icon (?) -->
-                    <a th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/approve|}"
-                       th:text="#{deliverable.status.approve}" onclick="callSimpleAction(this, event);">Approve</a>
-                    <a th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/disapprove|}"
-                       th:text="#{deliverable.status.disapprove}" onclick="callSimpleAction(this, event);">Disapprove</a>
+                    <a class="approve" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/approve|}"
+                       th:text="#{deliverable.status.approve}">Approve</a>
+                    <a class="disapprove" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).DISAPPROVED}" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/disapprove|}"
+                       th:text="#{deliverable.status.disapprove}">Disapprove</a>
                 </td>
                 <td sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
-                    <a th:unless="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                    <a class="edit-content" th:unless="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
                        th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}|}"
-                       th:text="#{general.edit}" onclick="loadToContentEditor(this, event);">Edit</a>
-                    <a th:if="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                       th:text="#{general.edit}">Edit</a>
+                    <a class="view-content" th:if="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
                        th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}|}"
-                       th:text="#{general.view}" onclick="loadToContentEditor(this, event);">View</a>
+                       th:text="#{general.view}">View</a>
                 </td>
 
             </tr>
         </tbody>
     </table>
-    <a sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/create|}"
-       th:text="#{general.add}" onclick="loadToContentEditor(this, event);">Add new</a>
+    <a class="create-content" sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/create|}"
+       th:text="#{general.add}">Add new</a>
 </div>
 <div id="content-editor"></div>
+<script sec:authorize="hasRole('ADMIN')" th:inline="javascript">
+
+    var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipe.id}/content/list|}]]*/;
+
+    $(".approve").click(function (event) {
+        event.preventDefault();
+        mContent.ajax.get($(this).attr('href'), function (data) {
+            mContent.notify("Content approved.", "info");
+            mContent.loaders.workArea(deliveryPipeContentListUrl);
+        }, function (error) {
+            console.log(error);
+            mContent.notify("Failed to approve content.", "warning");
+            mContent.loaders.workArea(deliveryPipeContentListUrl);
+        });
+        return false;
+    });
+
+    $(".disapprove").click(function (event) {
+        event.preventDefault();
+        mContent.ajax.get($(this).attr('href'), function (data) {
+            mContent.notify("Content disapproved.", "info");
+            mContent.loaders.workArea(deliveryPipeContentListUrl);
+        }, function (error) {
+            console.log(error);
+            mContent.notify("Failed to disapprove content.", "warning");
+            mContent.loaders.workArea(deliveryPipeContentListUrl);
+        });
+        return false;
+    });
+</script>
+
+<script sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
+
+    $(".create-content, .edit-content, .view-content").click(function (event) {
+        event.preventDefault();
+        mContent.loaders.contentEditor($(this).attr('href'));
+        return false;
+    });
+</script>

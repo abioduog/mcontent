@@ -1,8 +1,8 @@
 <h1 th:inline="text">Service list</h1>
 <!-- style to look like a button (?) -->
-<a href="serviceDetail.html"
+<a class="create-service"
    th:href="@{/service/create}"
-   th:text="#{general.createNew}" onclick="loadToPopup('Create service', this, event);">Create new</a>
+   th:text="#{general.createNew}">Create new</a>
 <div class="service-list" th:unless="${#lists.isEmpty(allServices)}">
     <table class="pure-table">
         <thead>
@@ -23,9 +23,21 @@
                 <td th:text="${service.subscriptionPeriod}">SUBSCRIPTION TIME</td>
                 <td th:text="${service.deliveryPipe.name}">DELIVERY PIPE</td>
                 <td><!-- icon (?) -->
-                    <a th:href="@{|/service/${service.id}|}"
-                       th:text="#{general.edit}" onclick="loadToPopup('Edit service', this, event);">Edit</a></td>
+                    <a class="edit-service" th:href="@{|/service/${service.id}|}"
+                       th:text="#{general.edit}">Edit</a></td>
             </tr>
         </tbody>
     </table>
 </div>
+<script>
+    $(".create-service").click(function() {
+        event.preventDefault();
+        mContent.popup.load('Create service', $(this).attr("href"));
+        return false;
+    });
+    $(".edit-service").click(function() {
+        event.preventDefault();
+        mContent.popup.load('Edit service', $(this).attr("href"));
+        return false;
+    });
+</script>

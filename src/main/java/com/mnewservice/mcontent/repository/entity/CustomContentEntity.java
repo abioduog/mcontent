@@ -15,6 +15,8 @@ public class CustomContentEntity extends AbstractContentEntity {
 
     private String title;
 
+    private String message;
+
     @Column(length=Integer.MAX_VALUE)
     private String content; // html
 
@@ -24,6 +26,14 @@ public class CustomContentEntity extends AbstractContentEntity {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public String getContent() {

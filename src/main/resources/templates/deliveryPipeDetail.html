@@ -35,9 +35,31 @@
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
         </div>
         <div class="form-actions">
-            <a href="#" onclick="submitFormOnPopup(this, event);" th:text="#{general.save}">Save</a>
-            <a href="#" onclick="closePopup(this, event);" th:text="#{general.cancel}">Cancel</a>
+            <a class="submit" th:text="#{general.save}">Save</a>
+            <a class="cancel" th:text="#{general.cancel}">Cancel</a>
         </div>
     </form>
-    <script>$("select[name='providers']").multiSelect();</script>
+    <script th:inline="javascript">
+        $("select[name='providers']").multiSelect();
+
+        $(".submit").click(function(event) {
+            var deliveryPipeListUrl = /*[[@{/content/list}]]*/;
+            event.preventDefault();
+            mContent.popup.submit($(this).parents("form"),
+                function(data) {
+                    mContent.notify("Save successful", "info");
+                    mContent.loaders.workArea(deliveryPipeListUrl);
+                },
+                function(error) {
+                    mContent.notify("Saving delivery pipe changes failes", "error");
+                }
+            );
+            return false;
+        });
+        $(".cancel").click(function(event) {
+            event.preventDefault();
+            mContent.popup.close(this);
+            return false;
+        });
+    </script>
 </div>

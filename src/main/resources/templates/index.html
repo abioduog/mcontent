@@ -5,23 +5,23 @@
         <title>Main Page | mContent</title>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"/>
-        <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.1/css/bootstrap.min.css" rel="stylesheet"/>
-        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet"/>
-        <link rel="stylesheet" href="css/lib/pure-0.6.0.min.css"/>
-        <link rel="stylesheet" href="css/lib/multi-select.css"/>
-        <link rel="stylesheet" href="css/lib/jquery.dropdown.min.css"/>
-        <link rel="stylesheet" href="css/lib/clndr.css"/>
-        <link rel="stylesheet" href="css/lib/summernote.css"/>
-        <link rel="stylesheet" href="css/index.css"/>
+        <link rel="stylesheet" th:href="@{|/lib/jquery/jquery-ui.min.css|}"/>
+        <link rel="stylesheet" th:href="@{|/lib/bootstrap/bootstrap.min.css|}"/>
+        <link rel="stylesheet" th:href="@{|/lib/font-awesome/font-awesome.min.css|}"/>
+        <link rel="stylesheet" th:href="@{|/lib/pure/pure-0.6.0.min.css|}"/>
+        <link rel="stylesheet" th:href="@{|/lib/jquery/multi-select.css|}"/>
+        <link rel="stylesheet" th:href="@{|/lib/jquery/jquery.dropdown.min.css|}"/>
+        <link rel="stylesheet" th:href="@{|/lib/clndr/clndr.css|}"/>
+        <link rel="stylesheet" th:href="@{|/lib/summernote/summernote.css|}"/>
+        <link rel="stylesheet" th:href="@{|/css/index.css|}"/>
     </head>
     <body>
         <div id="header" class="pure-menu pure-menu-horizontal">
             <ul id="menu" class="pure-menu-list">
-                <li sec:authorize="hasAnyRole('ADMIN','PROVIDER')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/content/list}" onclick="loadToWorkArea(this, event);">Content management</a></li>
-                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/provider/list}" onclick="loadToWorkArea(this, event);">Provider management</a></li>
-                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/service/list}" onclick="loadToWorkArea(this, event);">Service management</a></li>
-                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/subscriber/list}" onclick="loadToWorkArea(this, event);">Subscriber management</a></li>
+                <li sec:authorize="hasAnyRole('ADMIN','PROVIDER')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/content/list}">Content management</a></li>
+                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/provider/list}">Provider management</a></li>
+                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/service/list}">Service management</a></li>
+                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/subscriber/list}">Subscriber management</a></li>
             </ul>
             <div id="session-control" class="pure-menu">
                 <ul class="pure-menu-list">
@@ -43,15 +43,24 @@
             <h1 th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</h1>
         </div>
 
-        <script src="js/lib/jquery.min.js"></script>
-        <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.1/js/bootstrap.min.js"></script>
-        <script src="js/lib/jquery.multi-select.js"></script>
-        <script src="js/lib/jquery.dropdown.min.js"></script>
-        <script src="js/lib/underscore.min.js"></script>
-        <script src="js/lib/moment.min.js"></script>
-        <script src="js/lib/clndr.min.js"></script>
-        <script src="js/lib/summernote.min.js"></script>
-        <script src="js/common.js"></script>
+        <script th:src="@{|/lib/jquery/jquery.min.js|}"></script>
+        <script th:src="@{|/lib/jquery/jquery-ui.min.js|}"></script>
+        <script th:src="@{|/lib/bootstrap/bootstrap.min.js|}"></script>
+        <script th:src="@{|/lib/jquery/jquery.multi-select.js|}"></script>
+        <script th:src="@{|/lib/jquery/jquery.dropdown.min.js|}"></script>
+        <script th:src="@{|/lib/underscore/underscore.min.js|}"></script>
+        <script th:src="@{|/lib/moment/moment.min.js|}"></script>
+        <script th:src="@{|/lib/clndr/clndr.min.js|}"></script>
+        <script th:src="@{|/lib/summernote/summernote.min.js|}"></script>
+        <script th:src="@{|/js/setup.js|}"></script>
+        <script sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
+            $("#menu a").click(function(event) {
+                event.preventDefault();
+                mContent.loaders.workArea($(this).attr("href"));
+                $('#menu .pure-menu-selected').removeClass('pure-menu-selected');
+                $(this).parent('li').addClass('pure-menu-selected');
+                return false;
+            })
+        </script>
     </body>
 </html>

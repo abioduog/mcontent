@@ -1,3 +1,12 @@
+function loadToWorkAreaVieaUrl(url) {
+    $.get(url, function (data) {
+        $('#workarea').html(data);
+        $('#menu .pure-menu-selected').removeClass('pure-menu-selected');
+        $(src).parent('li').addClass('pure-menu-selected');
+    });
+    return false;
+}
+
 function loadToWorkArea(src, event) {
     event.preventDefault();
     $.get($(src).attr('href'), function (data) {
@@ -23,9 +32,9 @@ function loadToContentEditor(src, event) {
     return false;
 }
 
-function loadToPopup(title, src, event) {
+function loadToPopup(title, url, event) {
     event.preventDefault();
-    $.get($(src).attr('href'), function (data) {
+    $.get(url, function (data) {
         var popup = $('<div>').attr('title', title).html(data);
         popup.dialog();
     });
@@ -38,7 +47,7 @@ function closePopup(src, event) {
     return false;
 }
 
-function submitFormOnPopup(src, event) {
+function submitFormOnPopup(src, event, success, error) {
     event.preventDefault();
     var form = $(src).parents('form');
     form.submit(function (event) {
@@ -50,23 +59,14 @@ function submitFormOnPopup(src, event) {
             success: function (data)
             {
                 closePopup(src, event);
-            }
+                if(success) {
+                    success(data)
+                }
+            },
+            error: error
         });
         return false;
     });
     form.submit();
-    return false;
-}
-
-function callSimpleAction(src, event) {
-    event.preventDefault();
-    $.ajax({
-        type: "GET",
-        url: $(src).attr("href"),
-        success: function (data)
-        {
-            window.alert("Success");
-        }
-    });
     return false;
 }

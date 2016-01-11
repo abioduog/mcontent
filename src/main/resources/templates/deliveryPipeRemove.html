@@ -1,63 +1,68 @@
-<div class="delivery-pipe-detail" th:unless="${#lists.isEmpty(deliveryPipe)}">
-    <form name="detail-form" class="pure-form pure-form-stacked" action="#" th:action="@{/deliverypipe/} + ${deliveryPipe.id}"
+<div class="delivery-pipe-remove" th:unless="${#lists.isEmpty(deliveryPipe)}">
+    <form name="delivery-pipe-remove-form" class="pure-form pure-form-stacked" action="#" th:action="@{/deliverypipe/remove/} + ${deliveryPipe.id}"
           method="post">
         <div class="form-fields">
             <div th:if="${error}" class="alert alert-error" th:text="#{deliverypipe.error}">
                 Error in delivery pipe data
             </div>
-            <div th:if="${saved}" class="alert alert-success" th:text="#{deliverypipe.saved}">
-                Delivery pipe saved
+            <div th:if="${error}" class="alert alert-error" th:text="${errortext}">
+                - No message -
+            </div>
+            <div th:if="${removed}" class="alert alert-success" th:text="#{deliverypipe.removed}">
+                Delivery pipe removed
             </div>
             <input type="hidden" name="id" th:value="${deliveryPipe.id}"/>
 
-            <label for="name" th:text="#{deliverypipe.name}">Name</label>
-            <input type="text" required="true" name="name" th:value="${deliveryPipe.name}"/>
+            <legend th:text="#{general.remove}">Remove</legend>
 
-            <label for="deliverableType" th:text="#{deliverypipe.deliverabletype}">Delivery type</label>
-            <select name="deliverableType" th:field="${deliveryPipe.deliverableType}">
+            <label for="name" th:text="#{deliverypipe.name}">Name</label>
+            <input type="text" required="false" name="name" th:value="${deliveryPipe.name}" readonly="true"/>
+
+            <!-- <label for="deliverableType" th:text="#{deliverypipe.deliverabletype}">Delivery type</label>
+            <select name="deliverableType" th:field="${deliveryPipe.deliverableType}" disabled="true">
                 <option th:each="deliverableType : ${allDeliverableTypes}" th:value="${deliverableType}"
                         th:text="${deliverableType}">Delivery type</option>
             </select>
 
             <label for="theme" th:text="#{deliverypipe.theme}">Theme</label>
-            <select name="theme" th:field="${deliveryPipe.theme}">
+            <select name="theme" th:field="${deliveryPipe.theme}" disabled="true">
                 <option th:each="theme : ${allThemes}" th:value="${theme}"
                         th:text="${theme}">Theme</option>
             </select>
-            
+
             <label for="providers" th:text="#{deliverypipe.providers}">Providers</label>
-            <select multiple="multiple" name="providers" th:field="${deliveryPipe.providers}">
+            <select multiple="multiple" name="providers" th:field="${deliveryPipe.providers}" disabled="true">
                 <option th:each="provider : ${allProviders}" th:value="${provider.id}"
                         th:text="${provider.username}">Provider</option>
-            </select>
+            </select> -->
 
-            <input type="hidden" th:name="save" />
+            <input type="hidden" th:name="remove" />
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
         </div>
         <br/>
         <div class="form-actions">
-            <a class="submit pure-button" th:text="#{general.save}">Save</a>
+            <a class="submit pure-button" th:text="#{general.remove}">Delete</a>
             <a class="cancel pure-button" th:text="#{general.cancel}">Cancel</a>
         </div>
     </form>
     <script th:inline="javascript">
         $("select[name='providers']").multiSelect();
 
-        $(".submit").click(function(event) {
+        $(".submit").click(function (event) {
             var deliveryPipeListUrl = /*[[@{/content/list}]]*/;
-            event.preventDefault();
+                    event.preventDefault();
             mContent.popup.submit($(this).parents("form"),
-                function(data) {
-                    mContent.notify("Save successful", "info");
-                    mContent.loaders.workArea(deliveryPipeListUrl);
-                },
-                function(error) {
-                    mContent.notify("Saving delivery pipe changes failed", "error");
-                }
+                    function (data) {
+                        mContent.notify("Remove successful", "info");
+                        mContent.loaders.workArea(deliveryPipeListUrl);
+                    },
+                    function (error) {
+                        mContent.notify("Remove of delivery pipe failed", "error");
+                    }
             );
             return false;
         });
-        $(".cancel").click(function(event) {
+        $(".cancel").click(function (event) {
             event.preventDefault();
             mContent.popup.close(this);
             return false;

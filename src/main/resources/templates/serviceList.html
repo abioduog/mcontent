@@ -1,8 +1,4 @@
 <h1 th:inline="text">Service list</h1>
-<!-- style to look like a button (?) -->
-<a class="create-service"
-   th:href="@{/service/create}"
-   th:text="#{general.createNew}">Create new</a>
 <div class="service-list" th:unless="${#lists.isEmpty(allServices)}">
     <table class="pure-table">
         <thead>
@@ -28,6 +24,13 @@
             </tr>
         </tbody>
     </table>
+</div>
+<br/>
+<div>
+    <a class="create-service pure-button"
+       th:href="@{/service/create}"
+       th:text="#{general.createNew}">Create new</a>
+
 </div>
 <script>
     $(".create-service").click(function() {

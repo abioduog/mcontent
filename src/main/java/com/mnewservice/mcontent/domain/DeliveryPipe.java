@@ -15,6 +15,8 @@ public class DeliveryPipe {
     private String theme;
     private Collection<User> providers;
 
+    private int contentCount;
+
     public Long getId() {
         return id;
     }
@@ -54,4 +56,13 @@ public class DeliveryPipe {
     public void setProviders(Collection<User> providers) {
         this.providers = providers;
     }
+
+    public int getContentCount() {
+        return contentCount;
+    }
+
+    public void setContentCount(int contentCount) {
+        this.contentCount = contentCount;
+    }
+
 }

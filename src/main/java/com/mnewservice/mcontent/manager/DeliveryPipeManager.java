@@ -88,6 +88,20 @@ public class DeliveryPipeManager {
         DeliveryPipeEntity entity = mapper.toEntity(service);
         return mapper.toDomain(repository.save(entity));
     }
+
+    @Transactional
+    public void removeDeliveryPipe(Long id) {
+        LOG.info("Removing delivery pipe with id=" + id);
+        DeliveryPipeEntity entity = repository.findOne(id);
+        repository.delete(entity);
+    }
+
+    public boolean hasContent(Long id) {
+        LOG.info("Checking for delivery pipe content with id=" + id);
+        DeliveryPipeEntity entity = repository.findOne(id);
+        return entity.getDeliverables() != null && entity.getDeliverables().size() > 0;
+    }
+
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="series content">
@@ -112,9 +126,9 @@ public class DeliveryPipeManager {
             entity.setDeliveryPipe(repository.findOne(deliveryPipeId));
             entity.setDeliveryDaysAfterSubscription((int) (seriesRepository.countByDeliveryPipeId(deliveryPipeId) + 1));
         }
-        if(entity.getContent().getShortUuid() == null) {
+        if (entity.getContent().getShortUuid() == null) {
             String shortUuid = ShortUrlUtils.getRandomShortIdentifier();
-            while(contentRepository.findByShortUuid(shortUuid) != null) {
+            while (contentRepository.findByShortUuid(shortUuid) != null) {
                 shortUuid = ShortUrlUtils.getRandomShortIdentifier();
             }
             entity.getContent().setShortUuid(shortUuid);
@@ -122,6 +136,13 @@ public class DeliveryPipeManager {
 
         // TODO: for the providers: allow save if and only if status == PENDING_APPROVAL
         return seriesMapper.toDomain(seriesRepository.save(entity));
+    }
+
+    @Transactional
+    public void removeSeriesContent(Long id) {
+        LOG.info("Removing series content with id=" + id);
+        SeriesDeliverableEntity entity = seriesRepository.findOne(id);
+        seriesRepository.delete(entity);
     }
 
 //</editor-fold>

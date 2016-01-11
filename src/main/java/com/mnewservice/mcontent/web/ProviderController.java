@@ -1,22 +1,11 @@
 package com.mnewservice.mcontent.web;
 
-import com.mnewservice.mcontent.domain.BinaryContent;
 import com.mnewservice.mcontent.domain.Provider;
-import com.mnewservice.mcontent.domain.Role;
-import com.mnewservice.mcontent.domain.User;
-import com.mnewservice.mcontent.manager.NotificationManager;
 import com.mnewservice.mcontent.manager.ProviderManager;
-import com.mnewservice.mcontent.manager.UserManager;
-import com.mnewservice.mcontent.security.PasswordEncrypter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -24,9 +13,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -35,6 +21,9 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 public class ProviderController {
+
+    private static final Logger LOG
+            = Logger.getLogger(ContentController.class);
 
     @Autowired
     private ProviderManager providerManager;
@@ -59,4 +48,44 @@ public class ProviderController {
         mav.addObject("provider", providerManager.getProvider(id));
         return mav;
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping({"/provider/remove/{providerId}"})
+    public ModelAndView viewRemovableProvider(@PathVariable("providerId") long id) {
+        ModelAndView mav = new ModelAndView("providerRemove");
+        mav.addObject("provider", providerManager.getProvider(id));
+        return mav;
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value = {"/provider/remove/{providerId}"}, params = {"remove"})
+    public ModelAndView removeDeliveryPipe(
+            @PathVariable("providerId") String id,
+            final Provider provider,
+            final BindingResult bindingResult,
+            final ModelMap model) {
+        ModelAndView mav = new ModelAndView("providerRemove");
+
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().stream().forEach((error) -> {
+                LOG.error(error.toString());
+            });
+            mav.addObject("provider", model.getOrDefault("provider", new Provider()));
+            mav.addObject("error", true);
+        } else {
+            try {
+                providerManager.removeProvider(provider.getId());
+                provider.setCorrespondences(null);
+                mav.addObject("provider", provider);
+                mav.addObject("removed", true);
+            } catch (Exception ex) {
+                LOG.error(ex);
+                mav.addObject("provider", provider);
+                mav.addObject("error", true);
+            }
+        }
+
+        return mav;
+    }
+
 }

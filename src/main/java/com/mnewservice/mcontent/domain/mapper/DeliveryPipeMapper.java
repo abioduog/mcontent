@@ -33,6 +33,7 @@ public class DeliveryPipeMapper extends AbstractMapper<DeliveryPipe, DeliveryPip
                 deliverableTypeMapper.toDomain(entity.getDeliverableType()));
         domain.setTheme(entity.getTheme());
         domain.setProviders(userMapper.toDomain(entity.getProviders()));
+        domain.setContentCount(entity.getDeliverables() == null ? 0 : entity.getDeliverables().size());
         return domain;
 
     }

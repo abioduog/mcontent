@@ -26,7 +26,7 @@
                     <a class="view-content pure-button" th:if="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
                        th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}|}"
                        th:text="#{general.view}">View</a>
-                    <a class="del-content pure-button"
+                    <a class="del-content pure-button" sec:authorize="hasRole('ADMIN')"
                        th:href="@{|/deliverypipe/${deliveryPipe.id}/series/remove/${content.id}|}"
                        th:text="#{general.remove}">Delete</a>
                 </td>
@@ -83,7 +83,7 @@
 
     $(".del-content").click(function (event) {
         event.preventDefault();
-        mContent.popup.load('Remove content series', $(this).attr("href"));
+        mContent.popup.load('Remove series content', $(this).attr("href"));
         return false;
     });
 </script>

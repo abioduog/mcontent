@@ -26,7 +26,7 @@
                     <a class="del-pipe pure-button" th:if="${deliveryPipe.contentCount == 0}" sec:authorize="hasAnyRole('ADMIN')"
                        th:href="@{|/deliverypipe/remove/${deliveryPipe.id}|}"
                        th:text="#{general.remove}">Remove</a>
-                    <label class="pure-button-disabled" th:if="${deliveryPipe.contentCount != 0}" sec:authorize="hasAnyRole('ADMIN')"
+                    <label class="pure-button-disabled" th:if="${deliveryPipe.contentCount != 0}" th:title="#{deliverypipe.cantremove.tooltip}" sec:authorize="hasAnyRole('ADMIN')"
                            th:text="#{general.remove}">Remove</label>
                 </td>
             </tr>

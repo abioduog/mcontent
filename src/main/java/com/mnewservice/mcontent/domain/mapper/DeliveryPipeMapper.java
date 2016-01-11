@@ -33,6 +33,8 @@ public class DeliveryPipeMapper extends AbstractMapper<DeliveryPipe, DeliveryPip
                 deliverableTypeMapper.toDomain(entity.getDeliverableType()));
         domain.setTheme(entity.getTheme());
         domain.setProviders(userMapper.toDomain(entity.getProviders()));
+
+        // DTO local variable
         domain.setContentCount(entity.getDeliverables() == null ? 0 : entity.getDeliverables().size());
         return domain;
 

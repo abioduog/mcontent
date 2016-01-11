@@ -17,19 +17,28 @@
             return false;
         };
 
-        function approve(event) {
+        function removeContent(event) {
             event.preventDefault();
-            mContent.ajax.get(contentUrlBase + $.lastClickedScheduledDay.events[0].id + "/approve", function (data) {
-                mContent.notify("Content approved.", "info");
+            //mContent.loaders.contentEditor(contentUrlBase + "remove/" + $.lastClickedScheduledDay.events[0].id);
+            mContent.popup.load('Remove scheduled content', contentUrlBase + "remove/" + $.lastClickedScheduledDay.events[0].id);
+            return false;
+        };
+
+        function changeStatus(event, cmnd) {
+            // mContent.notify("command="+cmnd, "info");
+            event.preventDefault();
+            mContent.ajax.get(contentUrlBase + $.lastClickedScheduledDay.events[0].id + "/" + cmnd, function (data) {
+                mContent.notify("Content " + cmnd + "d.", "info");
                 mContent.loaders.workArea(deliveryPipeContentListUrl);
             }, function (error) {
                 console.log(error);
-                mContent.notify("Failed to approve content.", "warning");
+                mContent.notify("Failed to "+cmnd+" content.", "warning");
                 mContent.loaders.workArea(deliveryPipeContentListUrl);
             });
             return false;
-        }
+        };
 
+        // Obsoleted
         function disapprove(event) {
             event.preventDefault();
             mContent.ajax.get(contentUrlBase + $.lastClickedScheduledDay.events[0].id + "/disapprove", function (data) {
@@ -41,7 +50,7 @@
                 mContent.loaders.workArea(deliveryPipeContentListUrl);
             });
             return false;
-        }
+        };
 
         $(".calendar-menu").clndr({
             weekOffset: 1,
@@ -52,6 +61,12 @@
                     $.lastClickedScheduledDay = target;
                     if(target.events.length > 0) {
                         $(".context-menu-content-title").text(target.events[0].title);
+                        if (target.events[0].myStatus == "approved") {
+                            $(".context-menu-approve").css("display", "none");
+                        }
+                        if (target.events[0].myStatus == "disapproved") {
+                            $(".context-menu-disapprove").css("display", "none");
+                        }
                     }
                 }
             }
@@ -76,11 +91,15 @@
             <li class="jq-dropdown-divider"></li>
             <li><a onclick="editContent(event);">Edit</a></li>
             <li class="jq-dropdown-divider" sec:authorize="hasRole('ADMIN')"></li>
-            <li sec:authorize="hasRole('ADMIN')">
-                <a th:text="#{deliverable.status.approve}" onclick="approve(event);">Approve</a>
+            <li class="context-menu-approve" sec:authorize="hasRole('ADMIN')">
+                <a class="context-menu-approve" th:text="#{deliverable.status.approve}" onclick="changeStatus(event, 'approve');">Approve</a>
             </li>
+            <li class="context-menu-disapprove" sec:authorize="hasRole('ADMIN')">
+                <a class="context-menu-disapprove" th:text="#{deliverable.status.disapprove}" onclick="changeStatus(event, 'disapprove');">Disapprove</a>
+            </li>
+            <li class="jq-dropdown-divider" sec:authorize="hasRole('ADMIN')"></li>
             <li sec:authorize="hasRole('ADMIN')">
-                <a th:text="#{deliverable.status.disapprove}" onclick="disapprove(event);">Disapprove</a>
+                <a th:text="#{general.remove}" onclick="removeContent(event);">Remove</a>
             </li>
         </ul>
     </div>
@@ -88,7 +107,11 @@
         <ul class="jq-dropdown-menu">
             <li class="context-menu-content-title"></li>
             <li class="jq-dropdown-divider"></li>
-            <li><a onclick="editContent();">View</a></li>
+            <li><a onclick="editContent(event);">View</a></li>
+            <li class="jq-dropdown-divider" sec:authorize="hasRole('ADMIN')"></li>
+            <li sec:authorize="hasRole('ADMIN')">
+                <a th:text="#{general.remove}" onclick="removeContent(event);">Remove</a>
+            </li>
         </ul>
     </div>
 </div>

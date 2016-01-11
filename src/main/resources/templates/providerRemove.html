@@ -5,6 +5,9 @@
             <div th:if="${error}" class="alert alert-error" th:text="#{provider.error}">
                 Error in provider data
             </div>
+            <div th:if="${error}" class="alert alert-error" th:text="${errortext}">
+                - No message -
+            </div>
             <div th:if="${removed}" class="alert alert-success" th:text="#{provider.removed}">
                 Provider removed
             </div>
@@ -15,7 +18,7 @@
             <label for="name" th:text="#{provider.name}">Provider name</label>
             <input type="text" required="false" readonly="true" name="name" th:value="${provider.name}"/>
 
-            <input type="hidden" name="state" th:value="${provider.state}"/>
+            <!--<input type="hidden" name="state" th:value="${provider.state}"/>
             <input type="hidden" name="country" th:value="${provider.country}"/>
             <input type="hidden" name="phone" th:value="${provider.phone.number}"/>
             <input type="hidden" name="email" th:value="${provider.email.address}"/>
@@ -26,7 +29,7 @@
             <input type="hidden" name="phoneOfContactPerson" th:value="${provider.phoneOfContactPerson.number}"/>
             <input type="hidden" name="emailOfContactPerson" th:value="${provider.emailOfContactPerson.address}"/>
             <input type="hidden" name="contentName" th:value="${provider.contentName}"/>
-            <input type="hidden" name="contentDescription" th:value="${provider.contentDescription}"/>
+            <input type="hidden" name="contentDescription" th:value="${provider.contentDescription}"/> -->
             <!-- <input type="hidden" name="correspondences" th:value="${provider.correspondences}"/> -->
             <input type="hidden" th:name="remove" />
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />

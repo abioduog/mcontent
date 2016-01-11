@@ -96,10 +96,17 @@ public class DeliveryPipeManager {
         repository.delete(entity);
     }
 
+    @Transactional(readOnly = true)
     public boolean hasContent(Long id) {
         LOG.info("Checking for delivery pipe content with id=" + id);
         DeliveryPipeEntity entity = repository.findOne(id);
         return entity.getDeliverables() != null && entity.getDeliverables().size() > 0;
+    }
+
+    @Transactional(readOnly = true)
+    public Collection<DeliveryPipe> getDeliveryPipesByProvider(Long id) {
+        LOG.info("Getting DeliveryPipes by provider with id=" + id);
+        return mapper.toDomain(repository.findByProviders(id));
     }
 
 //</editor-fold>
@@ -178,6 +185,14 @@ public class DeliveryPipeManager {
         // TODO: for the providers: allow save if and only if status == PENDING_APPROVAL
         return scheduledMapper.toDomain(scheduledRepository.save(entity));
     }
+
+    @Transactional
+    public void removeScheduledContent(Long id) {
+        LOG.info("Removing series content with id=" + id);
+        ScheduledDeliverableEntity entity = scheduledRepository.findOne(id);
+        scheduledRepository.delete(entity);
+    }
+
 //</editor-fold>
 
     public Content getContentByUuid(String shortUuid) {

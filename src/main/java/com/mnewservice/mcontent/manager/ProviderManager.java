@@ -1,5 +1,6 @@
 package com.mnewservice.mcontent.manager;
 
+import com.mnewservice.mcontent.domain.DeliveryPipe;
 import com.mnewservice.mcontent.domain.Provider;
 import com.mnewservice.mcontent.domain.mapper.ProviderMapper;
 import com.mnewservice.mcontent.repository.ProviderRepository;
@@ -19,6 +20,9 @@ public class ProviderManager {
 
     @Autowired
     private ProviderRepository repository;
+
+    @Autowired
+    private DeliveryPipeManager deliveryPipeManager;
 
     @Autowired
     private ProviderMapper mapper;
@@ -69,6 +73,13 @@ public class ProviderManager {
         LOG.info("Removing provider with id=" + id);
         ProviderEntity entity = repository.findOne(id);
         repository.delete(entity);
+    }
+
+    @Transactional(readOnly = true)
+    public long getContentCount(Long id) {
+        LOG.info("Checking for provider content with id=" + id);
+        Collection<DeliveryPipe> retval = deliveryPipeManager.getDeliveryPipesByProvider(id);
+        return retval == null ? -1 : retval.size();
     }
 
 }

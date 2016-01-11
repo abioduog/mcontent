@@ -211,6 +211,7 @@ public class ContentController {
                                         put("id", deliverable.getId());
                                         put("title", deliverable.getContent().getTitle());
                                         put("date", new SimpleDateFormat("yyyy-MM-dd").format(deliverable.getDeliveryDate()));
+                                        put("myStatus", deliverable.getStatus().toString().toLowerCase());
                                     }
                                 }
                         ).collect(Collectors.toList()));
@@ -354,7 +355,7 @@ public class ContentController {
         return mav;
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/{deliveryPipeId}/series/remove/{contentId}"})
     public ModelAndView viewRemovableSeriesContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
@@ -365,7 +366,7 @@ public class ContentController {
         return mav;
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/remove/{contentId}"}, params = {"remove"})
     public ModelAndView removeSeriesContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
@@ -507,6 +508,49 @@ public class ContentController {
         }
         return content;
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @RequestMapping({"/deliverypipe/{deliveryPipeId}/scheduled/remove/{contentId}"})
+    public ModelAndView viewRemovableScheduledContent(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId) {
+        ScheduledDeliverable deliverable = deliveryPipeManager.getScheduledContent(contentId);
+        ModelAndView mav = new ModelAndView("contentScheduledRemove");
+        mav.addObject("deliverable", deliverable);
+        return mav;
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/scheduled/remove/{contentId}"}, params = {"remove"})
+    public ModelAndView removeScheduledContent(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId,
+            final SeriesDeliverable deliverable,
+            final BindingResult bindingResult,
+            final ModelMap model) {
+        //SeriesDeliverable deliverable = deliveryPipeManager.getSeriesContent(contentId);
+        ModelAndView mav = new ModelAndView("contentScheduledRemove");
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().stream().forEach((error) -> {
+                LOG.error(error.toString());
+            });
+            mav.addObject("deliverable", model.getOrDefault("deliverable", new ScheduledDeliverable()));
+            mav.addObject("error", true);
+        } else {
+            try {
+                deliveryPipeManager.removeScheduledContent(deliverable.getId());
+                mav.addObject("deliverable", deliverable);
+                mav.addObject("removed", true);
+            } catch (Exception ex) {
+                LOG.error(ex);
+                mav.addObject("deliverable", deliverable);
+                mav.addObject("error", true);
+            }
+        }
+
+        return mav;
+    }
+
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="notifications">

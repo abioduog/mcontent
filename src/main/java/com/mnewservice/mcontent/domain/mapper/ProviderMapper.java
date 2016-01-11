@@ -54,6 +54,7 @@ public class ProviderMapper extends AbstractMapper<Provider, ProviderEntity> {
                 binaryContentMapper.toDomain(
                         entity.getCorrespondences()
                 ));
+
         return domain;
     }
 

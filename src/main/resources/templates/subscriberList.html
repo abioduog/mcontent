@@ -15,8 +15,21 @@
                 <td th:text="${subscriber.activeSubscriptionCount}">ACTIVE SUBSCRIPTION COUNT</td>
                 <td th:text="${subscriber.inactiveSubscriptionCount}">ACTIVE SUBSCRIPTION COUNT</td>
                 <td><!-- icon (?) -->
+                    <a class="del-subscriber pure-button" sec:authorize="hasAnyRole('ADMIN')"
+                       th:href="@{|/subscriber/remove/${subscriber.id}|}"
+                       th:text="#{general.remove}">Remove</a>
                 </td>
             </tr>   
         </tbody>
     </table>
 </div>
+<script th:inline="javascript">
+    var subscriberListUrl = /*[[@{|/subscriber/list|}]]*/;
+
+    $(".del-subscriber").click(function() {
+        event.preventDefault();
+        mContent.popup.load('Remove subscriber', $(this).attr("href"));
+        return false;
+    });
+
+</script>

@@ -38,4 +38,18 @@ public class SubscriberManager {
         return mapper.toDomain(entities);
     }
 
+    @Transactional(readOnly = true)
+    public Subscriber getSubscriber(long id) {
+        LOG.info("Getting subscriber with id=" + id);
+        SubscriberEntity entity = repository.findOne(id);
+        return mapper.toDomain(entity);
+    }
+
+    @Transactional
+    public void removeSubscriber(long id) {
+        LOG.info("Removing subscriber with id=" + id);
+        SubscriberEntity entity = repository.findOne(id);
+        repository.delete(entity);
+    }
+
 }

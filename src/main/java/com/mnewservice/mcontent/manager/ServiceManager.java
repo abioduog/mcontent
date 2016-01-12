@@ -63,6 +63,13 @@ public class ServiceManager {
     }
 
     @Transactional
+    public void removeService(long id) {
+        LOG.info("Removing service with id=" + id);
+        ServiceEntity entity = repository.findOne(id);
+        repository.delete(entity);
+    }
+
+    @Transactional
     public Service saveService(Service service) {
         LOG.info("Saving service with id=" + service.getId());
         ServiceEntity entity = mapper.toEntity(service);

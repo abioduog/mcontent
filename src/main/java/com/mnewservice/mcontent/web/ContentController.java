@@ -172,19 +172,18 @@ public class ContentController {
             mav.addObject("deliveryPipe", model.getOrDefault("deliveryPipe", new DeliveryPipe()));
             mav.addObject("error", true);
         } else if (deliveryPipeManager.hasContent(deliveryPipe.getId())) {
-            mav.addObject("service", deliveryPipe);
+            mav.addObject("deliveryPipe", deliveryPipe);
             mav.addObject("error", true);
             mav.addObject("errortext", "Delivery pipe has content. Delete all content from delivery pipe first.");
         } else {
             try {
-                // persist the object "service"
                 deliveryPipeManager.removeDeliveryPipe(deliveryPipe.getId());
                 deliveryPipe.setProviders(null);
-                mav.addObject("service", deliveryPipe);
+                mav.addObject("deliveryPipe", deliveryPipe);
                 mav.addObject("removed", true);
             } catch (Exception ex) {
                 LOG.error(ex);
-                mav.addObject("service", deliveryPipe);
+                mav.addObject("deliveryPipe", deliveryPipe);
                 mav.addObject("error", true);
                 mav.addObject("errortext", ex.getLocalizedMessage());
             }

@@ -16,25 +16,7 @@
             <legend th:text="#{general.remove}">Remove</legend>
 
             <label for="name" th:text="#{deliverypipe.name}">Name</label>
-            <input type="text" required="false" name="name" th:value="${deliveryPipe.name}" readonly="true"/>
-
-            <!-- <label for="deliverableType" th:text="#{deliverypipe.deliverabletype}">Delivery type</label>
-            <select name="deliverableType" th:field="${deliveryPipe.deliverableType}" disabled="true">
-                <option th:each="deliverableType : ${allDeliverableTypes}" th:value="${deliverableType}"
-                        th:text="${deliverableType}">Delivery type</option>
-            </select>
-
-            <label for="theme" th:text="#{deliverypipe.theme}">Theme</label>
-            <select name="theme" th:field="${deliveryPipe.theme}" disabled="true">
-                <option th:each="theme : ${allThemes}" th:value="${theme}"
-                        th:text="${theme}">Theme</option>
-            </select>
-
-            <label for="providers" th:text="#{deliverypipe.providers}">Providers</label>
-            <select multiple="multiple" name="providers" th:field="${deliveryPipe.providers}" disabled="true">
-                <option th:each="provider : ${allProviders}" th:value="${provider.id}"
-                        th:text="${provider.username}">Provider</option>
-            </select> -->
+            <input type="text" required="false" readonly="true" name="name" th:value="${deliveryPipe.name}"/>
 
             <input type="hidden" th:name="remove" />
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />

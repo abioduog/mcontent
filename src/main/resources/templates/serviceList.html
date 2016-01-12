@@ -19,8 +19,12 @@
                 <td th:text="${service.subscriptionPeriod}">SUBSCRIPTION TIME</td>
                 <td th:text="${service.deliveryPipe.name}">DELIVERY PIPE</td>
                 <td><!-- icon (?) -->
-                    <a class="edit-service" th:href="@{|/service/${service.id}|}"
-                       th:text="#{general.edit}">Edit</a></td>
+                    <a class="edit-service pure-button" sec:authorize="hasAnyRole('ADMIN','PROVIDER')"
+                       th:text="#{general.edit}" th:href="@{|/service/${service.id}|}">Edit</a>
+                    <a class="del-service pure-button" sec:authorize="hasAnyRole('ADMIN')"
+                       th:text="#{general.remove}" th:href="@{|/service/remove/${service.id}|}">Remove</a>
+
+                </td>
             </tr>
         </tbody>
     </table>
@@ -41,6 +45,11 @@
     $(".edit-service").click(function() {
         event.preventDefault();
         mContent.popup.load('Edit service', $(this).attr("href"));
+        return false;
+    });
+    $(".del-service").click(function() {
+        event.preventDefault();
+        mContent.popup.load('Remove service', $(this).attr("href"));
         return false;
     });
 </script>

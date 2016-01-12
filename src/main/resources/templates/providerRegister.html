@@ -14,15 +14,14 @@
                   enctype="multipart/form-data">
                 <div class="form-fields">
 
-                    <div th:if="${error}"
-                         class="alert alert-error"
-                         th:text="#{register.error}">
-                        Errors in form
-                    </div>
-
-                    <div th:if="${errortext}"
-                         class="alert alert-error"
-                         th:text="${errortext}">
+                    <div th:if="${error}" class="alert alert-error">
+                        <strong>
+                            <div th:text="#{register.error}">
+                                Errors in form
+                            </div>
+                        </strong>
+                        <div th:if="${errortext}" th:text="${errortext}">
+                        </div>
                     </div>
 
                     <fieldset>
@@ -52,10 +51,10 @@
                         <legend th:text="#{provider.loginInfo}">Login Info</legend>
 
                         <label for="username" th:text="#{user.username}">Username</label>
-                        <input type="text" required="true" name="username" placeholder="username" th:title="#{provider.username.tooltip}" th:value="${provider.user.username}"/>
+                        <input type="text" autocomplete="off" required="true" name="username" placeholder="username" th:title="#{provider.username.tooltip}" th:value="${provider.user.username}"/>
 
                         <label for="password" th:text="#{user.password}">Password</label>
-                        <input type="password" required="true" name="password" th:title="#{provider.password.tooltip}" th:value="${provider.user.password}"/>
+                        <input type="password" autocomplete="off" required="true" name="password" th:title="#{provider.password.tooltip}" th:value="${provider.user.password}"/>
                     </fieldset>
                     <fieldset>
                         <legend th:text="#{provider.contactInfo}">Contact Info</legend>

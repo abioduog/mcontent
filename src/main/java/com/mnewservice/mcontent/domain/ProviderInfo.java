@@ -11,22 +11,22 @@ import org.springframework.beans.BeanUtils;
 /**
  *
  */
-public class ContentProvider extends Provider {
+public class ProviderInfo extends Provider {
 
-    private long contentCount;
+    private long pipeCount;
 
-    public ContentProvider init(Provider provider, long count) {
+    public ProviderInfo init(Provider provider, long count) {
         BeanUtils.copyProperties(provider, this);
-        this.contentCount = count;
+        this.pipeCount = count;
         return this;
     }
 
-    public long getContentCount() {
-        return contentCount;
+    public long getPipeCount() {
+        return pipeCount;
     }
 
-    public void setContentCount(long contentCount) {
-        this.contentCount = contentCount;
+    public void setPipeCount(long pipeCount) {
+        this.pipeCount = pipeCount;
     }
 
 }

@@ -1,7 +1,6 @@
 package com.mnewservice.mcontent.web;
 
-import com.mnewservice.mcontent.domain.ContentProvider;
-import com.mnewservice.mcontent.domain.Provider;
+import com.mnewservice.mcontent.domain.ProviderInfo;
 import com.mnewservice.mcontent.manager.ProviderManager;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,10 +30,10 @@ public class ProviderController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @ModelAttribute("allProviders")
-    public List<ContentProvider> populateProviders() {
-        List<ContentProvider> contentProviders = providerManager.getAllProviders()
+    public List<ProviderInfo> populateProviders() {
+        List<ProviderInfo> contentProviders = providerManager.getAllProviders()
                 .stream().map(p -> {
-            return (new ContentProvider()).init(p, providerManager.getContentCount(p.getId()));
+            return (new ProviderInfo()).init(p, providerManager.getPipeCount(p.getId()));
                 }).collect(Collectors.toList());
         return contentProviders;
     }
@@ -49,8 +48,7 @@ public class ProviderController {
     @RequestMapping({"/provider/{id}"})
     public ModelAndView viewService(@PathVariable("id") long id) {
         ModelAndView mav = new ModelAndView("providerDetail");
-        mav.addObject("provider", providerManager.getProvider(id));
-        mav.addObject("contentCount", providerManager.getContentCount(id));
+        mav.addObject("provider", (new ProviderInfo()).init(providerManager.getProvider(id), providerManager.getPipeCount(id)));
         return mav;
     }
 
@@ -58,8 +56,7 @@ public class ProviderController {
     @RequestMapping({"/provider/remove/{providerId}"})
     public ModelAndView viewRemovableProvider(@PathVariable("providerId") long id) {
         ModelAndView mav = new ModelAndView("providerRemove");
-        mav.addObject("provider", providerManager.getProvider(id));
-        mav.addObject("contentCount", providerManager.getContentCount(id));
+        mav.addObject("provider", (new ProviderInfo()).init(providerManager.getProvider(id), providerManager.getPipeCount(id)));
         return mav;
     }
 
@@ -67,22 +64,19 @@ public class ProviderController {
     @RequestMapping(value = {"/provider/remove/{providerId}"}, params = {"remove"})
     public ModelAndView removeProvider(
             @PathVariable("providerId") String id,
-            final Provider provider,
+            final ProviderInfo provider,
             final BindingResult bindingResult,
             final ModelMap model) {
         ModelAndView mav = new ModelAndView("providerRemove");
-
-        Long contentCount;
 
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().stream().forEach((error) -> {
                 LOG.error(error.toString());
             });
-            mav.addObject("provider", model.getOrDefault("provider", new Provider()));
+            mav.addObject("provider", model.getOrDefault("provider", new ProviderInfo()));
             mav.addObject("error", true);
-        } else if ((contentCount = providerManager.getContentCount(provider.getId())) > 0) {
-            mav.addObject("service", provider);
-            mav.addObject("contentCount", contentCount);
+        } else if (providerManager.getPipeCount(provider.getId()) > 0) {
+            mav.addObject("provider", provider);
             mav.addObject("error", true);
             mav.addObject("errortext", "Delivery pipe has content. Delete all content from delivery pipe first.");
         } else {
@@ -90,12 +84,10 @@ public class ProviderController {
                 providerManager.removeProvider(provider.getId());
                 provider.setCorrespondences(null);
                 mav.addObject("provider", provider);
-                mav.addObject("contentCount", 0);
                 mav.addObject("removed", true);
             } catch (Exception ex) {
                 LOG.error(ex);
                 mav.addObject("provider", provider);
-                mav.addObject("contentCount", 0);
                 mav.addObject("error", true);
                 mav.addObject("errortext", ex.getLocalizedMessage());
             }

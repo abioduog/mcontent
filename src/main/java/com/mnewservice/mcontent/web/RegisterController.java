@@ -37,6 +37,8 @@ public class RegisterController {
     private static final String ERROR_FAIL_TO_UPLOAD = "failed to upload %s (reason: %s)";
     private static final String REASON_EMPTY_FILE = "file was empty";
     private static final String REASON_READING_FAILED = "reading file failed";
+    private static final String ERROR_USERNAME_TOO_SHORT = "Username too short. Min. 6 characters.";
+    private static final String ERROR_PASSWORD_TOO_SHORT = "Password too short. Min. 8 characters.";
 
     @Value("${application.notification.provider.registered.message.subject}")
     private String providerRegisteredMessageSubject;
@@ -91,8 +93,12 @@ public class RegisterController {
 
             } catch (Exception ex) {
                 LOG.error(ex);
+                if (provider.getUser() != null) {
+                    provider.getUser().setPassword(null);
+                }
                 mav.addObject("provider", provider);
                 mav.addObject("error", true);
+                mav.addObject("errortext", ex.getMessage());
             }
         }
 
@@ -147,6 +153,12 @@ public class RegisterController {
 
     private User createUser(String username, String password) {
         User user = new User();
+        if (username == null || username.length() < 6) {
+            throw new IllegalArgumentException(ERROR_USERNAME_TOO_SHORT);
+        }
+        if (password == null || password.length() < 6) {
+            throw new IllegalArgumentException(ERROR_PASSWORD_TOO_SHORT);
+        }
         user.setUsername(username);
         user.setPassword(PasswordEncrypter.getInstance().encrypt(password));
         user.setRoles(

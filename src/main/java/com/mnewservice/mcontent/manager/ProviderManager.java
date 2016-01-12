@@ -76,8 +76,8 @@ public class ProviderManager {
     }
 
     @Transactional(readOnly = true)
-    public long getContentCount(Long id) {
-        LOG.info("Checking for provider content with id=" + id);
+    public long getPipeCount(Long id) {
+        LOG.info("Checking for provider delivery pipe count with id=" + id);
         Collection<DeliveryPipe> retval = deliveryPipeManager.getDeliveryPipesByProvider(id);
         return retval == null ? -1 : retval.size();
     }

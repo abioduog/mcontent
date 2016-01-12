@@ -14,18 +14,28 @@ import java.util.Collection;
 @Repository
 public interface DeliveryPipeRepository extends CrudRepository<DeliveryPipeEntity, Long> {
 
+//    @Query("select db from DeliveryPipeEntity db "
+//            + "left join db.providers p "
+//            + "where p.username = ?1")
+//    Collection<DeliveryPipeEntity> findByProvidersUsername(String providerUsername);
+//
+//    @Query("select db from DeliveryPipeEntity db "
+//            + "left join db.providers p "
+//            + "where p.id = ?1")
+//    Collection<DeliveryPipeEntity> findByProviders(Long providerId);
+//
     @Query("select db from DeliveryPipeEntity db "
-            + "left join db.providers p "
-            + "where p.username = ?1")
+            + "left join db.providers u "
+            + "where u.username = ?1")
     Collection<DeliveryPipeEntity> findByProvidersUsername(String providerUsername);
 
     @Query("select db from DeliveryPipeEntity db "
-            + "left join db.providers p "
-            + "where p.id = ?1")
+            + "left join db.providers u "
+            + "where u.id = (select p.user.id from ProviderEntity p where p.id = ?1)")
     Collection<DeliveryPipeEntity> findByProviders(Long providerId);
 
     @Query("select db.theme from DeliveryPipeEntity db "
-            +            "left join db.deliverables d " +
-            "where d.content.shortUuid = ?1")
+            + "left join db.deliverables d "
+            + "where d.content.shortUuid = ?1")
     String getThemeForContentByUuid(String shortUuid);
 }

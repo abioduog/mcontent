@@ -25,9 +25,13 @@ public interface DeliveryPipeRepository extends CrudRepository<DeliveryPipeEntit
 //    Collection<DeliveryPipeEntity> findByProviders(Long providerId);
 //
     @Query("select db from DeliveryPipeEntity db "
+            + "where db.name like ?1")
+    Collection<DeliveryPipeEntity> findAll(String nameFilter);
+
+    @Query("select db from DeliveryPipeEntity db "
             + "left join db.providers u "
-            + "where u.username = ?1")
-    Collection<DeliveryPipeEntity> findByProvidersUsername(String providerUsername);
+            + "where db.name like ?1 and u.username = ?2")
+    Collection<DeliveryPipeEntity> findByProvidersUsername(String nameFilter, String providerUsername);
 
     @Query("select db from DeliveryPipeEntity db "
             + "left join db.providers u "

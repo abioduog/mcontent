@@ -62,17 +62,25 @@ public class DeliveryPipeManager {
 
 //<editor-fold defaultstate="collapsed" desc="delivery pipes">
     @Transactional(readOnly = true)
-    public Collection<DeliveryPipe> getAllDeliveryPipes() {
-        LOG.info("Getting all delivery pipes");
+    public Collection<DeliveryPipe> getDeliveryPipes(String nameFilter) {
+        String filter = (nameFilter == null || nameFilter.length() == 0) ? "%" : "%" + nameFilter + "%";
+        LOG.info("Getting delivery pipes filtered by name [" + filter + "]");
         EnumSet<RoleEntity.RoleEnum> roles = getCurrentUserRoles();
 
         Collection<DeliveryPipeEntity> entities = Arrays.asList();
-        if(roles.contains(RoleEntity.RoleEnum.ADMIN)) {
-            entities = mapper.makeCollection(repository.findAll());
-        } else if(roles.contains(RoleEntity.RoleEnum.PROVIDER)){
-            entities = mapper.makeCollection(repository.findByProvidersUsername( getCurrentUserUsername()));
+        if (roles.contains(RoleEntity.RoleEnum.ADMIN)) {
+            entities = mapper.makeCollection(repository.findAll(filter));
+        } else if (roles.contains(RoleEntity.RoleEnum.PROVIDER)) {
+            entities = mapper.makeCollection(repository.findByProvidersUsername(filter, getCurrentUserUsername()));
         }
+        LOG.info("Found " + entities.size() + " entity.");
         return mapper.toDomain(entities);
+    }
+
+    @Transactional(readOnly = true)
+    public Collection<DeliveryPipe> getAllDeliveryPipes() {
+        LOG.info("Getting all delivery pipes");
+        return getDeliveryPipes("");
     }
 
     @Transactional(readOnly = true)

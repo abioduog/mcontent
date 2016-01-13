@@ -100,6 +100,15 @@ public class ContentController {
         return "deliveryPipeList";
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @RequestMapping({"/deliverypipe/list/filtered/{nameFilter}"})
+    public ModelAndView listFilteredServices(@PathVariable("nameFilter") String fname) {
+        ModelAndView mav = new ModelAndView("deliveryPipeList");
+        mav.addObject("filteredDeliveryPipes", deliveryPipeManager.getDeliveryPipes(fname)
+                .stream().collect(Collectors.toList()));
+        return mav;
+    }
+
 //<editor-fold defaultstate="collapsed" desc="Delivery pipe">
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/create"})

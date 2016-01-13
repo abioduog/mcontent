@@ -1,5 +1,11 @@
 <h1 th:inline="text">Delivery pipe list</h1>
 <div class="delivery-pipe-list" th:unless="${#lists.isEmpty(allDeliveryPipes)}">
+    <div class="form-fields">
+        <label th:text="#{deliverypipe.name}">Name</label>
+        <input id="nameFilter" name="nameFilter" type="text" required="false"/>
+        <a class="search-pipes pure-button" th:href="@{/deliverypipe/list/filtered/}" th:text="#{general.search}">Search</a>
+    </div>
+    <br/>
     <table class="pure-table">
         <thead>
             <tr>
@@ -11,7 +17,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr th:each="deliveryPipe : ${allDeliveryPipes}">
+            <tr th:each="deliveryPipe : (${filteredDeliveryPipes}? ${filteredDeliveryPipes} : ${allDeliveryPipes})">
                 <td th:text="${deliveryPipe.name}">NAME</td>
                 <td th:text="${deliveryPipe.deliverableType}">TYPE</td>
                 <td>0</td>
@@ -44,6 +50,19 @@
     $(".create-pipe").click(function() {
         event.preventDefault();
         mContent.popup.load('Create delivery pipe', $(this).attr("href"));
+        return false;
+    });
+    $(".search-pipes").click(function() {
+        event.preventDefault();
+        var searchUrl = $(this).attr("href") + encodeURI(document.getElementById("nameFilter").value);
+        mContent.notify(searchUrl, "info");
+        $.ajax({
+            type: "GET",
+            url: searchUrl,
+            success: {
+                
+            }
+        });
         return false;
     });
     $(".edit-pipe").click(function() {

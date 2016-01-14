@@ -72,6 +72,7 @@ public class ProviderManager {
     public void removeProvider(Long id) {
         LOG.info("Removing provider with id=" + id);
         ProviderEntity entity = repository.findOne(id);
+        deliveryPipeManager.removeProviderFromDeliveryPipes(entity.getId(), entity.getUser());
         repository.delete(entity);
     }
 

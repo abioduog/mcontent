@@ -2,7 +2,7 @@
 <div class="delivery-pipe-list" th:unless="${#lists.isEmpty(allDeliveryPipes)}">
     <div class="form-fields">
         <label th:text="#{deliverypipe.name}">Name</label>
-        <input id="nameFilter" name="nameFilter" type="text" required="false"/>
+        <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
         <a class="search-pipes pure-button" th:href="@{/deliverypipe/list/filtered/}" th:text="#{general.search}">Search</a>
     </div>
     <br/>
@@ -29,11 +29,9 @@
                     <a class="edit-content pure-button" sec:authorize="hasAnyRole('ADMIN','PROVIDER')"
                        th:href="@{|/deliverypipe/${deliveryPipe.id}/content/list|}"
                        th:text="#{deliverypipe.viewcontent}">View content</a>
-                    <a class="del-pipe pure-button" th:if="${deliveryPipe.contentCount == 0}" sec:authorize="hasAnyRole('ADMIN')"
+                    <a class="del-pipe pure-button" sec:authorize="hasAnyRole('ADMIN','PROVIDER')"
                        th:href="@{|/deliverypipe/remove/${deliveryPipe.id}|}"
                        th:text="#{general.remove}">Remove</a>
-                    <label class="pure-button-disabled" th:if="${deliveryPipe.contentCount != 0}" th:title="#{deliverypipe.cantremove.tooltip}" sec:authorize="hasAnyRole('ADMIN')"
-                           th:text="#{general.remove}">Remove</label>
                 </td>
             </tr>
         </tbody>
@@ -41,7 +39,6 @@
 </div>
 <br/>
 <div sec:authorize="hasRole('ADMIN')" class="">
-    <!-- style to look like a button (?) -->
     <a class="create-pipe pure-button"
        th:href="@{/deliverypipe/create}"
        th:text="#{general.createNew}">Create new</a>
@@ -54,13 +51,14 @@
     });
     $(".search-pipes").click(function() {
         event.preventDefault();
-        var searchUrl = $(this).attr("href") + encodeURI(document.getElementById("nameFilter").value);
-        mContent.notify(searchUrl, "info");
         $.ajax({
             type: "GET",
-            url: searchUrl,
-            success: {
-                
+            data: {
+                "nameFilter" : document.getElementById("nameFilter").value
+            },
+            url: $(this).attr("href"),
+            success: function(data) {
+                $("#workarea").html("").append(data);
             }
         });
         return false;

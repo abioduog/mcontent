@@ -13,8 +13,8 @@
             </div>
             <input type="hidden" name="id" th:value="${provider.id}"/>
 
-            <label for="name" th:text="#{provider.name}">Provider name</label>
-            <input type="text" required="false" readonly="true" name="name" th:value="${provider.name}"/>
+            <legend th:text="#{general.remove}+ ': ' + ${provider.name}">Remove: Provider</legend>
+            <label th:if="${hasPipes}" th:text="#{provider.warning.haspipes}">Warning! Provider is defined in one or more delivery pipes.</label>
 
             <input type="hidden" th:name="remove" />
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />

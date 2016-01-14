@@ -24,12 +24,10 @@
                 <td><!-- icon (?) -->
                     <a class="view-provider pure-button" th:href="@{|/provider/${provider.id}|}"
                        th:text="#{general.view}">View</a>
-                    <a class="del-provider pure-button" th:unless="${provider.user.active}" th:if="${provider.pipeCount == 0}" sec:authorize="hasAnyRole('ADMIN')"
+                    <a class="del-provider pure-button" th:unless="${provider.user.active}" sec:authorize="hasAnyRole('ADMIN')"
                        th:href="@{|/provider/remove/${provider.id}|}"
                        th:text="#{general.remove}">Remove</a>
                     <label class="pure-button-disabled" th:if="${provider.user.active}" th:title="#{provider.cantremoveactive.tooltip}" sec:authorize="hasAnyRole('ADMIN')"
-                           th:text="#{general.remove}">Remove</label>
-                    <label class="pure-button-disabled" th:unless="${provider.user.active}" th:if="${provider.pipeCount != 0}" th:title="#{provider.cantremovehaspipes.tooltip}" sec:authorize="hasAnyRole('ADMIN')"
                            th:text="#{general.remove}">Remove</label>
                 </td>
             </tr>

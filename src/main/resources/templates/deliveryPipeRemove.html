@@ -13,11 +13,9 @@
             </div>
             <input type="hidden" name="id" th:value="${deliveryPipe.id}"/>
 
-            <legend th:text="#{general.remove}">Remove</legend>
-
-            <label for="name" th:text="#{deliverypipe.name}">Name</label>
-            <input type="text" required="false" readonly="true" name="name" th:value="${deliveryPipe.name}"/>
-
+            <legend th:text="#{general.remove}+ ': ' + ${deliveryPipe.name}">Remove: Delivery pipe</legend>
+            <label th:if="${hasContent}" th:text="#{deliverypipe.warning.hascontent}">Warning! Delivery pipe has content.</label>
+ 
             <input type="hidden" th:name="remove" />
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
         </div>

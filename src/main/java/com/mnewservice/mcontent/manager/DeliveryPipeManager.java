@@ -117,6 +117,18 @@ public class DeliveryPipeManager {
         return mapper.toDomain(repository.findByProviders(id));
     }
 
+    @Transactional
+    public void removeProviderFromDeliveryPipes(Long id, UserEntity user) {
+        LOG.info("Removing provider(" + id + ") from delivery pipes.");
+        Collection<DeliveryPipeEntity> pipes = repository.findByProviders(id);
+        pipes.stream().map((pipe) -> {
+            pipe.getProviders().remove(user);
+            return pipe;
+        }).forEach((pipe) -> {
+            repository.save(pipe);
+        });
+    }
+
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="series content">

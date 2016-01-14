@@ -57,6 +57,9 @@ public class ProviderController {
     public ModelAndView viewRemovableProvider(@PathVariable("providerId") long id) {
         ModelAndView mav = new ModelAndView("providerRemove");
         mav.addObject("provider", (new ProviderInfo()).init(providerManager.getProvider(id), providerManager.getPipeCount(id)));
+        if (providerManager.getPipeCount(id) > 0) {
+            mav.addObject("hasPipes", "true");
+        }
         return mav;
     }
 
@@ -75,10 +78,6 @@ public class ProviderController {
             });
             mav.addObject("provider", model.getOrDefault("provider", new ProviderInfo()));
             mav.addObject("error", true);
-        } else if (providerManager.getPipeCount(provider.getId()) > 0) {
-            mav.addObject("provider", provider);
-            mav.addObject("error", true);
-            mav.addObject("errortext", "Delivery pipe has content. Delete all content from delivery pipe first.");
         } else {
             try {
                 providerManager.removeProvider(provider.getId());

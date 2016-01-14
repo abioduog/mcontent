@@ -101,11 +101,12 @@ public class ContentController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
-    @RequestMapping({"/deliverypipe/list/filtered/{nameFilter}"})
-    public ModelAndView listFilteredServices(@PathVariable("nameFilter") String fname) {
+    @RequestMapping({"/deliverypipe/list/filtered/"})
+    public ModelAndView listFilteredServices(@RequestParam(value = "nameFilter") String fname) {
         ModelAndView mav = new ModelAndView("deliveryPipeList");
         mav.addObject("filteredDeliveryPipes", deliveryPipeManager.getDeliveryPipes(fname)
                 .stream().collect(Collectors.toList()));
+        mav.addObject("nameFilter", fname);
         return mav;
     }
 
@@ -119,17 +120,17 @@ public class ContentController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping({"/deliverypipe/{id}"})
-    public ModelAndView viewDeliveryPipe(@PathVariable("id") long id) {
+    @RequestMapping({"/deliverypipe/{pipeId}"})
+    public ModelAndView viewDeliveryPipe(@PathVariable("pipeId") long id) {
         ModelAndView mav = new ModelAndView("deliveryPipeDetail");
         mav.addObject("deliveryPipe", deliveryPipeManager.getDeliveryPipe(id));
         return mav;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping(value = {"/deliverypipe/{id}"}, params = {"save"})
+    @RequestMapping(value = {"/deliverypipe/{pipeId}"}, params = {"save"})
     public ModelAndView saveDeliveryPipe(
-            @PathVariable("id") String id,
+            @PathVariable("pipeId") String id,
             final DeliveryPipe deliveryPipe,
             final BindingResult bindingResult,
             final ModelMap model) {
@@ -158,17 +159,20 @@ public class ContentController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping({"/deliverypipe/remove/{id}"})
-    public ModelAndView viewRemovableDeliveryPipe(@PathVariable("id") long id) {
+    @RequestMapping({"/deliverypipe/remove/{pipeId}"})
+    public ModelAndView viewRemovableDeliveryPipe(@PathVariable("pipeId") long id) {
         ModelAndView mav = new ModelAndView("deliveryPipeRemove");
         mav.addObject("deliveryPipe", deliveryPipeManager.getDeliveryPipe(id));
+        if (deliveryPipeManager.hasContent(id)) {
+            mav.addObject("hasContent", "true");
+        }
         return mav;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping(value = {"/deliverypipe/remove/{id}"}, params = {"remove"})
+    @RequestMapping(value = {"/deliverypipe/remove/{pipeId}"}, params = {"remove"})
     public ModelAndView removeDeliveryPipe(
-            @PathVariable("id") String id,
+            @PathVariable("pipeId") String id,
             final DeliveryPipe deliveryPipe,
             final BindingResult bindingResult,
             final ModelMap model) {
@@ -180,11 +184,7 @@ public class ContentController {
             });
             mav.addObject("deliveryPipe", model.getOrDefault("deliveryPipe", new DeliveryPipe()));
             mav.addObject("error", true);
-        } else if (deliveryPipeManager.hasContent(deliveryPipe.getId())) {
-            mav.addObject("deliveryPipe", deliveryPipe);
-            mav.addObject("error", true);
-            mav.addObject("errortext", "Delivery pipe has content. Delete all content from delivery pipe first.");
-        } else {
+        }  else {
             try {
                 deliveryPipeManager.removeDeliveryPipe(deliveryPipe.getId());
                 deliveryPipe.setProviders(null);
@@ -205,8 +205,8 @@ public class ContentController {
 
 //<editor-fold defaultstate="collapsed" desc="Content list">
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
-    @RequestMapping({"/deliverypipe/{id}/content/list"})
-    public ModelAndView viewDeliveryPipeContent(@PathVariable("id") long id) {
+    @RequestMapping({"/deliverypipe/{pipeId}/content/list"})
+    public ModelAndView viewDeliveryPipeContent(@PathVariable("pipeId") long id) {
         ModelAndView mav;
         DeliveryPipe pipe = deliveryPipeManager.getDeliveryPipe(id);
         switch (pipe.getDeliverableType()) {

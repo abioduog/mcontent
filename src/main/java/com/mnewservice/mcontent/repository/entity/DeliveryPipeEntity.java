@@ -39,7 +39,7 @@ public class DeliveryPipeEntity extends AbstractEntity { // aka Devil Pipe
     @ManyToMany
     private Set<UserEntity> providers;
 
-    @OneToMany(mappedBy = "deliveryPipe")
+    @OneToMany(mappedBy = "deliveryPipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AbstractDeliverableEntity> deliverables;
 
     public String getName() {

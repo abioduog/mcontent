@@ -20,6 +20,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import com.mnewservice.mcontent.util.ShortUrlUtils;
+import java.util.Collections;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -91,9 +92,15 @@ public class DeliveryPipeManager {
     }
 
     @Transactional
-    public DeliveryPipe saveDeliveryPipe(DeliveryPipe service) {
-        LOG.info("Saving delivery pipe with id=" + service.getId());
-        DeliveryPipeEntity entity = mapper.toEntity(service);
+    public DeliveryPipe saveDeliveryPipe(DeliveryPipe deliveryPipe) {
+        LOG.info("Saving delivery pipe with id=" + deliveryPipe.getId());
+        DeliveryPipeEntity entity = mapper.toEntity(deliveryPipe);
+        if (deliveryPipe.getId() == null) { // create
+            entity.setDeliverables(Collections.<AbstractDeliverableEntity>emptySet());
+        } else { // update
+            DeliveryPipeEntity oldEntityWithDeliverables = repository.findOne(deliveryPipe.getId());
+            entity.setDeliverables(oldEntityWithDeliverables.getDeliverables());
+        }
         return mapper.toDomain(repository.save(entity));
     }
 

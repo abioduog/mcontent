@@ -13,8 +13,7 @@
             </div>
             <input type="hidden" name="id" th:value="${subscriber.id}"/>
 
-            <label for="phone" th:text="#{subscriber.phone}">Phone number</label>
-            <input type="text" required="false" readonly="true" name="phone" th:value="${subscriber.phone.number}"/>
+            <legend th:text="#{general.remove} + ': ' + ${subscriber.phone.number}">Remove: Subscriber</legend>
 
             <input type="hidden" th:name="remove" />
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />

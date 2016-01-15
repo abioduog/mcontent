@@ -15,6 +15,9 @@
                 <td th:text="${subscriber.activeSubscriptionCount}">ACTIVE SUBSCRIPTION COUNT</td>
                 <td th:text="${subscriber.inactiveSubscriptionCount}">ACTIVE SUBSCRIPTION COUNT</td>
                 <td><!-- icon (?) -->
+                    <a class="view-subscriber pure-button" sec:authorize="hasAnyRole('ADMIN')"
+                       th:href="@{|/subscriber/${subscriber.id}|}"
+                       th:text="#{subscriber.subscriptions}">Subscriptions</a>
                     <a class="del-subscriber pure-button" sec:authorize="hasAnyRole('ADMIN')"
                        th:href="@{|/subscriber/remove/${subscriber.id}|}"
                        th:text="#{general.remove}">Remove</a>
@@ -29,6 +32,11 @@
     $(".del-subscriber").click(function() {
         event.preventDefault();
         mContent.popup.load('Remove subscriber', $(this).attr("href"));
+        return false;
+    });
+    $(".view-subscriber").click(function() {
+        event.preventDefault();
+        mContent.popup.load('Subscriptions', $(this).attr("href"));
         return false;
     });
 

@@ -22,10 +22,12 @@ public class ProviderEntity extends AbstractEntity {
     private String state;
     private String country;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private PhoneNumberEntity phone;
-    @OneToOne(cascade = CascadeType.ALL)
-    private EmailEntity email;
+//    @OneToOne(cascade = CascadeType.ALL)
+//    private PhoneNumberEntity phone;
+//    @OneToOne(cascade = CascadeType.ALL)
+//    private EmailEntity email;
+    private String phone;
+    private String email;
 
     // ** login info **
     @OneToOne(cascade = CascadeType.ALL)
@@ -34,10 +36,12 @@ public class ProviderEntity extends AbstractEntity {
     // ** contact info **
     private String nameOfContactPerson;
     private String positionOfContactPerson;
-    @OneToOne(cascade = CascadeType.ALL)
-    private PhoneNumberEntity phoneOfContactPerson;
-    @OneToOne(cascade = CascadeType.ALL)
-    private EmailEntity emailOfContactPerson;
+//    @OneToOne(cascade = CascadeType.ALL)
+//    private PhoneNumberEntity phoneOfContactPerson;
+//    @OneToOne(cascade = CascadeType.ALL)
+//    private EmailEntity emailOfContactPerson;
+    private String phoneOfContactPerson;
+    private String emailOfContactPerson;
 
     // ** service info **
     private String contentName;
@@ -72,19 +76,19 @@ public class ProviderEntity extends AbstractEntity {
         this.country = country;
     }
 
-    public PhoneNumberEntity getPhone() {
+    public String getPhone() {
         return phone;
     }
 
-    public void setPhone(PhoneNumberEntity phone) {
+    public void setPhone(String phone) {
         this.phone = phone;
     }
 
-    public EmailEntity getEmail() {
+    public String getEmail() {
         return email;
     }
 
-    public void setEmail(EmailEntity email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
@@ -112,19 +116,19 @@ public class ProviderEntity extends AbstractEntity {
         this.positionOfContactPerson = positionOfContactPerson;
     }
 
-    public PhoneNumberEntity getPhoneOfContactPerson() {
+    public String getPhoneOfContactPerson() {
         return phoneOfContactPerson;
     }
 
-    public void setPhoneOfContactPerson(PhoneNumberEntity phoneOfContactPerson) {
+    public void setPhoneOfContactPerson(String phoneOfContactPerson) {
         this.phoneOfContactPerson = phoneOfContactPerson;
     }
 
-    public EmailEntity getEmailOfContactPerson() {
+    public String getEmailOfContactPerson() {
         return emailOfContactPerson;
     }
 
-    public void setEmailOfContactPerson(EmailEntity emailOfContactPerson) {
+    public void setEmailOfContactPerson(String emailOfContactPerson) {
         this.emailOfContactPerson = emailOfContactPerson;
     }
 

@@ -41,10 +41,10 @@
                         </fieldset>
 
                         <label for="phone" th:text="#{provider.phone}">Telephone</label>
-                        <input type="tel" required="true" name="phone" placeholder="+123 4567 890" th:title="#{provider.phone.tooltip}" th:value="${provider.phone.number}"/>
+                        <input type="tel" required="true" name="phone" placeholder="+123 4567 890" th:title="#{provider.phone.tooltip}" th:value="${provider.phone}"/>
 
                         <label for="email" th:text="#{provider.email}">Email address</label>
-                        <input type="email" required="true" name="email" placeholder="provider@mail" th:title="#{provider.email.tooltip}" th:value="${provider.email.address}"/>
+                        <input type="email" required="true" name="email" placeholder="provider@mail" th:title="#{provider.email.tooltip}" th:value="${provider.email}"/>
                     </fieldset>
 
                     <fieldset>
@@ -66,10 +66,10 @@
                         <input type="text" required="true" name="positionOfContactPerson" placeholder="Position" th:title="#{provider.position.tooltip}" th:value="${provider.positionOfContactPerson}"/>
 
                         <label for="phoneOfContactPerson" th:text="#{provider.phoneOfContactPerson}">Mobile number of contact person</label>
-                        <input type="tel" required="true" name="phoneOfContactPerson" placeholder="+123 4567 890" th:title="#{provider.contactphone.tooltip}" th:value="${provider.phoneOfContactPerson.number}"/>
+                        <input type="tel" required="true" name="phoneOfContactPerson" placeholder="+123 4567 890" th:title="#{provider.contactphone.tooltip}" th:value="${provider.phoneOfContactPerson}"/>
 
                         <label for="emailOfContactPerson" th:text="#{provider.emailOfContactPerson}">Email of contact person</label>
-                        <input type="email" required="true" name="emailOfContactPerson" placeholder="contact.person@mail" th:title="#{provider.contactmail.tooltip}" th:value="${provider.emailOfContactPerson.address}"/>
+                        <input type="email" required="true" name="emailOfContactPerson" placeholder="contact.person@mail" th:title="#{provider.contactmail.tooltip}" th:value="${provider.emailOfContactPerson}"/>
                     </fieldset>
 
                     <fieldset>

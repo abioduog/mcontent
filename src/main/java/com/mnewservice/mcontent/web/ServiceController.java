@@ -111,7 +111,9 @@ public class ServiceController {
     @RequestMapping({"/service/remove/{id}"})
     public ModelAndView viewRemovableService(@PathVariable("id") long id) {
         ModelAndView mav = new ModelAndView("serviceRemove");
-        mav.addObject("service", serviceManager.getService(id));
+        Service service = serviceManager.getService(id);
+        mav.addObject("service", service);
+        mav.addObject("serviceDeliveryPipe", service.getDeliveryPipe());
         return mav;
     }
 

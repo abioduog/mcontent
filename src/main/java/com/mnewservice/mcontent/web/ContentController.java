@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -110,6 +111,38 @@ public class ContentController {
         return mav;
     }
 
+//<editor-fold defaultstate="collapsed" desc="error handling">
+    @ResponseStatus(value = HttpStatus.CONFLICT, reason = "Data handling error")  // 409
+    public class DataHandlingException extends RuntimeException {
+
+        public DataHandlingException() {
+            super();
+        }
+
+        public DataHandlingException(String s) {
+            super(s);
+        }
+
+        public DataHandlingException(String s, Throwable throwable) {
+            super(s, throwable);
+        }
+
+        public DataHandlingException(Throwable throwable) {
+            super(throwable);
+        }
+    }
+
+    private ModelAndView addErrorText(ModelAndView mav, List<ObjectError> errors) {
+        String errorText = "";
+        errors.stream().forEach((error) -> {
+            errorText.concat(error.toString());
+        });
+        LOG.error(errorText);
+        mav.addObject("errortext", errorText);
+        return mav;
+    }
+
+//</editor-fold>
 //<editor-fold defaultstate="collapsed" desc="Delivery pipe">
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/create"})
@@ -137,9 +170,7 @@ public class ContentController {
         ModelAndView mav = new ModelAndView("deliveryPipeDetail");
 
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().stream().forEach((error) -> {
-                LOG.error(error.toString());
-            });
+            mav = addErrorText(mav, bindingResult.getAllErrors());
             mav.addObject("deliveryPipe", model.getOrDefault("deliveryPipe", new DeliveryPipe()));
             mav.addObject("error", true);
         } else {
@@ -150,8 +181,9 @@ public class ContentController {
                 mav.addObject("saved", true);
             } catch (Exception ex) {
                 LOG.error(ex);
-                mav.addObject("service", deliveryPipe);
-                mav.addObject("error", true);
+                //mav.addObject("service", deliveryPipe);
+                //mav.addObject("error", true);
+                throw new DataHandlingException(ex);
             }
         }
 
@@ -179,9 +211,7 @@ public class ContentController {
         ModelAndView mav = new ModelAndView("deliveryPipeRemove");
 
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().stream().forEach((error) -> {
-                LOG.error(error.toString());
-            });
+            mav = addErrorText(mav, bindingResult.getAllErrors());
             mav.addObject("deliveryPipe", model.getOrDefault("deliveryPipe", new DeliveryPipe()));
             mav.addObject("error", true);
         }  else {
@@ -192,9 +222,10 @@ public class ContentController {
                 mav.addObject("removed", true);
             } catch (Exception ex) {
                 LOG.error(ex);
-                mav.addObject("deliveryPipe", deliveryPipe);
-                mav.addObject("error", true);
-                mav.addObject("errortext", ex.getLocalizedMessage());
+                // mav.addObject("deliveryPipe", deliveryPipe);
+                // mav.addObject("error", true);
+                // mav.addObject("errortext", ex.getLocalizedMessage());
+                throw new DataHandlingException(ex);
             }
         }
 
@@ -336,9 +367,7 @@ public class ContentController {
         ModelAndView mav = new ModelAndView("content");
 
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().stream().forEach((error) -> {
-                LOG.error(error.toString());
-            });
+            mav = addErrorText(mav, bindingResult.getAllErrors());
             mav.addObject("deliverable", model.getOrDefault("deliverable", new SeriesDeliverable()));
             mav.addObject("error", true);
         } else {
@@ -355,8 +384,9 @@ public class ContentController {
 
             } catch (Exception ex) {
                 LOG.error(ex);
-                mav.addObject("deliverable", deliverable);
-                mav.addObject("error", true);
+//                mav.addObject("deliverable", deliverable);
+//                mav.addObject("error", true);
+                throw new DataHandlingException(ex);
             }
         }
 
@@ -385,9 +415,7 @@ public class ContentController {
         //SeriesDeliverable deliverable = deliveryPipeManager.getSeriesContent(contentId);
         ModelAndView mav = new ModelAndView("contentSeriesRemove");
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().stream().forEach((error) -> {
-                LOG.error(error.toString());
-            });
+            mav = addErrorText(mav, bindingResult.getAllErrors());
             mav.addObject("deliverable", model.getOrDefault("deliverable", new SeriesDeliverable()));
             mav.addObject("error", true);
         } else {
@@ -397,8 +425,9 @@ public class ContentController {
                 mav.addObject("removed", true);
             } catch (Exception ex) {
                 LOG.error(ex);
-                mav.addObject("deliverable", deliverable);
-                mav.addObject("error", true);
+//                mav.addObject("deliverable", deliverable);
+//                mav.addObject("error", true);
+                throw new DataHandlingException(ex);
             }
         }
 
@@ -443,9 +472,7 @@ public class ContentController {
         ModelAndView mav = new ModelAndView("content");
 
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().stream().forEach((error) -> {
-                LOG.error(error.toString());
-            });
+            mav = addErrorText(mav, bindingResult.getAllErrors());
             mav.addObject(
                     "deliverable",
                     model.getOrDefault("deliverable", new ScheduledDeliverable())
@@ -465,8 +492,9 @@ public class ContentController {
 
             } catch (Exception ex) {
                 LOG.error(ex);
-                mav.addObject("deliverable", deliverable);
-                mav.addObject("error", true);
+//                mav.addObject("deliverable", deliverable);
+//                mav.addObject("error", true);
+                throw new DataHandlingException(ex);
             }
         }
 
@@ -539,9 +567,7 @@ public class ContentController {
         //SeriesDeliverable deliverable = deliveryPipeManager.getSeriesContent(contentId);
         ModelAndView mav = new ModelAndView("contentScheduledRemove");
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().stream().forEach((error) -> {
-                LOG.error(error.toString());
-            });
+            mav = addErrorText(mav, bindingResult.getAllErrors());
             mav.addObject("deliverable", model.getOrDefault("deliverable", new ScheduledDeliverable()));
             mav.addObject("error", true);
         } else {
@@ -551,8 +577,9 @@ public class ContentController {
                 mav.addObject("removed", true);
             } catch (Exception ex) {
                 LOG.error(ex);
-                mav.addObject("deliverable", deliverable);
-                mav.addObject("error", true);
+//                mav.addObject("deliverable", deliverable);
+//                mav.addObject("error", true);
+                throw new DataHandlingException(ex);
             }
         }
 

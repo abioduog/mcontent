@@ -11,7 +11,7 @@
             <tr>
                 <th th:text="#{deliverypipe.name}">Name</th>
                 <th th:text="#{deliverypipe.type}">Type</th>
-                <th th:text="#{deliverypipe.contentstatus}">Content status</th>
+                <th th:text="#{deliverypipe.providerCount}">Content status</th>
                 <th th:text="#{deliverypipe.contentCount}">Content count</th>
                 <th>&nbsp;</th>
             </tr>
@@ -20,8 +20,8 @@
             <tr th:each="deliveryPipe : (${filteredDeliveryPipes}? ${filteredDeliveryPipes} : ${allDeliveryPipes})">
                 <td th:text="${deliveryPipe.name}">NAME</td>
                 <td th:text="${deliveryPipe.deliverableType}">TYPE</td>
-                <td>0</td>
-                <td th:text="${deliveryPipe.contentCount}">TYPE</td>
+                <td th:text="${deliveryPipe.providerCount}">0</td>
+                <td th:text="${deliveryPipe.contentCount}">0</td>
                 <td><!-- icon (?) -->
                     <a class="edit-pipe pure-button" sec:authorize="hasRole('ADMIN')"
                        th:href="@{|/deliverypipe/${deliveryPipe.id}|}"

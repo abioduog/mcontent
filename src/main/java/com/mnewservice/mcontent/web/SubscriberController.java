@@ -76,4 +76,12 @@ public class SubscriberController {
         return mav;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping({"/subscriber/{id}"})
+    public ModelAndView viewSubscriber(@PathVariable("id") long id) {
+        ModelAndView mav = new ModelAndView("subscriberDetail");
+        mav.addObject("subscriber", subscriberManager.getSubscriber(id));
+        return mav;
+    }
+
 }

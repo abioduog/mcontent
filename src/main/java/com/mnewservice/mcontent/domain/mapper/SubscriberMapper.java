@@ -16,6 +16,9 @@ public class SubscriberMapper extends AbstractMapper<Subscriber, SubscriberEntit
     @Autowired
     private PhoneNumberMapper phoneNumberMapper;
 
+    @Autowired
+    private SubscriptionMapper subscriptionMapper;
+
     @Override
     public Subscriber toDomain(SubscriberEntity entity) {
         if (entity == null) {

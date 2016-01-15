@@ -13,19 +13,7 @@
             </div>
             <input type="hidden" name="id" th:value="${service.id}"/>
 
-            <label for="operator" th:text="#{service.operator}">Operator</label>
-            <input type="text" required="false" readonly="true" name="operator" th:value="${service.operator}"/>
-
-            <label for="shortCode" th:text="#{service.shortCode}">Short code</label>
-            <input type="number" required="false" readonly="true" min="0" step="1" name="shortCode" th:value="${service.shortCode}"/>
-
-            <label for="keyword" th:text="#{service.keyword}">Subscription keyword</label>
-            <input type="text" required="false" readonly="true" name="keyword" th:value="${service.keyword}"/>
-
-            <label for="deliveryPipe" th:text="#{service.deliveryPipe}">Delivery pipe</label>
-            <select name="deliveryPipe" th:field="${service.deliveryPipe.id}">
-                <option th:each="deliveryPipe : ${allDeliveryPipes}" th:value="${deliveryPipe.id}" th:text="${deliveryPipe.name}">Delivery pipe name</option>
-            </select>
+            <legend th:text="#{general.remove} +  ' ' + #{service} + ': ' + ${service.operator} + ' - ' + ${serviceDeliveryPipe.name}">Remove: Service</legend>
 
             <input type="hidden" th:name="remove" />
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />

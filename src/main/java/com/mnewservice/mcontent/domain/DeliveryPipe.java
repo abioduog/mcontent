@@ -15,6 +15,9 @@ public class DeliveryPipe {
     private String theme;
     private Collection<User> providers;
 
+    // DTO read-only local variable
+    private long contentCount;
+
     public Long getId() {
         return id;
     }
@@ -54,4 +57,13 @@ public class DeliveryPipe {
     public void setProviders(Collection<User> providers) {
         this.providers = providers;
     }
+
+    public long getContentCount() {
+        return contentCount;
+    }
+
+    public void setContentCount(long contentCount) {
+        this.contentCount = contentCount;
+    }
+
 }

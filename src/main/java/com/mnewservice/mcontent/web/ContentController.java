@@ -99,6 +99,17 @@ public class ContentController {
     public String listServices() {
         return "deliveryPipeList";
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @RequestMapping({"/deliverypipe/list/filtered/"})
+    public ModelAndView listFilteredServices(@RequestParam(value = "nameFilter") String fname) {
+        ModelAndView mav = new ModelAndView("deliveryPipeList");
+        mav.addObject("filteredDeliveryPipes", deliveryPipeManager.getDeliveryPipes(fname)
+                .stream().collect(Collectors.toList()));
+        mav.addObject("nameFilter", fname);
+        return mav;
+    }
+
 //<editor-fold defaultstate="collapsed" desc="Delivery pipe">
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/create"})
@@ -109,17 +120,17 @@ public class ContentController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping({"/deliverypipe/{id}"})
-    public ModelAndView viewDeliveryPipe(@PathVariable("id") long id) {
+    @RequestMapping({"/deliverypipe/{pipeId}"})
+    public ModelAndView viewDeliveryPipe(@PathVariable("pipeId") long id) {
         ModelAndView mav = new ModelAndView("deliveryPipeDetail");
         mav.addObject("deliveryPipe", deliveryPipeManager.getDeliveryPipe(id));
         return mav;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping(value = {"/deliverypipe/{id}"}, params = {"save"})
+    @RequestMapping(value = {"/deliverypipe/{pipeId}"}, params = {"save"})
     public ModelAndView saveDeliveryPipe(
-            @PathVariable("id") String id,
+            @PathVariable("pipeId") String id,
             final DeliveryPipe deliveryPipe,
             final BindingResult bindingResult,
             final ModelMap model) {
@@ -146,12 +157,56 @@ public class ContentController {
 
         return mav;
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping({"/deliverypipe/remove/{pipeId}"})
+    public ModelAndView viewRemovableDeliveryPipe(@PathVariable("pipeId") long id) {
+        ModelAndView mav = new ModelAndView("deliveryPipeRemove");
+        mav.addObject("deliveryPipe", deliveryPipeManager.getDeliveryPipe(id));
+        if (deliveryPipeManager.hasContent(id)) {
+            mav.addObject("hasContent", "true");
+        }
+        return mav;
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value = {"/deliverypipe/remove/{pipeId}"}, params = {"remove"})
+    public ModelAndView removeDeliveryPipe(
+            @PathVariable("pipeId") String id,
+            final DeliveryPipe deliveryPipe,
+            final BindingResult bindingResult,
+            final ModelMap model) {
+        ModelAndView mav = new ModelAndView("deliveryPipeRemove");
+
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().stream().forEach((error) -> {
+                LOG.error(error.toString());
+            });
+            mav.addObject("deliveryPipe", model.getOrDefault("deliveryPipe", new DeliveryPipe()));
+            mav.addObject("error", true);
+        }  else {
+            try {
+                deliveryPipeManager.removeDeliveryPipe(deliveryPipe.getId());
+                deliveryPipe.setProviders(null);
+                mav.addObject("deliveryPipe", deliveryPipe);
+                mav.addObject("removed", true);
+            } catch (Exception ex) {
+                LOG.error(ex);
+                mav.addObject("deliveryPipe", deliveryPipe);
+                mav.addObject("error", true);
+                mav.addObject("errortext", ex.getLocalizedMessage());
+            }
+        }
+
+        return mav;
+    }
+
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Content list">
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
-    @RequestMapping({"/deliverypipe/{id}/content/list"})
-    public ModelAndView viewDeliveryPipeContent(@PathVariable("id") long id) {
+    @RequestMapping({"/deliverypipe/{pipeId}/content/list"})
+    public ModelAndView viewDeliveryPipeContent(@PathVariable("pipeId") long id) {
         ModelAndView mav;
         DeliveryPipe pipe = deliveryPipeManager.getDeliveryPipe(id);
         switch (pipe.getDeliverableType()) {
@@ -164,6 +219,7 @@ public class ContentController {
                                         put("id", deliverable.getId());
                                         put("title", deliverable.getContent().getTitle());
                                         put("date", new SimpleDateFormat("yyyy-MM-dd").format(deliverable.getDeliveryDate()));
+                                        put("myStatus", deliverable.getStatus().toString().toLowerCase());
                                     }
                                 }
                         ).collect(Collectors.toList()));
@@ -306,7 +362,50 @@ public class ContentController {
 
         return mav;
     }
-    //</editor-fold>
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @RequestMapping({"/deliverypipe/{deliveryPipeId}/series/remove/{contentId}"})
+    public ModelAndView viewRemovableSeriesContent(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId) {
+        SeriesDeliverable deliverable = deliveryPipeManager.getSeriesContent(contentId);
+        ModelAndView mav = new ModelAndView("contentSeriesRemove");
+        mav.addObject("deliverable", deliverable);
+        return mav;
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/remove/{contentId}"}, params = {"remove"})
+    public ModelAndView removeSeriesContent(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId,
+            final SeriesDeliverable deliverable,
+            final BindingResult bindingResult,
+            final ModelMap model) {
+        //SeriesDeliverable deliverable = deliveryPipeManager.getSeriesContent(contentId);
+        ModelAndView mav = new ModelAndView("contentSeriesRemove");
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().stream().forEach((error) -> {
+                LOG.error(error.toString());
+            });
+            mav.addObject("deliverable", model.getOrDefault("deliverable", new SeriesDeliverable()));
+            mav.addObject("error", true);
+        } else {
+            try {
+                deliveryPipeManager.removeSeriesContent(deliverable.getId());
+                mav.addObject("deliverable", deliverable);
+                mav.addObject("removed", true);
+            } catch (Exception ex) {
+                LOG.error(ex);
+                mav.addObject("deliverable", deliverable);
+                mav.addObject("error", true);
+            }
+        }
+
+        return mav;
+    }
+
+//</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Scheduled content">
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
@@ -417,6 +516,49 @@ public class ContentController {
         }
         return content;
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @RequestMapping({"/deliverypipe/{deliveryPipeId}/scheduled/remove/{contentId}"})
+    public ModelAndView viewRemovableScheduledContent(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId) {
+        ScheduledDeliverable deliverable = deliveryPipeManager.getScheduledContent(contentId);
+        ModelAndView mav = new ModelAndView("contentScheduledRemove");
+        mav.addObject("deliverable", deliverable);
+        return mav;
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/scheduled/remove/{contentId}"}, params = {"remove"})
+    public ModelAndView removeScheduledContent(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId,
+            final SeriesDeliverable deliverable,
+            final BindingResult bindingResult,
+            final ModelMap model) {
+        //SeriesDeliverable deliverable = deliveryPipeManager.getSeriesContent(contentId);
+        ModelAndView mav = new ModelAndView("contentScheduledRemove");
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().stream().forEach((error) -> {
+                LOG.error(error.toString());
+            });
+            mav.addObject("deliverable", model.getOrDefault("deliverable", new ScheduledDeliverable()));
+            mav.addObject("error", true);
+        } else {
+            try {
+                deliveryPipeManager.removeScheduledContent(deliverable.getId());
+                mav.addObject("deliverable", deliverable);
+                mav.addObject("removed", true);
+            } catch (Exception ex) {
+                LOG.error(ex);
+                mav.addObject("deliverable", deliverable);
+                mav.addObject("error", true);
+            }
+        }
+
+        return mav;
+    }
+
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="notifications">

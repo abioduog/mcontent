@@ -62,17 +62,25 @@ public class DeliveryPipeManager {
 
 //<editor-fold defaultstate="collapsed" desc="delivery pipes">
     @Transactional(readOnly = true)
-    public Collection<DeliveryPipe> getAllDeliveryPipes() {
-        LOG.info("Getting all delivery pipes");
+    public Collection<DeliveryPipe> getDeliveryPipes(String nameFilter) {
+        String filter = (nameFilter == null || nameFilter.length() == 0) ? "%" : "%" + nameFilter + "%";
+        LOG.info("Getting delivery pipes filtered by name [" + filter + "]");
         EnumSet<RoleEntity.RoleEnum> roles = getCurrentUserRoles();
 
         Collection<DeliveryPipeEntity> entities = Arrays.asList();
-        if(roles.contains(RoleEntity.RoleEnum.ADMIN)) {
-            entities = mapper.makeCollection(repository.findAll());
-        } else if(roles.contains(RoleEntity.RoleEnum.PROVIDER)){
-            entities = mapper.makeCollection(repository.findByProvidersUsername( getCurrentUserUsername()));
+        if (roles.contains(RoleEntity.RoleEnum.ADMIN)) {
+            entities = mapper.makeCollection(repository.findAll(filter));
+        } else if (roles.contains(RoleEntity.RoleEnum.PROVIDER)) {
+            entities = mapper.makeCollection(repository.findByProvidersUsername(filter, getCurrentUserUsername()));
         }
+        LOG.info("Found " + entities.size() + " entity.");
         return mapper.toDomain(entities);
+    }
+
+    @Transactional(readOnly = true)
+    public Collection<DeliveryPipe> getAllDeliveryPipes() {
+        LOG.info("Getting all delivery pipes");
+        return getDeliveryPipes("");
     }
 
     @Transactional(readOnly = true)
@@ -88,6 +96,39 @@ public class DeliveryPipeManager {
         DeliveryPipeEntity entity = mapper.toEntity(service);
         return mapper.toDomain(repository.save(entity));
     }
+
+    @Transactional
+    public void removeDeliveryPipe(Long id) {
+        LOG.info("Removing delivery pipe with id=" + id);
+        DeliveryPipeEntity entity = repository.findOne(id);
+        repository.delete(entity);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean hasContent(Long id) {
+        LOG.info("Checking for delivery pipe content with id=" + id);
+        DeliveryPipeEntity entity = repository.findOne(id);
+        return entity.getDeliverables() != null && entity.getDeliverables().size() > 0;
+    }
+
+    @Transactional(readOnly = true)
+    public Collection<DeliveryPipe> getDeliveryPipesByProvider(Long id) {
+        LOG.info("Getting DeliveryPipes by provider with id=" + id);
+        return mapper.toDomain(repository.findByProviders(id));
+    }
+
+    @Transactional
+    public void removeProviderFromDeliveryPipes(Long id, UserEntity user) {
+        LOG.info("Removing provider(" + id + ") from delivery pipes.");
+        Collection<DeliveryPipeEntity> pipes = repository.findByProviders(id);
+        pipes.stream().map((pipe) -> {
+            pipe.getProviders().remove(user);
+            return pipe;
+        }).forEach((pipe) -> {
+            repository.save(pipe);
+        });
+    }
+
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="series content">
@@ -112,9 +153,9 @@ public class DeliveryPipeManager {
             entity.setDeliveryPipe(repository.findOne(deliveryPipeId));
             entity.setDeliveryDaysAfterSubscription((int) (seriesRepository.countByDeliveryPipeId(deliveryPipeId) + 1));
         }
-        if(entity.getContent().getShortUuid() == null) {
+        if (entity.getContent().getShortUuid() == null) {
             String shortUuid = ShortUrlUtils.getRandomShortIdentifier();
-            while(contentRepository.findByShortUuid(shortUuid) != null) {
+            while (contentRepository.findByShortUuid(shortUuid) != null) {
                 shortUuid = ShortUrlUtils.getRandomShortIdentifier();
             }
             entity.getContent().setShortUuid(shortUuid);
@@ -122,6 +163,13 @@ public class DeliveryPipeManager {
 
         // TODO: for the providers: allow save if and only if status == PENDING_APPROVAL
         return seriesMapper.toDomain(seriesRepository.save(entity));
+    }
+
+    @Transactional
+    public void removeSeriesContent(Long id) {
+        LOG.info("Removing series content with id=" + id);
+        SeriesDeliverableEntity entity = seriesRepository.findOne(id);
+        seriesRepository.delete(entity);
     }
 
 //</editor-fold>
@@ -157,6 +205,14 @@ public class DeliveryPipeManager {
         // TODO: for the providers: allow save if and only if status == PENDING_APPROVAL
         return scheduledMapper.toDomain(scheduledRepository.save(entity));
     }
+
+    @Transactional
+    public void removeScheduledContent(Long id) {
+        LOG.info("Removing series content with id=" + id);
+        ScheduledDeliverableEntity entity = scheduledRepository.findOne(id);
+        scheduledRepository.delete(entity);
+    }
+
 //</editor-fold>
 
     public Content getContentByUuid(String shortUuid) {

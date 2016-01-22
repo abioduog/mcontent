@@ -14,68 +14,72 @@
                   enctype="multipart/form-data">
                 <div class="form-fields">
 
-                    <div th:if="${error}"
-                         class="alert alert-error"
-                         th:text="#{register.error}">
-                        Errors in form
+                    <div th:if="${error}" class="alert alert-error">
+                        <strong>
+                            <div th:text="#{register.error}">
+                                Errors in form
+                            </div>
+                        </strong>
+                        <div th:if="${errortext}" th:text="${errortext}">
+                        </div>
                     </div>
 
                     <fieldset>
                         <legend th:text="#{provider.basicInfo}">Basic Info</legend>
 
                         <label for="name" th:text="#{provider.name}">Provider name</label>
-                        <input type="text" required="true" name="name" th:value="${provider.name}"/>
+                        <input type="text" required="true" name="name" placeholder="Providername" th:title="#{provider.name.tooltip}" th:value="${provider.name}"/>
 
                         <fieldset>
                             <legend th:text="#{provider.address}">Provider address</legend>
 
                             <label for="state" th:text="#{provider.state}">State</label>
-                            <input type="text" required="true" name="state" th:value="${provider.state}"/>
+                            <input type="text" required="true" name="state" placeholder="State" th:title="#{provider.state.tooltip}" th:value="${provider.state}"/>
 
                             <label for="country" th:text="#{provider.country}">Country</label>
-                            <input type="text" required="true" name="country" th:value="${provider.country}"/>
+                            <input type="text" required="true" name="country" placeholder="Country" th:title="#{provider.country.tooltip}" th:value="${provider.country}"/>
                         </fieldset>
 
                         <label for="phone" th:text="#{provider.phone}">Telephone</label>
-                        <input type="tel" required="true" name="phone" th:value="${provider.phone.number}"/>
+                        <input type="tel" required="true" name="phone" placeholder="+123 4567 890" th:title="#{provider.phone.tooltip}" th:value="${provider.phone.number}"/>
 
                         <label for="email" th:text="#{provider.email}">Email address</label>
-                        <input type="email" required="true" name="email" th:value="${provider.email.address}"/>
+                        <input type="email" required="true" name="email" placeholder="provider@mail" th:title="#{provider.email.tooltip}" th:value="${provider.email.address}"/>
                     </fieldset>
 
                     <fieldset>
                         <legend th:text="#{provider.loginInfo}">Login Info</legend>
 
                         <label for="username" th:text="#{user.username}">Username</label>
-                        <input type="text" required="true" name="username" th:value="${provider.user.username}"/>
+                        <input type="text" autocomplete="off" required="true" name="username" placeholder="username" th:title="#{provider.username.tooltip}" th:value="${provider.user.username}"/>
 
                         <label for="password" th:text="#{user.password}">Password</label>
-                        <input type="password" required="true" name="password" th:value="${provider.user.password}"/>
+                        <input type="password" autocomplete="off" required="true" name="password" th:title="#{provider.password.tooltip}" th:value="${provider.user.password}"/>
                     </fieldset>
                     <fieldset>
                         <legend th:text="#{provider.contactInfo}">Contact Info</legend>
 
                         <label for="nameOfContactPerson" th:text="#{provider.nameOfContactPerson}">Name of provider's contact person</label>
-                        <input type="text" required="true" name="nameOfContactPerson" th:value="${provider.nameOfContactPerson}"/>
+                        <input type="text" required="true" name="nameOfContactPerson" placeholder="Forename Surname" th:title="#{provider.contactperson.tooltip}" th:value="${provider.nameOfContactPerson}"/>
 
                         <label for="positionOfContactPerson" th:text="#{provider.positionOfContactPerson}">Position of contact person</label>
-                        <input type="text" required="true" name="positionOfContactPerson" th:value="${provider.positionOfContactPerson}"/>
+                        <input type="text" required="true" name="positionOfContactPerson" placeholder="Position" th:title="#{provider.position.tooltip}" th:value="${provider.positionOfContactPerson}"/>
 
                         <label for="phoneOfContactPerson" th:text="#{provider.phoneOfContactPerson}">Mobile number of contact person</label>
-                        <input type="tel" required="true" name="phoneOfContactPerson" th:value="${provider.phoneOfContactPerson.number}"/>
+                        <input type="tel" required="true" name="phoneOfContactPerson" placeholder="+123 4567 890" th:title="#{provider.contactphone.tooltip}" th:value="${provider.phoneOfContactPerson.number}"/>
 
                         <label for="emailOfContactPerson" th:text="#{provider.emailOfContactPerson}">Email of contact person</label>
-                        <input type="email" required="true" name="emailOfContactPerson" th:value="${provider.emailOfContactPerson.address}"/>
+                        <input type="email" required="true" name="emailOfContactPerson" placeholder="contact.person@mail" th:title="#{provider.contactmail.tooltip}" th:value="${provider.emailOfContactPerson.address}"/>
                     </fieldset>
 
                     <fieldset>
                         <legend th:text="#{provider.serviceInfo}">Service Info</legend>
 
                         <label for="contentName" th:text="#{provider.contentName}">Content name</label>
-                        <input type="text" required="true" name="contentName" th:value="${provider.contentName}"/>
+                        <input type="text" required="true" name="contentName" placeholder="Name for content" th:title="#{provider.contentname.tooltip}" th:value="${provider.contentName}"/>
 
                         <label for="contentDescription" th:text="#{provider.contentDescription}">Content description</label>
-                        <input type="text" required="true" name="contentDescription" th:value="${provider.contentDescription}"/>
+                        <input type="text" required="true" name="contentDescription" placeholder="Description" th:title="#{provider.contentdescription.tooltip}" th:value="${provider.contentDescription}"/>
 
                     </fieldset>
 

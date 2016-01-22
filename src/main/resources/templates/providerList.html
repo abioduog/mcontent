@@ -6,6 +6,7 @@
                 <th th:text="#{provider.name}">Name</th>
                 <th th:text="#{provider.email}">Email</th>
                 <th th:text="#{user.status}">Status</th>
+                <th th:text="#{provider.pipecount}">Delivery pipes</th>
                 <th>&nbsp;</th>
                 <th>&nbsp;</th>
             </tr>
@@ -15,18 +16,24 @@
                 <td th:text="${provider.name}">NAME</td>
                 <td th:text="${provider.email.address}">EMAIL</td>
                 <td th:text="${provider.user.active} ? #{user.status.active} : #{user.status.inactive}">ACTIVE</td>
+                <td th:text="${provider.pipeCount}">0</td>
                 <td><!-- icon (?) -->
-                    <a class="activate" th:unless="${provider.user.active}" th:href="@{|/user/${provider.user.id}/activate|}" th:text="#{user.status.activate}">Activate</a>
-                    <a class="deactivate" th:if="${provider.user.active}" th:href="@{|/user/${provider.user.id}/deactivate|}" th:text="#{user.status.deactivate}">Deactivate</a>
+                    <a class="activate pure-button" th:unless="${provider.user.active}" th:href="@{|/user/${provider.user.id}/activate|}" th:text="#{user.status.activate}">Activate</a>
+                    <a class="deactivate pure-button" th:if="${provider.user.active}" th:href="@{|/user/${provider.user.id}/deactivate|}" th:text="#{user.status.deactivate}">Deactivate</a>
                 </td>
                 <td><!-- icon (?) -->
-                    <a class="view-provider" th:href="@{|/provider/${provider.id}|}"
-                       th:text="#{general.view}">View</a></td>
+                    <a class="view-provider pure-button" th:href="@{|/provider/${provider.id}|}"
+                       th:text="#{general.view}">View</a>
+                    <a class="del-provider pure-button" th:unless="${provider.user.active}" sec:authorize="hasAnyRole('ADMIN')"
+                       th:href="@{|/provider/remove/${provider.id}|}"
+                       th:text="#{general.remove}">Remove</a>
+                    <label class="pure-button-disabled" th:if="${provider.user.active}" th:title="#{provider.cantremoveactive.tooltip}" sec:authorize="hasAnyRole('ADMIN')"
+                           th:text="#{general.remove}">Remove</label>
+                </td>
             </tr>
         </tbody>
     </table>
 </div>
-<!-- style to look like a button (?) -->
 <!--
 <p><a href="serviceDetail.html"
       th:href="@{/service/create}"
@@ -66,4 +73,10 @@
         mContent.popup.load('View provider', $(this).attr("href"));
         return false;
     });
+    $(".del-provider").click(function() {
+        event.preventDefault();
+        mContent.popup.load('Remove provider', $(this).attr("href"));
+        return false;
+    });
+
 </script>

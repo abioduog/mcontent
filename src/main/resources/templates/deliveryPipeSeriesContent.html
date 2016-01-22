@@ -14,24 +14,28 @@
                 <td th:text="${content.content.title}">Title</td>
                 <td th:text="${content.status}">Status</td>
                 <td sec:authorize="hasRole('ADMIN')"><!-- icon (?) -->
-                    <a class="approve" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/approve|}"
+                    <a class="approve pure-button" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/approve|}"
                        th:text="#{deliverable.status.approve}">Approve</a>
-                    <a class="disapprove" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).DISAPPROVED}" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/disapprove|}"
+                    <a class="disapprove pure-button" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).DISAPPROVED}" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/disapprove|}"
                        th:text="#{deliverable.status.disapprove}">Disapprove</a>
                 </td>
                 <td sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
-                    <a class="edit-content" th:unless="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                    <a class="edit-content pure-button" th:unless="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
                        th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}|}"
                        th:text="#{general.edit}">Edit</a>
-                    <a class="view-content" th:if="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                    <a class="view-content pure-button" th:if="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
                        th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}|}"
                        th:text="#{general.view}">View</a>
+                    <a class="del-content pure-button" sec:authorize="hasRole('ADMIN')"
+                       th:href="@{|/deliverypipe/${deliveryPipe.id}/series/remove/${content.id}|}"
+                       th:text="#{general.remove}">Delete</a>
                 </td>
 
             </tr>
         </tbody>
     </table>
-    <a class="create-content" sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/create|}"
+    <br/>
+    <a class="create-content pure-button" sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/create|}"
        th:text="#{general.add}">Add new</a>
 </div>
 <div id="content-editor"></div>
@@ -71,6 +75,15 @@
     $(".create-content, .edit-content, .view-content").click(function (event) {
         event.preventDefault();
         mContent.loaders.contentEditor($(this).attr('href'));
+        return false;
+    });
+</script>
+
+<script sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
+
+    $(".del-content").click(function (event) {
+        event.preventDefault();
+        mContent.popup.load('Remove series content', $(this).attr("href"));
         return false;
     });
 </script>

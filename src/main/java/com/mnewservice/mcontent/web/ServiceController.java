@@ -107,4 +107,44 @@ public class ServiceController {
         return mav;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping({"/service/remove/{id}"})
+    public ModelAndView viewRemovableService(@PathVariable("id") long id) {
+        ModelAndView mav = new ModelAndView("serviceRemove");
+        mav.addObject("service", serviceManager.getService(id));
+        return mav;
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value = {"/service/remove/{id}"}, params = {"remove"})
+    public ModelAndView removeService(
+            @PathVariable("id") String id,
+            final Service service,
+            final BindingResult bindingResult,
+            final ModelMap model) {
+        ModelAndView mav = new ModelAndView("serviceRemove");
+
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().stream().forEach((error) -> {
+                LOG.error(error.toString());
+            });
+            mav.addObject("service", model.getOrDefault("service", new Service()));
+            mav.addObject("error", true);
+        } else {
+            try {
+                // persist the object "service"
+                serviceManager.removeService(service.getId());
+                mav.addObject("service", service);
+                mav.addObject("removed", true);
+            } catch (Exception ex) {
+                LOG.error(ex);
+                mav.addObject("service", service);
+                mav.addObject("error", true);
+                mav.addObject("errortext", ex.getLocalizedMessage());
+            }
+        }
+
+        return mav;
+    }
+
 }

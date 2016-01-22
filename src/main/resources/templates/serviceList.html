@@ -1,8 +1,4 @@
 <h1 th:inline="text">Service list</h1>
-<!-- style to look like a button (?) -->
-<a class="create-service"
-   th:href="@{/service/create}"
-   th:text="#{general.createNew}">Create new</a>
 <div class="service-list" th:unless="${#lists.isEmpty(allServices)}">
     <table class="pure-table">
         <thead>
@@ -23,11 +19,22 @@
                 <td th:text="${service.subscriptionPeriod}">SUBSCRIPTION TIME</td>
                 <td th:text="${service.deliveryPipe.name}">DELIVERY PIPE</td>
                 <td><!-- icon (?) -->
-                    <a class="edit-service" th:href="@{|/service/${service.id}|}"
-                       th:text="#{general.edit}">Edit</a></td>
+                    <a class="edit-service pure-button" sec:authorize="hasAnyRole('ADMIN','PROVIDER')"
+                       th:text="#{general.edit}" th:href="@{|/service/${service.id}|}">Edit</a>
+                    <a class="del-service pure-button" sec:authorize="hasAnyRole('ADMIN')"
+                       th:text="#{general.remove}" th:href="@{|/service/remove/${service.id}|}">Remove</a>
+
+                </td>
             </tr>
         </tbody>
     </table>
+</div>
+<br/>
+<div>
+    <a class="create-service pure-button"
+       th:href="@{/service/create}"
+       th:text="#{general.createNew}">Create new</a>
+
 </div>
 <script>
     $(".create-service").click(function() {
@@ -38,6 +45,11 @@
     $(".edit-service").click(function() {
         event.preventDefault();
         mContent.popup.load('Edit service', $(this).attr("href"));
+        return false;
+    });
+    $(".del-service").click(function() {
+        event.preventDefault();
+        mContent.popup.load('Remove service', $(this).attr("href"));
         return false;
     });
 </script>

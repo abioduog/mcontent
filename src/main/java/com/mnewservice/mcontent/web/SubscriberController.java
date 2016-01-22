@@ -8,11 +8,18 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class SubscriberController {
+
+    private static final Logger LOG
+            = Logger.getLogger(ServiceController.class);
 
     @Autowired
     private SubscriberManager subscriberManager;
@@ -29,4 +36,44 @@ public class SubscriberController {
     public String listSubscribers() {
         return "subscriberList";
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping({"/subscriber/remove/{id}"})
+    public ModelAndView viewRemovableSubscriber(@PathVariable("id") long id) {
+        ModelAndView mav = new ModelAndView("subscriberRemove");
+        mav.addObject("subscriber", subscriberManager.getSubscriber(id));
+        return mav;
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value = {"/subscriber/remove/{id}"}, params = {"remove"})
+    public ModelAndView removeSubscriber(
+            @PathVariable("id") String id,
+            final Subscriber subscriber,
+            final BindingResult bindingResult,
+            final ModelMap model) {
+        ModelAndView mav = new ModelAndView("subscriberRemove");
+
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().stream().forEach((error) -> {
+                LOG.error(error.toString());
+            });
+            mav.addObject("subscriber", model.getOrDefault("subscriber", new Subscriber()));
+            mav.addObject("error", true);
+        } else {
+            try {
+                subscriberManager.removeSubscriber(subscriber.getId());
+                mav.addObject("subscriber", subscriber);
+                mav.addObject("removed", true);
+            } catch (Exception ex) {
+                LOG.error(ex);
+                mav.addObject("subscriber", subscriber);
+                mav.addObject("error", true);
+                mav.addObject("errortext", ex.getLocalizedMessage());
+            }
+        }
+
+        return mav;
+    }
+
 }

@@ -1,0 +1,50 @@
+<div class="provider-remove" th:unless="${#lists.isEmpty(provider)}">
+    <form name="provider-remove-form" class="pure-form pure-form-stacked" action="#"
+          th:action="@{/provider/remove/} + ${provider.id}" method="post">
+        <div class="form-fields">
+            <div th:if="${error}" class="alert alert-error" th:text="#{provider.error}">
+                Error in provider data
+            </div>
+            <div th:if="${error}" class="alert alert-error" th:text="${errortext}">
+                - No message -
+            </div>
+            <div th:if="${removed}" class="alert alert-success" th:text="#{provider.removed}">
+                Provider removed
+            </div>
+            <input type="hidden" name="id" th:value="${provider.id}"/>
+
+            <legend th:text="#{general.remove}+ ': ' + ${provider.name}">Remove: Provider</legend>
+            <label th:if="${hasPipes}" th:text="#{provider.warning.haspipes}">Warning! Provider is defined in one or more delivery pipes.</label>
+
+            <input type="hidden" th:name="remove" />
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        </div>
+        <br/>
+        <div class="form-actions">
+            <a class="submit pure-button" th:text="#{general.remove}">Delete</a>
+            <a class="cancel pure-button" th:text="#{general.cancel}">Cancel</a>
+        </div>
+    </form>
+    <script th:inline="javascript">
+
+        $(".submit").click(function (event) {
+            var providerListUrl = /*[[@{|/provider/list|}]]*/;
+                    event.preventDefault();
+            mContent.popup.submit($(this).parents("form"),
+                    function (data) {
+                        mContent.notify("Remove successful", "info");
+                        mContent.loaders.workArea(providerListUrl);
+                    },
+                    function (error) {
+                        mContent.notify("Remove of provider failed", "error");
+                    }
+            );
+            return false;
+        });
+        $(".cancel").click(function (event) {
+            event.preventDefault();
+            mContent.popup.close(this);
+            return false;
+        });
+    </script>
+</div>

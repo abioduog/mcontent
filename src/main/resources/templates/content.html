@@ -38,9 +38,10 @@
                 <input th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.ScheduledDeliverable)}" type="hidden" th:name="deliveryDate" th:field="${deliverable.deliveryDateString}"/>
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             </div>
+            <br/>
             <div class="form-actions">
-                <a class="submit" th:text="#{general.save}">Save</a>
-                <a class="cancel" th:text="#{general.cancel}">Cancel</a>
+                <a class="submit pure-button" th:text="#{general.save}">Save</a>
+                <a class="cancel pure-button" th:text="#{general.cancel}">Cancel</a>
             </div>
         </form>
     </formfield>
@@ -76,7 +77,7 @@
                     mContent.loaders.workArea(deliveryPipeContentListUrl);
                 }, function(error) {
                     console.log(error);
-                    mContent.notify("Failed to save the cahnges", "error");
+                    mContent.notify("Failed to save the changes", "error");
                 }
             );
         })

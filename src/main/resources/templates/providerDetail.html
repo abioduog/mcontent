@@ -5,6 +5,9 @@
             <div th:if="${error}" class="alert alert-error" th:text="#{provider.error}">
                 Error in provider data.
             </div>
+            <div th:if="${error} and ${errortext}" class="alert alert-error" th:text="${errortext}">
+                - No message -
+            </div>
             <div th:if="${saved}" class="alert alert-success" th:text="#{provider.saved}">
                 Provider saved.
             </div>
@@ -87,7 +90,7 @@
         </div>
         <div class="form-actions">
             <!-- <a href="#" onclick="submitFormOnPopup(this, event);" th:text="#{general.save}">Save</a> -->
-            <a href="#" onclick="closePopup(this, event);" th:text="#{general.back}">Back</a>
+            <a class="pure-button" href="#" onclick="closePopup(this, event);" th:text="#{general.back}">Back</a>
         </div>
     </form>
 </div>

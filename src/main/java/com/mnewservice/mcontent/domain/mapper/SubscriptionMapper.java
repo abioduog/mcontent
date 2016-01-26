@@ -1,10 +1,8 @@
 package com.mnewservice.mcontent.domain.mapper;
 
 import com.mnewservice.mcontent.domain.Subscription;
-import com.mnewservice.mcontent.domain.SubscriptionPeriod;
 import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
 import java.util.stream.Collectors;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +27,14 @@ public class SubscriptionMapper extends AbstractMapper<Subscription, Subscriptio
         if (entity == null) {
             return null;
         }
-        throw new UnsupportedOperationException("not implemented yet.");
+        Subscription domain = new Subscription();
+        domain.setId(entity.getId());
+        domain.setActive(entity.isActive());
+        domain.setPeriods(subscriptionPeriodMapper.toDomain(entity.getPeriods()));
+        domain.setService(serviceMapper.toDomain(entity.getService()));
+        //domain.setSubscriber(subscriberMapper.toDomain(entity.getSubscriber()));
+
+        return domain;
     }
 
     @Override

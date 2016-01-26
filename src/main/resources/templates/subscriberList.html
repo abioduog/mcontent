@@ -27,7 +27,6 @@
     </table>
 </div>
 <script th:inline="javascript">
-    var subscriberListUrl = /*[[@{|/subscriber/list|}]]*/;
 
     $(".del-subscriber").click(function() {
         event.preventDefault();
@@ -36,7 +35,7 @@
     });
     $(".view-subscriber").click(function() {
         event.preventDefault();
-        mContent.popup.load('Subscriptions', $(this).attr("href"));
+        mContent.popup.loadWide('Subscriptions', $(this).attr("href"));
         return false;
     });
 

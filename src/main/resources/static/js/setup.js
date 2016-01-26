@@ -47,17 +47,27 @@ mContent.loaders.contentEditor  = function(url) {
 }
 
 
-mContent.popup.load = function(title, url) {
+mContent.popup.load = function (title, url) {
     $.get(url, function (data) {
         var popup = $('<div>').attr('title', title).html(data);
-        popup.dialog();
+        var width40 = $(window).width() * 0.4; // Default size
+        popup.dialog({modal: true, width: width40});
     });
 }
 
-mContent.popup.close = function(src, event) {
+mContent.popup.loadWide = function (title, url) {
+    $.get(url, function (data) {
+        var popup = $('<div>').attr('title', title).html(data);
+        var width75 = $(window).width() * 0.75; // Default size
+        popup.dialog({modal: true, width: width75});
+    });
+}
+
+mContent.popup.close = function (src, event) {
     if(event)
         event.preventDefault();
-    $(src).parents('.ui-dialog-content').dialog('close');
+    $(src).parents('.ui-dialog-content').dialog('destroy');
+    $(src).parents('.ui-dialog').remove();
     return false;
 }
 

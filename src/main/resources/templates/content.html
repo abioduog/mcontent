@@ -1,4 +1,7 @@
 <div class="content" th:unless="${#lists.isEmpty(deliverable)}">
+
+
+    <script th:src="@{|/lib/dropzone/dropzone.js|}"></script>
     <formfield>
         <legend>Basic info</legend>
         <div th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)}" th:text="@{|Delivery position: ${deliverable.deliveryDaysAfterSubscription}|}"></div>
@@ -8,7 +11,7 @@
     <formfield>
         <legend>Content</legend>
         <form name="content-form" class="pure-form pure-form-stacked" action="#" th:action="@{|/deliverypipe/${deliveryPipeId}/${deliverable.type.name().toLowerCase()}|}"
-              method="post">
+              method="post" enctype="multipart/form-data">
             <div class="form-fields">
                 <div th:if="${error}" class="alert alert-error" th:text="#{deliverable.error}">
                     Error in content data.
@@ -24,14 +27,51 @@
                 <!-- TODO: content in view mode if status == APPROVED -->
 
                 <label for="content.title" th:text="#{content.title}">Title</label>
-                <input type="text" required="true" name="content.title" th:value="${deliverable.content.title}"/>
+                <input type="text"
+                       th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                       required="true" name="content.title" th:value="${deliverable.content.title}"/>
+                <input type="text"
+                       th:if="${deliverable.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                       required="false" readonly="true" name="content.title" th:value="${deliverable.content.title}"/>
 
                 <label for="content.message" th:text="#{content.message}">Title</label>
-                <textarea required="true" name="content.message" th:text="${deliverable.content.message}" maxlength="140" cols="30" row="6"/>
-                <span class="message-preview"><span class="message" th:text="@{|${deliverable.content.message}|}"></span><br/><span class="url" th:text="${deliverable.content.getContentUrl()}"></span></span>
+                <textarea required="true"
+                          th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                          name="content.message" th:text="${deliverable.content.message}" maxlength="140" cols="30" row="6"/>
+                <textarea required="false" readonly="true"
+                          th:if="${deliverable.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                          name="content.message" th:text="${deliverable.content.message}" maxlength="140" cols="30" row="6"/>
+                <span class="message-preview">
+                    <span class="message" th:text="@{|${deliverable.content.message}|}"></span>
+                    <br/>
+                    <span class="url" th:text="${deliverable.content.getContentUrl()}"></span>
+                </span>
 
-                <label for="content.content" th:text="#{content.content}">Content</label>
-                <textarea required="true" name="content.content" th:text="${deliverable.content.content}"/>
+                <div id="my-dropzone" th:if="${theme == 'comics' and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
+                    <div id="dropzone-previews" class="dropzone-previews dropzone dz-clickable dz-default dz-message">
+                        <div class="fallback">
+                            <input type="file" name="file" multiple="multiple"/>
+                        </div>
+                    </div>
+                    <br/>
+                    <a class="upload-content-file pure-button"
+                       th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)}"
+                       th:href="@{|/deliverypipe/${deliveryPipeId}/series/${contentId}/fileupload|}"
+                       th:text="#{general.upload}">Upload</a>
+                    <a class="upload-content-file pure-button"
+                       th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.ScheduledDeliverable)}"
+                       th:href="@{|/deliverypipe/${deliveryPipeId}/scheduled/${contentId}/fileupload|}"
+                       th:text="#{general.upload}">Upload</a>
+                </div>
+                <div th:unless="${theme} == 'comics'">
+                    <label for="content.content" th:text="#{content.content}">Content</label>
+                    <textarea required="true"
+                              th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                              name="content.content" th:text="${deliverable.content.content}"/>
+                    <textarea required="false" readonly="true"
+                              th:if="${deliverable.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                              name="content.content" th:text="${deliverable.content.content}"/>
+                </div>
 
                 <input type="hidden" th:name="save" />
                 <input th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)}" type="hidden" th:name="deliveryDaysAfterSubscription" th:value="${deliverable.deliveryDaysAfterSubscription}"/>
@@ -40,7 +80,9 @@
             </div>
             <br/>
             <div class="form-actions">
-                <a class="submit pure-button" th:text="#{general.save}">Save</a>
+                <a class="submit pure-button" 
+                   th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                   th:text="#{general.save}">Save</a>
                 <a class="cancel pure-button" th:text="#{general.cancel}">Cancel</a>
             </div>
         </form>
@@ -53,7 +95,82 @@
             <div class="previewer-content" th:utext="${deliverable.content.content}"></div>
         </div>
     </div>
-    <script  th:inline="javascript">
+
+    <script th:inline="javascript" th:if="${theme == 'comics' and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}" >
+
+        var fileDropzone = new Dropzone("div#my-dropzone", {
+            /*[+
+            url: [[@{'/deliverypipe/${deliveryPipeId}/' + ${(deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)? "series" : "scheduled")} + '/${contentId}/fileupload'}]],
+            +]*/
+            autoProcessQueue: false,
+            uploadMultiple: true,
+            createImageThumbnails: true,
+            parallelUploads: 100,
+            maxFiles: 100,
+            maxFilesize: 3, // Max file size 3MB
+            filesizeBase: 1000,
+            previewsContainer: '#dropzone-previews',
+            init: function () {
+                this.on("processing", function (file) {
+                    // this.options.url
+                    mContent.notify("processing - event", "info");
+                 });
+                var myDropzone = this;
+                // First change the button to actually tell Dropzone to process the queue.
+                this.element.querySelector(".upload-content-file").addEventListener("click", function (e) {
+                    // Make sure that the form isn't actually being sent.
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // 
+                    myDropzone.processQueue();
+                });
+                this.on("addedfile", function (file) {
+                    var removeButton = Dropzone.createElement("<button>Remove file</button>");
+                    var _this = this;
+                    removeButton.addEventListener("click", function (e) {
+                        // Make sure the button click doesn't submit the form:
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Remove the file preview.
+                        _this.removeFile(file);
+                        // If you want to the delete the file on the server as well,
+                        // you can do the AJAX request here.
+                    });
+                    // Add the button to the file preview element.
+                    file.previewElement.appendChild(removeButton);
+
+                    mContent.notify("addedfile - event", "info");
+                    myDropzone.emit("complete", file);
+
+                });
+                // Listen to the sendingmultiple event. In this case, it's the sendingmultiple event instead
+                // of the sending event because uploadMultiple is set to true.
+                this.on("sendingmultiple", function () {
+                    // Gets triggered when the form is actually being sent.
+                    // Hide the success button or the complete form.
+                    mContent.notify("sendingmultiple - event", "info");
+                });
+                this.on("successmultiple", function (files, response) {
+                    // Gets triggered when the files have successfully been sent.
+                    // Redirect user or notify of success.
+                });
+                this.on("errormultiple", function (files, response) {
+                    // Gets triggered when there was an error sending the files.
+                    // Maybe show form again, and notify user of error
+                });
+
+                this.on("sending", function(file, xhr, formData) {
+                    // Will send the filesize along with the file as POST data.
+                    mContent.notify("sending - event", "info");
+                    formData.append("filesize", file.size);
+                });
+            }
+        });
+    </script>
+
+    <script th:inline="javascript">
+
         $("select[name='providers']").multiSelect();
         $("textarea[name='content.content']").summernote({
             onChange: function (e) {

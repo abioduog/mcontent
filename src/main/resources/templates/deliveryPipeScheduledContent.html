@@ -64,7 +64,7 @@
                         if (target.events[0].myStatus == "approved") {
                             $(".context-menu-approve").css("display", "none");
                         }
-                        if (target.events[0].myStatus == "disapproved") {
+                        if (target.events[0].myStatus != "approved") {
                             $(".context-menu-disapprove").css("display", "none");
                         }
                     }

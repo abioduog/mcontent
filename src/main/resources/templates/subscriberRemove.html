@@ -5,7 +5,7 @@
             <div th:if="${error}" class="alert alert-error" th:text="#{subscriber.error}">
                 Error in service data.
             </div>
-            <div th:if="${error}" class="alert alert-error" th:text="${errortext}">
+            <div th:if="${error} and ${errortext}" class="alert alert-error" th:text="${errortext}">
                 - No message -
             </div>
             <div th:if="${removed}" class="alert alert-success" th:text="#{subscriber.removed}">

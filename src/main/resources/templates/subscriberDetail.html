@@ -1,51 +1,43 @@
 <div class="subscriber-detail" th:unless="${#lists.isEmpty(subscriber)}">
     <form name="detail-form" class="pure-form" action="#" th:action="@{/subscriber/} + ${subscriber.id}"
-          method="post">
+          method="get">
         <div class="form-fields">
             <div th:if="${error}" class="alert alert-error" th:text="#{subscriber.error}">
                 Error in subscriber data.
             </div>
-            <!-- <div th:if="${saved}" class="alert alert-success" th:text="#{subscriber.saved}">
-                Subscriber saved.
-            </div> -->
+            <div th:if="${error} and ${errortext}" class="alert alert-error" th:text="${errortext}">
+                - No message -
+            </div>
             <input type="hidden" name="id" th:value="${subscriber.id}"/>
+            <input type="checkbox" class="pure-checkbox" th:checked="${showAll}" required="false" th:name="showAll" th:text="#{subscription.showall}" th:value="${showAll}"/>
             <table class="pure-table">
                 <thead>
                     <tr>
                         <th th:text="#{subscription.operator}">Operator</th>
                         <th th:text="#{subscription.deliverypipe}">Delivery pipe</th>
-                        <th th:text="#{subscription.status}">Status</th>
-                        <th th:text="#{subscription.periods}">Period</th>
-                        <th>&nbsp;</th>
+                        <th th:text="#{subscription.periods}">Periods</th>
+                        <!--<th>&nbsp;</th> -->
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="subscription : ${subscriber.subscriptions}">
+                    <tr th:each="subscription : ${subscriber.subscriptions}" th:if="${subscription.active} or ${showAll}">
                         <td th:text="${subscription.service.operator}">Operator</td>
-                        <td th:text="${subscription.service.deliverypipe.name}">Delivery pipe</td>
-                        <td th:text="${subscription.status}">Status</td>
+                        <td th:text="${subscription.service.deliveryPipe.name}">Delivery pipe</td>
                         <td>
                             <table class="pure-table">
-                                <thead>
-                                    <tr>
-                                        <th th:text="#{period.start}">Start</th>
-                                        <th th:text="#{period.end}">End</th>
-                                        <th>&nbsp;</th>
+                                 <tbody>
+                                    <tr th:each="subscriptionPeriod : ${subscription.periods}">
+                                        <td th:text="${#dates.format(subscriptionPeriod.start, 'yyyy-MM-dd')}">Start</td>
+                                        <td th:text="${#dates.format(subscriptionPeriod.end, 'yyyy-MM-dd')}">End</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="period : ${subscription.periods">
-                                        <td th:text="#{period.start}">Start</td>
-                                        <td th:text="#{period.end}">End</td>
-                                    </tr>
-                                </tbody>
+                                 </tbody>
                             </table>
                         </td>
-                        <td><!-- icon (?) -->
-                            <a class="del-subscription pure-button" sec:authorize="hasAnyRole('ADMIN')"
+                        <!-- <td>
+                           <a class="del-subscription pure-button" sec:authorize="hasAnyRole('ADMIN')"
                                th:href="@{|/subscriber/${subscriber.id}/subscription/remove/${subscription.id}|}"
                                th:text="#{general.remove}">Remove</a>
-                        </td>
+                        </td> -->
                     </tr>
                 </tbody>
             </table>
@@ -54,23 +46,21 @@
         </div>
         <br/>
         <div class="form-actions">
+            <a class="view-subscriptions pure-button" sec:authorize="hasAnyRole('ADMIN')"
+               th:href="@{|/subscriber/${subscriber.id}|}"
+               th:text="#{general.reload}">Reload</a>
             <a class="cancel pure-button" href="#" th:text="#{general.cancel}">Cancel</a>
         </div>
     </form>
 </div>
 <script th:inline="javascript">
-    $(".submit").click(function(event) {
-        var serviceListUrl = /*[[@{/subscriber/} + ${subscriber.id}]]*/;
+
+    $(".view-subscriptions").click(function() {
         event.preventDefault();
-        mContent.popup.submit($(this).parents("form"),
-                function(data) {
-                    mContent.notify("Subscriber viewed", "info");
-                    mContent.loaders.workArea(serviceListUrl);
-                },
-                function(error) {
-                    mContent.notify("Subscriber view failed", "error");
-                }
-        );
+        var showAll = $("[name='showAll']").prop("checked");
+        mContent.popup.close(this);
+        mContent.popup.loadWide('Subscriptions', $(this).attr("href")+"?showAll="+showAll);
+
         return false;
     });
 

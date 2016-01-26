@@ -6,6 +6,7 @@ import com.mnewservice.mcontent.manager.NotificationManager;
 import com.mnewservice.mcontent.manager.ProviderManager;
 import com.mnewservice.mcontent.manager.SeriesDeliverableManager;
 import com.mnewservice.mcontent.manager.UserManager;
+import com.mnewservice.mcontent.repository.entity.FileEntity;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -15,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -23,8 +25,11 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -113,7 +118,7 @@ public class ContentController {
 
 //<editor-fold defaultstate="collapsed" desc="error handling">
     @ResponseStatus(value = HttpStatus.CONFLICT, reason = "Data handling error")  // 409
-    public class DataHandlingException extends RuntimeException {
+    private class DataHandlingException extends RuntimeException {
 
         public DataHandlingException() {
             super();
@@ -132,7 +137,7 @@ public class ContentController {
         }
     }
 
-    private ModelAndView addErrorText(ModelAndView mav, List<ObjectError> errors) {
+    private ModelAndView mavAddNLogErrorText(ModelAndView mav, List<ObjectError> errors) {
         String errorText = "";
         errors.stream().forEach((error) -> {
             errorText.concat(error.toString());
@@ -170,7 +175,7 @@ public class ContentController {
         ModelAndView mav = new ModelAndView("deliveryPipeDetail");
 
         if (bindingResult.hasErrors()) {
-            mav = addErrorText(mav, bindingResult.getAllErrors());
+            mav = mavAddNLogErrorText(mav, bindingResult.getAllErrors());
             mav.addObject("deliveryPipe", model.getOrDefault("deliveryPipe", new DeliveryPipe()));
             mav.addObject("error", true);
         } else {
@@ -211,7 +216,7 @@ public class ContentController {
         ModelAndView mav = new ModelAndView("deliveryPipeRemove");
 
         if (bindingResult.hasErrors()) {
-            mav = addErrorText(mav, bindingResult.getAllErrors());
+            mav = mavAddNLogErrorText(mav, bindingResult.getAllErrors());
             mav.addObject("deliveryPipe", model.getOrDefault("deliveryPipe", new DeliveryPipe()));
             mav.addObject("error", true);
         }  else {
@@ -249,6 +254,7 @@ public class ContentController {
                                     {
                                         put("id", deliverable.getId());
                                         put("title", deliverable.getContent().getTitle());
+                                        put("status", deliverable.getStatus());
                                         put("date", new SimpleDateFormat("yyyy-MM-dd").format(deliverable.getDeliveryDate()));
                                         put("myStatus", deliverable.getStatus().toString().toLowerCase());
                                     }
@@ -297,6 +303,8 @@ public class ContentController {
             @PathVariable("contentId") long contentId) {
         ModelAndView mav = new ModelAndView("content");
         mav.addObject("deliveryPipeId", deliveryPipeId);
+        DeliveryPipe deliveryPipe = deliveryPipeManager.getDeliveryPipe(deliveryPipeId);
+        mav.addObject("theme", deliveryPipe.getTheme());
         mav.addObject(
                 "deliverable",
                 deliveryPipeManager.getSeriesContent(contentId));
@@ -367,7 +375,7 @@ public class ContentController {
         ModelAndView mav = new ModelAndView("content");
 
         if (bindingResult.hasErrors()) {
-            mav = addErrorText(mav, bindingResult.getAllErrors());
+            mav = mavAddNLogErrorText(mav, bindingResult.getAllErrors());
             mav.addObject("deliverable", model.getOrDefault("deliverable", new SeriesDeliverable()));
             mav.addObject("error", true);
         } else {
@@ -415,7 +423,7 @@ public class ContentController {
         //SeriesDeliverable deliverable = deliveryPipeManager.getSeriesContent(contentId);
         ModelAndView mav = new ModelAndView("contentSeriesRemove");
         if (bindingResult.hasErrors()) {
-            mav = addErrorText(mav, bindingResult.getAllErrors());
+            mav = mavAddNLogErrorText(mav, bindingResult.getAllErrors());
             mav.addObject("deliverable", model.getOrDefault("deliverable", new SeriesDeliverable()));
             mav.addObject("error", true);
         } else {
@@ -472,7 +480,7 @@ public class ContentController {
         ModelAndView mav = new ModelAndView("content");
 
         if (bindingResult.hasErrors()) {
-            mav = addErrorText(mav, bindingResult.getAllErrors());
+            mav = mavAddNLogErrorText(mav, bindingResult.getAllErrors());
             mav.addObject(
                     "deliverable",
                     model.getOrDefault("deliverable", new ScheduledDeliverable())
@@ -567,7 +575,7 @@ public class ContentController {
         //SeriesDeliverable deliverable = deliveryPipeManager.getSeriesContent(contentId);
         ModelAndView mav = new ModelAndView("contentScheduledRemove");
         if (bindingResult.hasErrors()) {
-            mav = addErrorText(mav, bindingResult.getAllErrors());
+            mav = mavAddNLogErrorText(mav, bindingResult.getAllErrors());
             mav.addObject("deliverable", model.getOrDefault("deliverable", new ScheduledDeliverable()));
             mav.addObject("error", true);
         } else {
@@ -587,6 +595,29 @@ public class ContentController {
     }
 
     //</editor-fold>
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @RequestMapping({"deliverypipe/{deliveryPipeId}/series/{contentId}/fileupload"})
+    public ModelAndView uploadScheduledContentFiles(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId
+    ) {
+        ModelAndView mav = new ModelAndView("content");
+        mav.addObject("deliveryPipeId", deliveryPipeId);
+        mav.addObject("deliverable", deliveryPipeManager.getSeriesContent(contentId));
+        return mav;
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @RequestMapping({"deliverypipe/{deliveryPipeId}/scheduled/{contentId}/fileupload"})
+    public ModelAndView uploadSeriesContentFiles(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId
+    ) {
+        ModelAndView mav = new ModelAndView("content");
+        mav.addObject("deliveryPipeId", deliveryPipeId);
+        mav.addObject("deliverable", deliveryPipeManager.getScheduledContent(contentId));
+        return mav;
+    }
 
     //<editor-fold defaultstate="collapsed" desc="notifications">
     private void contentCreationNotification(AbstractDeliverable deliverable,
@@ -642,4 +673,33 @@ public class ContentController {
                 providers, notificationSubject, notificationMessage);
     }
     //</editor-fold>
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/{contentId}/fileupload"}, method = RequestMethod.POST)
+    public ResponseEntity uploadFile(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId,
+            MultipartHttpServletRequest request
+    ) {
+        try {
+            Iterator<String> itr = request.getFileNames();
+
+            while (itr.hasNext()) {
+                String uploadedFile = itr.next();
+                MultipartFile file = request.getFile(uploadedFile);
+                String mimeType = file.getContentType();
+                String filename = file.getOriginalFilename();
+                byte[] bytes = file.getBytes();
+
+                FileEntity newFile = new FileEntity(filename, bytes, mimeType);
+
+                // fileManager.uploadFile(newFile);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("{}", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return new ResponseEntity<>("{}", HttpStatus.OK);
+    }
+
 }

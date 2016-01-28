@@ -4,40 +4,35 @@
  * and open the template in the editor.
  */
 
-package com.mnewservice.mcontent.repository.entity;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+package com.mnewservice.mcontent.domain;
 
 /**
  *
  */
+public class ContentFile {
 
-@Entity
-@Table(
-        name = "files",
-        uniqueConstraints = @UniqueConstraint(
-                columnNames = {"filename"}
-        )
-)
-public class FileEntity extends AbstractEntity {
+    private Long id;
+    private String filename;
+    private String originalFilename;
+    private String path;
+    private String mimeType;
 
-    public FileEntity() {
-        // Default Constructor
+    // Only DTO level
+    private String errorMessage;
+    private boolean accepted;
+
+    public ContentFile() {
+        this.errorMessage = "";
+        this.accepted = true;
     }
 
-    @Column(length = 256)
-    private String filename;
+    public Long getId() {
+        return id;
+    }
 
-    @Column(length = 256)
-    private String originalFilename;
-
-    @Column(length = 512)
-    private String path;
-
-    private String mimeType;
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getFilename() {
         return filename;
@@ -70,4 +65,21 @@ public class FileEntity extends AbstractEntity {
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
     }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public boolean isAccepted() {
+        return accepted;
+    }
+
+    public void setAccepted(boolean accepted) {
+        this.accepted = accepted;
+    }
+
 }

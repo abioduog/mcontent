@@ -26,7 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class ProviderController {
 
     private static final Logger LOG
-            = Logger.getLogger(ContentController.class);
+            = Logger.getLogger(ProviderController.class);
 
     @Autowired
     private ProviderManager providerManager;

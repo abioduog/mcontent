@@ -23,7 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class SubscriberController {
 
     private static final Logger LOG
-            = Logger.getLogger(ServiceController.class);
+            = Logger.getLogger(SubscriberController.class);
 
     @Autowired
     private SubscriberManager subscriberManager;
@@ -121,7 +121,7 @@ public class SubscriberController {
             @PathVariable("id") long id,
             @RequestParam(value = "showAll", required = false) boolean showAll
     ) {
-        LOG.error("showAll: [" + showAll + "]");
+        LOG.info("showAll: [" + showAll + "]");
         ModelAndView mav = new ModelAndView("subscriberDetail");
         mav.addObject("subscriber", subscriberManager.getSubscriberWithSubscriptions(id, showAll));
         mav.addObject("showAll", showAll);

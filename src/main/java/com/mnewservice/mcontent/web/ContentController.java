@@ -2,11 +2,12 @@ package com.mnewservice.mcontent.web;
 
 import com.mnewservice.mcontent.domain.*;
 import com.mnewservice.mcontent.manager.DeliveryPipeManager;
+import com.mnewservice.mcontent.manager.FileManager;
 import com.mnewservice.mcontent.manager.NotificationManager;
 import com.mnewservice.mcontent.manager.ProviderManager;
+import com.mnewservice.mcontent.manager.ScheduledDeliverableManager;
 import com.mnewservice.mcontent.manager.SeriesDeliverableManager;
 import com.mnewservice.mcontent.manager.UserManager;
-import com.mnewservice.mcontent.repository.entity.FileEntity;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -25,8 +26,8 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -66,7 +67,13 @@ public class ContentController {
     private SeriesDeliverableManager seriesManager;
 
     @Autowired
+    private ScheduledDeliverableManager scheduledManager;
+
+    @Autowired
     private UserManager userManager;
+
+    @Autowired
+    private FileManager fileManager;
 
     @Autowired
     private ProviderManager providerManager;
@@ -249,7 +256,7 @@ public class ContentController {
             case SCHEDULED:
                 mav = new ModelAndView("deliveryPipeScheduledContent");
                 mav.addObject("contents", //Thyme leaf javascript support is well unknown, so we do some magic here
-                        deliveryPipeManager.getDeliveryPipeScheduledContent(id).stream().map(
+                        scheduledManager.getDeliveryPipeScheduledContent(id).stream().map(
                                 deliverable -> new HashMap<String, Object>() {
                                     {
                                         put("id", deliverable.getId());
@@ -264,7 +271,7 @@ public class ContentController {
 
             case SERIES:
                 mav = new ModelAndView("deliveryPipeSeriesContent");
-                mav.addObject("contents", deliveryPipeManager.getDeliveryPipeSeriesContent(id));
+                mav.addObject("contents", seriesManager.getDeliveryPipeSeriesContent(id));
                 break;
 
             default:
@@ -307,7 +314,7 @@ public class ContentController {
         mav.addObject("theme", deliveryPipe.getTheme());
         mav.addObject(
                 "deliverable",
-                deliveryPipeManager.getSeriesContent(contentId));
+                seriesManager.getSeriesContent(contentId));
         return mav;
     }
 
@@ -321,7 +328,7 @@ public class ContentController {
         DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
 
         content.setStatus(DeliverableStatus.APPROVED);
-        deliveryPipeManager.saveSeriesContent(deliveryPipeId, content);
+        seriesManager.saveSeriesContent(deliveryPipeId, content);
 
         contentApproveNotification(content, deliveryPipe);
     }
@@ -337,7 +344,7 @@ public class ContentController {
 
     private SeriesDeliverable getSeriesContent(long contentId,
             DeliverableStatus disallowedStatus) throws Exception {
-        SeriesDeliverable content = deliveryPipeManager.getSeriesContent(contentId);
+        SeriesDeliverable content = seriesManager.getSeriesContent(contentId);
         if (content == null) {
             throw new IllegalArgumentException(
                     "series deliverable was not found with id=" + contentId);
@@ -360,7 +367,7 @@ public class ContentController {
         DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
 
         content.setStatus(DeliverableStatus.DISAPPROVED);
-        deliveryPipeManager.saveSeriesContent(deliveryPipeId, content);
+        seriesManager.saveSeriesContent(deliveryPipeId, content);
 
         contentDisapproveNotification(content, deliveryPipe);
     }
@@ -372,6 +379,8 @@ public class ContentController {
             final SeriesDeliverable deliverable,
             final BindingResult bindingResult,
             final ModelMap model) {
+
+        LOG.info("saveSeriesContent - STARTED");
         ModelAndView mav = new ModelAndView("content");
 
         if (bindingResult.hasErrors()) {
@@ -381,7 +390,7 @@ public class ContentController {
         } else {
             try {
                 DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
-                SeriesDeliverable savedContent = deliveryPipeManager.saveSeriesContent(deliveryPipeId, deliverable);
+                SeriesDeliverable savedContent = seriesManager.saveSeriesContent(deliveryPipeId, deliverable);
 
                 mav.addObject("deliveryPipeId", deliveryPipeId);
                 mav.addObject("deliverable", savedContent);
@@ -406,7 +415,7 @@ public class ContentController {
     public ModelAndView viewRemovableSeriesContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("contentId") long contentId) {
-        SeriesDeliverable deliverable = deliveryPipeManager.getSeriesContent(contentId);
+        SeriesDeliverable deliverable = seriesManager.getSeriesContent(contentId);
         ModelAndView mav = new ModelAndView("contentSeriesRemove");
         mav.addObject("deliverable", deliverable);
         return mav;
@@ -428,7 +437,7 @@ public class ContentController {
             mav.addObject("error", true);
         } else {
             try {
-                deliveryPipeManager.removeSeriesContent(deliverable.getId());
+                seriesManager.removeSeriesContent(deliverable.getId());
                 mav.addObject("deliverable", deliverable);
                 mav.addObject("removed", true);
             } catch (Exception ex) {
@@ -466,7 +475,7 @@ public class ContentController {
     public ModelAndView viewScheduledContent(@PathVariable("deliveryPipeId") long deliveryPipeId, @PathVariable("contentId") long contentId) {
         ModelAndView mav = new ModelAndView("content");
         mav.addObject("deliveryPipeId", deliveryPipeId);
-        mav.addObject("deliverable", deliveryPipeManager.getScheduledContent(contentId));
+        mav.addObject("deliverable", scheduledManager.getScheduledContent(contentId));
         return mav;
     }
 
@@ -489,7 +498,7 @@ public class ContentController {
         } else {
             try {
                 DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
-                ScheduledDeliverable savedContent = deliveryPipeManager.saveScheduledContent(deliveryPipeId, deliverable);
+                ScheduledDeliverable savedContent = scheduledManager.saveScheduledContent(deliveryPipeId, deliverable);
                 mav.addObject("deliveryPipeId", deliveryPipeId);
                 mav.addObject("deliverable", savedContent);
                 mav.addObject("saved", true);
@@ -519,7 +528,7 @@ public class ContentController {
         DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
 
         content.setStatus(DeliverableStatus.APPROVED);
-        deliveryPipeManager.saveScheduledContent(deliveryPipeId, content);
+        scheduledManager.saveScheduledContent(deliveryPipeId, content);
 
         contentApproveNotification(content, deliveryPipe);
     }
@@ -534,14 +543,14 @@ public class ContentController {
         DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
 
         content.setStatus(DeliverableStatus.DISAPPROVED);
-        deliveryPipeManager.saveScheduledContent(deliveryPipeId, content);
+        scheduledManager.saveScheduledContent(deliveryPipeId, content);
 
         contentDisapproveNotification(content, deliveryPipe);
     }
 
     private ScheduledDeliverable getScheduledContent(long contentId,
             DeliverableStatus disallowedStatus) {
-        ScheduledDeliverable content = deliveryPipeManager.getScheduledContent(contentId);
+        ScheduledDeliverable content = scheduledManager.getScheduledContent(contentId);
         if (content == null) {
             throw new IllegalArgumentException(
                     "scheduled deliverable was not found with id=" + contentId);
@@ -558,7 +567,7 @@ public class ContentController {
     public ModelAndView viewRemovableScheduledContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("contentId") long contentId) {
-        ScheduledDeliverable deliverable = deliveryPipeManager.getScheduledContent(contentId);
+        ScheduledDeliverable deliverable = scheduledManager.getScheduledContent(contentId);
         ModelAndView mav = new ModelAndView("contentScheduledRemove");
         mav.addObject("deliverable", deliverable);
         return mav;
@@ -580,7 +589,7 @@ public class ContentController {
             mav.addObject("error", true);
         } else {
             try {
-                deliveryPipeManager.removeScheduledContent(deliverable.getId());
+                scheduledManager.removeScheduledContent(deliverable.getId());
                 mav.addObject("deliverable", deliverable);
                 mav.addObject("removed", true);
             } catch (Exception ex) {
@@ -595,29 +604,6 @@ public class ContentController {
     }
 
     //</editor-fold>
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @RequestMapping({"deliverypipe/{deliveryPipeId}/series/{contentId}/fileupload"})
-    public ModelAndView uploadScheduledContentFiles(
-            @PathVariable("deliveryPipeId") long deliveryPipeId,
-            @PathVariable("contentId") long contentId
-    ) {
-        ModelAndView mav = new ModelAndView("content");
-        mav.addObject("deliveryPipeId", deliveryPipeId);
-        mav.addObject("deliverable", deliveryPipeManager.getSeriesContent(contentId));
-        return mav;
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @RequestMapping({"deliverypipe/{deliveryPipeId}/scheduled/{contentId}/fileupload"})
-    public ModelAndView uploadSeriesContentFiles(
-            @PathVariable("deliveryPipeId") long deliveryPipeId,
-            @PathVariable("contentId") long contentId
-    ) {
-        ModelAndView mav = new ModelAndView("content");
-        mav.addObject("deliveryPipeId", deliveryPipeId);
-        mav.addObject("deliverable", deliveryPipeManager.getScheduledContent(contentId));
-        return mav;
-    }
 
     //<editor-fold defaultstate="collapsed" desc="notifications">
     private void contentCreationNotification(AbstractDeliverable deliverable,
@@ -674,32 +660,162 @@ public class ContentController {
     }
     //</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="MyFile/MyResponse">
+    protected class MyFile {
+
+        private String name;
+        private String originalFilename;
+        private String contentType;
+        private long size;
+        private boolean accepted;
+        private String errorMessage;
+
+        public MyFile(String name, String originalFilename, String contentType, long size, boolean accepted, String errorMessage) {
+            this.name = name;
+            this.originalFilename = originalFilename;
+            this.contentType = contentType;
+            this.size = size;
+            this.accepted = accepted;
+            this.errorMessage = errorMessage;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getOriginalFilename() {
+            return originalFilename;
+        }
+
+        public void setOriginalFilename(String originalFilename) {
+            this.originalFilename = originalFilename;
+        }
+
+        public String getContentType() {
+            return contentType;
+        }
+
+        public void setContentType(String contentType) {
+            this.contentType = contentType;
+        }
+
+        public long getSize() {
+            return size;
+        }
+
+        public void setSize(long size) {
+            this.size = size;
+        }
+
+        public boolean isAccepted() {
+            return accepted;
+        }
+
+        public void setAccepted(boolean accepted) {
+            this.accepted = accepted;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
+
+        public void setErrorMessage(String errorMessage) {
+            this.errorMessage = errorMessage;
+        }
+
+    }
+
+    protected class MyResponse {
+
+        private String message;
+        private String error;
+        private List<MyFile> files;
+
+        public MyResponse() {
+            this.files = new ArrayList<>();
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public List<MyFile> getFiles() {
+            return files;
+        }
+
+        public void setFiles(List<MyFile> files) {
+            this.files = files;
+        }
+
+        public String getError() {
+            return error;
+        }
+
+        public void setError(String error) {
+            this.error = error;
+        }
+
+    }
+//</editor-fold>
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/{contentId}/fileupload"}, method = RequestMethod.POST)
-    public ResponseEntity uploadFile(
+    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/{contentId}/fileupload"}/*, method = RequestMethod.POST*/)
+    public @ResponseBody
+    ResponseEntity<MyResponse> uploadSeriesFile(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("contentId") long contentId,
             MultipartHttpServletRequest request
     ) {
+        LOG.info("file upload - " + request.getContextPath() + "/deliverypipe/" + deliveryPipeId + "/series/" + contentId + "/fileupload");
+        MyResponse response = new MyResponse();
+
         try {
             Iterator<String> itr = request.getFileNames();
 
             while (itr.hasNext()) {
                 String uploadedFile = itr.next();
                 MultipartFile file = request.getFile(uploadedFile);
-                String mimeType = file.getContentType();
-                String filename = file.getOriginalFilename();
-                byte[] bytes = file.getBytes();
+                LOG.info("Saving downloaded file: " + file.getContentType() + "(" + file.getOriginalFilename() + ")");
 
-                FileEntity newFile = new FileEntity(filename, bytes, mimeType);
+                ContentFile contentFile = new ContentFile();
+                contentFile.setMimeType(file.getContentType());
+                contentFile.setOriginalFilename(file.getOriginalFilename());
 
-                // fileManager.uploadFile(newFile);
+                // SMB save
+                contentFile = fileManager.saveFile(contentFile, file.getBytes());
+
+                // Connect with Deliverable
+                seriesManager.addFile(contentId, contentFile);
+
+                MyFile resultFile = new MyFile(file.getName(), file.getOriginalFilename(), file.getContentType(), file.getSize(), contentFile.isAccepted(), contentFile.getErrorMessage());
+                response.getFiles().add(resultFile);
             }
         } catch (Exception e) {
-            return new ResponseEntity<>("{}", HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setMessage("Error on handling request");
+            response.setError(response.getMessage());
+            return new ResponseEntity<MyResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return new ResponseEntity<>("{}", HttpStatus.OK);
+        if (response.getFiles().stream().anyMatch(x -> {
+            if (x.isAccepted()) {
+                return false;
+            }
+            response.setMessage("Request completed with errors");
+            response.setError(x.getErrorMessage());
+            return true;
+        })) {
+            return new ResponseEntity<MyResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        response.setMessage("Request completed");
+        return new ResponseEntity<MyResponse>(response, HttpStatus.OK);
     }
 
 }

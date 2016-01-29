@@ -17,6 +17,7 @@ import jcifs.smb.SmbFile;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -89,18 +90,18 @@ public class FileManager {
     }
 
     // Save File to DB and SMB server
-    private void cleanUpSMBEntry(SmbFile smbFile, String path) {
+    private void cleanUpSMBEntry(SmbFile smbFile) {
         try {
             if (smbFile != null && smbFile.exists()) { // File allready exists
-                LOG.info("Removing SMB file: " + path);
+                LOG.info("Removing SMB file: " + smbFile.getPath());
                 smbFile.delete();
             }
         } catch (Exception ex) {
-            LOG.error("Removing SMB Failed ! file: " + path);
+            LOG.error("Removing SMB Failed !");
         }
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public ContentFile saveFile(ContentFile contentFile, byte[] bytes){
         LOG.info("Saving contentFile (" + contentFile.getOriginalFilename() + ") " + bytes.length + " bytes");
 
@@ -125,13 +126,13 @@ public class FileManager {
                 return contentFile;
             }
 
-            cleanUpSMBEntry(smbFile, path);
+            cleanUpSMBEntry(smbFile);
 
-            LOG.info("Creating new SMB file: " + path);
+            LOG.info("Creating new SMB file: " + smbFile.getPath());
             smbFile.createNewFile();
             smbFile.setReadWrite();
 
-            LOG.info("Writing " + bytes.length + " bytes to SMB file: " + path);
+            LOG.info("Writing " + bytes.length + " bytes to SMB file: " + smbFile.getPath());
             OutputStream out = smbFile.getOutputStream();
             out.write(bytes);
             out.flush();
@@ -141,7 +142,7 @@ public class FileManager {
             LOG.error(ex);
             contentFile.setErrorMessage(ex.getLocalizedMessage());
             cleanUpDBEntry(entity);
-            cleanUpSMBEntry(smbFile, path);
+            cleanUpSMBEntry(smbFile);
             contentFile.setAccepted(false);
             return contentFile;
         }
@@ -149,8 +150,23 @@ public class FileManager {
         LOG.info("Saved SMB file: " + path);
 
         entity = mapper.toEntity(contentFile);
-        // Final save withe SMB filename
-        return mapper.toDomain(repository.save(entity));
+        // Final save with SMB filename
+        entity = repository.save(entity);
+        return mapper.toDomain(entity);
     }
 
+    @Transactional
+    public void deleteFile(FileEntity file) {
+        LOG.info("Deleting contentFile: " + file.getFilename() + " (" + file.getOriginalFilename() + ")");
+        SmbFile smbFile = getSmbFile(file.getPath() + file.getFilename());
+        cleanUpSMBEntry(smbFile);
+        cleanUpDBEntry(file);
+    }
+
+    @Transactional
+    public void deleteFile(Long fileId) {
+        LOG.info("Searching contentFile for removal with id=" + fileId);
+        FileEntity file = repository.findOne(fileId);
+        deleteFile(file);
+    }
 }

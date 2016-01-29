@@ -6,18 +6,19 @@ import com.mnewservice.mcontent.domain.mapper.FileMapper;
 import com.mnewservice.mcontent.domain.mapper.SeriesDeliverableMapper;
 import com.mnewservice.mcontent.repository.ContentRepository;
 import com.mnewservice.mcontent.repository.DeliveryPipeRepository;
+import com.mnewservice.mcontent.repository.FileRepository;
 import com.mnewservice.mcontent.repository.SeriesDeliverableRepository;
 import com.mnewservice.mcontent.repository.entity.AbstractDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.FileEntity;
 import com.mnewservice.mcontent.repository.entity.SeriesDeliverableEntity;
 import com.mnewservice.mcontent.util.ShortUrlUtils;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -45,6 +46,9 @@ public class SeriesDeliverableManager {
     @Autowired
     private ContentRepository contentRepository;
 
+    @Autowired
+    private FileRepository fileRepository;
+
     private static final Logger LOG = Logger.getLogger(SeriesDeliverableManager.class);
 
     @Transactional(readOnly = true)
@@ -53,35 +57,41 @@ public class SeriesDeliverableManager {
         return seriesRepository.countByDeliveryPipeId(deliveryPipeId).intValue() + 1;
     }
 
-    @Transactional
+    private void debugFilelist(String prefix, List<FileEntity> fileList) {
+        String buf = "";
+        for (FileEntity f : fileList) {
+            buf += f.getOriginalFilename() + ", ";
+        }
+        LOG.info(prefix + buf);
+
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public ContentFile addFile(Long contentId, ContentFile file) {
         LOG.info("Adding file [" + file.getFilename() + "] to series contentId=" + contentId);
         SeriesDeliverableEntity entity = seriesRepository.findOne(contentId);
-        String errMsg = "";
         if (entity == null) {
-            errMsg = "Don't find series from repository with contentId=" + contentId;
+            String errMsg = "Don't find series from repository with contentId=" + contentId;
             LOG.error(errMsg);
             file.setAccepted(false);
             file.setErrorMessage(errMsg);
             return file;
         }
-        ContentFile repositoryFile = fileManager.getFile(file.getId());
-        if (repositoryFile == null) {
-            errMsg = "Don't find file from repository with fileId=" + file.getId();
-            LOG.error(errMsg);
-            file.setAccepted(false);
-            file.setErrorMessage(errMsg);
-            return file;
-        }
-        file = repositoryFile;
-        List<FileEntity> fileList = entity.getFiles();
-        if (fileList == null) {
-            fileList = new ArrayList<>();
-        }
-        fileList.add(fileMapper.toEntity(file));
-        entity.setFiles(fileList);
-        seriesRepository.save(entity);
+
+        debugFilelist("Before: ", entity.getFiles());
+        entity.getFiles().add(fileMapper.toEntity(file));
+        debugFilelist("After: ", entity.getFiles());
+        entity = seriesRepository.save(entity);
+        debugFilelist("After save: ", entity.getFiles());
+        LOG.info("File added [" + file.getFilename() + "] to series contentId=" + contentId);
         return file;
+    }
+
+    @Transactional(readOnly = true)
+    public Collection<ContentFile> getDeliveryPipeSeriesFiles(long id) {
+        LOG.info("Getting series files with series id=" + id);
+        Collection<FileEntity> files = seriesRepository.findSeriesFiles(id);
+        return fileMapper.toDomain(files);
     }
 
     @Transactional(readOnly = true)
@@ -119,6 +129,10 @@ public class SeriesDeliverableManager {
     public void removeSeriesContent(Long id) {
         LOG.info("Removing series content with id=" + id);
         SeriesDeliverableEntity entity = seriesRepository.findOne(id);
+        // Remove files from DB and SMB
+        entity.getFiles().stream().forEach(f -> {
+            fileManager.deleteFile(f);
+        });
         seriesRepository.delete(entity);
     }
 

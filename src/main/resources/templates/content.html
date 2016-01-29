@@ -10,7 +10,7 @@
     </formfield>
     <formfield>
         <legend>Content</legend>
-        <form name="content-form" class="pure-form pure-form-stacked" action="#" th:action="@{|/deliverypipe/${deliveryPipeId}/${deliverable.type.name().toLowerCase()}|}"
+        <form name="content-form" class="pure-form pure-form-stacked" action="#" th:action="@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id}"
               method="post" enctype="multipart/form-data">
             <div class="form-fields">
                 <div th:if="${error}" class="alert alert-error" th:text="#{deliverable.error}">
@@ -52,34 +52,31 @@
 
                 <!--    File Upload option -->
                 <div id="my-dropzone" th:if="${theme == 'comics' and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
+                    <label th:text="#{contentfiles.files}">Files</label>
                     <table class="pure-table">
-                        <thead>
-                            <tr>
-                                <td>Filename</td>
-                                <td>&nbsp;</td>
-                            </tr>
-                        </thead>
                         <tbody>
                             <tr th:each="contentFile : ${deliverable.files}">
                                 <td th:text="${contentFile.originalFilename}">NAME</td>
                                 <td>
                                     <div>
-                                        <a class="remove-content-file pure-button" sec:authorize="hasRole('ADMIN')"
-                                           th:href="@{|/deliverypipe/${deliveryPipeId}/${(deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)? 'series' : 'scheduled')}/${contentId}/fileremove/${contentFile.id}|}"
+                                        <a class="remove-content-file pure-button" sec:authorize="hasRole('ADMIN')" 
+                                           th:href="@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileremove/' + ${contentFile.id}"
                                            th:text="#{general.remove}" >Remove</a>
                                     </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                    <br/>
+                    <label th:text="#{contentfiles.dropzone.tip}">Drop new files here or click this area</label>
                     <div id="dropzone-previews" class="dropzone-previews dropzone dz-clickable dz-default dz-message">
                         <div class="fallback">
                             <input type="file" name="file" multiple="multiple"/>
                         </div>
                     </div>
                     <br/>
+                    <input type="hidden" required="false" name="content.content" th:text="${deliverable.content.content}"/>
                 </div>
-                <!-- Normal mode without file upload -->
                 <div th:unless="${theme == 'comics' and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
                     <label for="content.content" th:text="#{content.content}">Content</label>
                     <textarea required="true"
@@ -117,7 +114,7 @@
         /*<![CDATA[*/
         var fileDropzone = new Dropzone("div#my-dropzone", {
             /*[+
-            url: [[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${(deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)? "series" : "scheduled")} + '/' + ${contentId} + '/fileupload'}]],
+            url: [[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileupload'}]],
             +]*/
             autoProcessQueue: true,
             uploadMultiple: false, // Multiple ei toimi kunnolla virhetilanteessa, koska flagaa kaikki virheellisiksi
@@ -136,7 +133,6 @@
                 //});
 
                 this.on("processing", function (file) {
-                    // this.options.url
                     if ($("[name='debugOn']").prop("checked")) mContent.notify("processing - event", "info");
                  });
 
@@ -159,19 +155,14 @@
                 });
 
                 this.on("success", function (file, response) {
-                    // Gets triggered when the file have successfully been sent.
-                    // Redirect user or notify of success.
                     if ($("[name='debugOn']").prop("checked"))  mContent.notify("success - event : "+file.name, "info");
                 });
 
                 this.on("error", function (file, response, xhr) {
-                    // Gets triggered when there was an error sending the files.
-                    // Maybe show form again, and notify user of error
-                    //$(".errMessage").text(response.message);
                     var _filename = file.name;
                     if ($("[name='debugOn']").prop("checked"))  mContent.notify("error - event : "+_filename, "info");
                     mContent.notify("Error on uploading file "+_filename+"\nResponse message: "+response.message ,"error");
-                    var removeButton = Dropzone.createElement("<button>Remove</button>");
+                    var removeButton = Dropzone.createElement("<button>Clear</button>");
                     var _this = this;
                     removeButton.addEventListener("click", function (e) {
                         e.preventDefault();
@@ -182,19 +173,15 @@
 
                     });
                     file.previewElement.appendChild(removeButton);
-                    console.dir(response);
                 });
 
                 this.on("removedfile", function (file) {
                     // Gets triggered when the file have successfully been sent.
                     // Redirect user or notify of success.
                     if ($("[name='debugOn']").prop("checked"))  mContent.notify("removedfile - event : "+file.name, "info");
-                    console.dir(file);
 
-                    // file.status === "error" Ei tarvitse poistaa palvelimelta
                     if (file.status === Dropzone.SUCCESS) {
-                        // MyDropzone.options.url =
-                        mContent.notify("removedfile - Poistetaan palvelimelta : "+file.name, "info");
+                        // Tiedosto löytyy palvelimelta
                     }
                 });
 
@@ -211,8 +198,6 @@
                     formData.append("_csrf", /*[[${_csrf.token}]]*/);
 
                     if ($("[name='debugOn']").prop("checked"))  mContent.notify("sending - event : "+file.name, "info");
-                    console.dir(xhr);
-                    console.dir(formData);
                 });
 
                 // Load existing files to Dropzone
@@ -223,7 +208,7 @@
 
     <script th:inline="javascript">
 
-        $("select[name='providers']").multiSelect();
+        //$("select[name='providers']").multiSelect();
         $("textarea[name='content.content']").summernote({
             onChange: function (e) {
                 $(".previewer-content").html($("textarea[name='content.content']").code());
@@ -237,18 +222,30 @@
         $("textarea[name='content.message']").change(function() {
             $(".message-preview .message").html($(this).val().replace("\n", "<br/>"));
         });
+        $(".remove-content-file").click(function (event) {
+            var deliveryPipeContentUrl = /*[[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id}}]]*/;
+            event.preventDefault();
+            mContent.ajax.submitUrl($(this).parents("form"), $(this).attr("href"),
+                    function (data) {
+                        mContent.notify("Remove successful", "info");
+                        mContent.loaders.contentEditor(deliveryPipeContentUrl);
+                    },
+                    function (error) {
+                        mContent.notify("Remove of file failed", "error");
+                    }
+            );
+            return false;
+        });
         $(".submit").click(function() {
-            var deliveryPipeContentListUrl = /*[[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${(deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)? "series" : "scheduled")}}]]*/;
-            var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/{deliveryPipeId}/content/list|}]]*/;
-            var form = $(this).parents('form');
-            console.dir(form);
-            mContent.ajax.submit(form,
+            var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipeId}/content/list|}]]*/;
+            event.preventDefault();
+            mContent.ajax.submit($(this).parents('form'),
                 function(data) {
-                    mContent.notify("Changes stored\n"+deliveryPipeContentListUrl, "info");
+                    mContent.notify("Changes stored", "info");
                     mContent.loaders.workArea(deliveryPipeContentListUrl);
                 }, function(error) {
                     console.log(error);
-                    mContent.notify("Failed to save the changes\n"+deliveryPipeContentListUrl, "error");
+                    mContent.notify("Failed to save the changes", "error");
                 }
             );
         })

@@ -83,6 +83,10 @@ public class ScheduledDeliverableManager {
     public void removeScheduledContent(Long id) {
         LOG.info("Removing series content with id=" + id);
         ScheduledDeliverableEntity entity = scheduledRepository.findOne(id);
+        // Remove files from DB and SMB
+        entity.getFiles().stream().forEach(f -> {
+            fileManager.deleteFile(f);
+        });
         scheduledRepository.delete(entity);
     }
 

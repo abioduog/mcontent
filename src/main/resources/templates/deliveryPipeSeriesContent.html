@@ -20,7 +20,7 @@
                        th:text="#{deliverable.status.disapprove}">Disapprove</a>
                 </td>
                 <td sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
-                    <a class="edit-content pure-button" th:unless="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                    <a class="edit-content pure-button" th:if="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).DISAPPROVED}"
                        th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}|}"
                        th:text="#{general.edit}">Edit</a>
                     <a class="view-content pure-button" th:if="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"

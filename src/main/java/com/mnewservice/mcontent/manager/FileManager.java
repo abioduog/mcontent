@@ -102,7 +102,7 @@ public class FileManager {
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public ContentFile saveFile(ContentFile contentFile, byte[] bytes){
+    public ContentFile saveFile(ContentFile contentFile, byte[] bytes) {
         LOG.info("Saving contentFile (" + contentFile.getOriginalFilename() + ") " + bytes.length + " bytes");
 
         contentFile.setPath(smbPath);

@@ -27,6 +27,7 @@ public class FileMapper extends AbstractMapper<ContentFile, FileEntity> {
         domain.setOriginalFilename(entity.getOriginalFilename());
         domain.setMimeType(entity.getMimeType());
         domain.setPath(entity.getPath());
+
         return domain;
     }
 

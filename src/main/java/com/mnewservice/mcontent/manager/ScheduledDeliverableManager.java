@@ -6,14 +6,17 @@
 
 package com.mnewservice.mcontent.manager;
 
+import com.mnewservice.mcontent.domain.ContentFile;
 import com.mnewservice.mcontent.domain.ScheduledDeliverable;
 import com.mnewservice.mcontent.domain.mapper.FileMapper;
 import com.mnewservice.mcontent.domain.mapper.ScheduledDeliverableMapper;
+import com.mnewservice.mcontent.repository.AbstractDeliverableRepository;
 import com.mnewservice.mcontent.repository.ContentRepository;
 import com.mnewservice.mcontent.repository.DeliveryPipeRepository;
 import com.mnewservice.mcontent.repository.ScheduledDeliverableRepository;
 import com.mnewservice.mcontent.repository.entity.AbstractDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
+import com.mnewservice.mcontent.repository.entity.FileEntity;
 import com.mnewservice.mcontent.repository.entity.ScheduledDeliverableEntity;
 import com.mnewservice.mcontent.util.ShortUrlUtils;
 import java.util.Collection;
@@ -21,6 +24,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -34,6 +39,9 @@ public class ScheduledDeliverableManager {
 
     @Autowired
     private ScheduledDeliverableRepository scheduledRepository;
+
+    @Autowired
+    private AbstractDeliverableRepository repository;
 
     @Autowired
     private ScheduledDeliverableMapper scheduledMapper;
@@ -63,6 +71,7 @@ public class ScheduledDeliverableManager {
         return scheduledMapper.toDomain(content);
     }
 
+    @Transactional
     public ScheduledDeliverable saveScheduledContent(long deliveryPipeId, ScheduledDeliverable deliverable) {
         ScheduledDeliverableEntity entity = scheduledMapper.toEntity(deliverable);
         if (deliverable.getId() == null || deliverable.getId() == 0) {
@@ -80,7 +89,7 @@ public class ScheduledDeliverableManager {
     }
 
     @Transactional
-    public void removeScheduledContent(Long id) {
+    public void removeScheduledContentAndFiles(Long id) {
         LOG.info("Removing series content with id=" + id);
         ScheduledDeliverableEntity entity = scheduledRepository.findOne(id);
         // Remove files from DB and SMB
@@ -88,6 +97,33 @@ public class ScheduledDeliverableManager {
             fileManager.deleteFile(f);
         });
         scheduledRepository.delete(entity);
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.NESTED)
+    public ContentFile addFile(Long contentId, ContentFile file) {
+        LOG.info("Adding file [" + file.getFilename() + "] to series contentId=" + contentId);
+        ScheduledDeliverableEntity entity = (ScheduledDeliverableEntity) repository.findOneAndLockIt(contentId);
+        if (entity == null) {
+            String errMsg = "Don't find scheduled from repository with contentId=" + contentId;
+            LOG.error(errMsg);
+            file.setAccepted(false);
+            file.setErrorMessage(errMsg);
+            return file;
+        }
+
+        FileEntity fileEntity = fileMapper.toEntity(file);
+        entity.getFiles().add(fileEntity);
+        entity = scheduledRepository.save(entity);
+        //entity = seriesRepository.findOne(contentId);
+        LOG.info("File added [" + file.getFilename() + "] to scheduled contentId=" + contentId);
+        return file;
+    }
+
+    @Transactional(readOnly = true)
+    public Collection<ContentFile> getDeliverablesFiles(long id) {
+        LOG.info("Getting scheduled files with series id=" + id);
+        Collection<FileEntity> files = repository.findDeliverableFiles(id);
+        return fileMapper.toDomain(files);
     }
 
 }

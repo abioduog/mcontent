@@ -2,6 +2,7 @@
 <div class="content-menu">
     <div class="calendar-menu"></div>
     <script th:inline="javascript">
+        /*<![CDATA[*/
         var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipe.id}/content/list|}]]*/;
         var contentUrlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/scheduled/|}]]*/;
 
@@ -39,6 +40,22 @@
         };
 
         // Obsoleted
+        function approve(event) {
+            event.preventDefault();
+            mContent.ajax.get(contentUrlBase + $.lastClickedScheduledDay.events[0].id + "/approve", function (data) {
+                    mContent.notify("Content approved.", "info");
+                    mContent.loaders.workArea(deliveryPipeContentListUrl);
+                }, function (error) {
+                    console.log(error);
+                    mContent.notify("Failed to approve content.", "warning");
+                    mContent.loaders.workArea(deliveryPipeContentListUrl);
+                });
+                return false;
+            }
+            ;
+
+
+            // Obsoleted
         function disapprove(event) {
             event.preventDefault();
             mContent.ajax.get(contentUrlBase + $.lastClickedScheduledDay.events[0].id + "/disapprove", function (data) {
@@ -64,7 +81,7 @@
                         if (target.events[0].myStatus == "approved") {
                             $(".context-menu-approve").css("display", "none");
                         }
-                        if (target.events[0].myStatus != "approved") {
+                        if (target.events[0].myStatus == "disapproved") {
                             $(".context-menu-disapprove").css("display", "none");
                         }
                     }
@@ -79,6 +96,8 @@
         }).on('hide', function(event, dropdownData) {
             $.lastClickedScheduledDay = null;
         });*/
+
+        /*]]>*/
     </script>
     <div id="create-content-context-menu" class="jq-dropdown jq-dropdown-tip">
         <ul class="jq-dropdown-menu">

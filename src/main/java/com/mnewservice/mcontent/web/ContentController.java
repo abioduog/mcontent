@@ -294,6 +294,9 @@ public class ContentController {
         newDeliverable.setDeliveryDaysAfterSubscription(
                 seriesManager.getNextDeliveryDay(deliveryPipeId));
 
+        DeliveryPipe deliveryPipe = deliveryPipeManager.getDeliveryPipe(deliveryPipeId);
+        mav.addObject("theme", deliveryPipe.getTheme());
+        mav.addObject("fileUpload", false);
         mav.addObject("deliveryPipeId", deliveryPipeId);
         mav.addObject(
                 "deliverable",
@@ -308,9 +311,10 @@ public class ContentController {
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("contentId") long contentId) {
         ModelAndView mav = new ModelAndView("content");
-        mav.addObject("deliveryPipeId", deliveryPipeId);
         DeliveryPipe deliveryPipe = deliveryPipeManager.getDeliveryPipe(deliveryPipeId);
         mav.addObject("theme", deliveryPipe.getTheme());
+        mav.addObject("fileUpload", true);
+        mav.addObject("deliveryPipeId", deliveryPipeId);
         mav.addObject(
                 "deliverable",
                 seriesManager.getSeriesContent(contentId));
@@ -390,10 +394,13 @@ public class ContentController {
         } else {
             try {
                 DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
-                // Get Content files from DB
-                deliverable.setFiles((List<ContentFile>) seriesManager.getDeliveryPipeSeriesFiles(contentId));
+                if (contentId != 0) { // contentId == 0 when deliverable is in create state
+                    deliverable.setFiles((List<ContentFile>) seriesManager.getDeliveryPipeSeriesFiles(contentId));
+                }
                 SeriesDeliverable savedContent = seriesManager.saveSeriesContent(deliveryPipeId, deliverable);
 
+                mav.addObject("theme", deliveryPipe.getTheme());
+                mav.addObject("fileUpload", true);
                 mav.addObject("deliveryPipeId", deliveryPipeId);
                 mav.addObject("deliverable", savedContent);
                 mav.addObject("saved", true);
@@ -439,7 +446,7 @@ public class ContentController {
             mav.addObject("error", true);
         } else {
             try {
-                seriesManager.removeSeriesContent(deliverable.getId());
+                seriesManager.removeSeriesContentAndFiles(deliverable.getId());
                 mav.addObject("deliverable", deliverable);
                 mav.addObject("removed", true);
             } catch (Exception ex) {
@@ -466,6 +473,10 @@ public class ContentController {
         } catch (ParseException ex) {
             LOG.error("Failed to parse date " + date, ex);
         }
+
+        DeliveryPipe deliveryPipe = deliveryPipeManager.getDeliveryPipe(deliveryPipeId);
+        mav.addObject("theme", deliveryPipe.getTheme());
+        mav.addObject("fileUpload", false);
         mav.addObject("deliveryPipeId", deliveryPipeId);
         mav.addObject("deliverable", newDeliverable);
         return mav;
@@ -475,6 +486,9 @@ public class ContentController {
     @RequestMapping({"/deliverypipe/{deliveryPipeId}/scheduled/{contentId}"})
     public ModelAndView viewScheduledContent(@PathVariable("deliveryPipeId") long deliveryPipeId, @PathVariable("contentId") long contentId) {
         ModelAndView mav = new ModelAndView("content");
+        DeliveryPipe deliveryPipe = deliveryPipeManager.getDeliveryPipe(deliveryPipeId);
+        mav.addObject("theme", deliveryPipe.getTheme());
+        mav.addObject("fileUpload", true);
         mav.addObject("deliveryPipeId", deliveryPipeId);
         mav.addObject("deliverable", scheduledManager.getScheduledContent(contentId));
         return mav;
@@ -500,8 +514,12 @@ public class ContentController {
         } else {
             try {
                 DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
-                deliverable.setFiles((List<ContentFile>) seriesManager.getDeliveryPipeSeriesFiles(contentId));
+                if (contentId != 0) { // contentId == 0 when deliverable is in create state
+                    deliverable.setFiles((List<ContentFile>) scheduledManager.getDeliverablesFiles(contentId));
+                }
                 ScheduledDeliverable savedContent = scheduledManager.saveScheduledContent(deliveryPipeId, deliverable);
+                mav.addObject("theme", deliveryPipe.getTheme());
+                mav.addObject("fileUpload", true);
                 mav.addObject("deliveryPipeId", deliveryPipeId);
                 mav.addObject("deliverable", savedContent);
                 mav.addObject("saved", true);
@@ -592,7 +610,7 @@ public class ContentController {
             mav.addObject("error", true);
         } else {
             try {
-                scheduledManager.removeScheduledContent(deliverable.getId());
+                scheduledManager.removeScheduledContentAndFiles(deliverable.getId());
                 mav.addObject("deliverable", deliverable);
                 mav.addObject("removed", true);
             } catch (Exception ex) {
@@ -846,6 +864,99 @@ public class ContentController {
                 SeriesDeliverable newDeliverable = seriesManager.getSeriesContent(contentId);
                 if (newDeliverable.getFiles().removeIf(f -> f.getId() == fileId)) {
                     seriesManager.saveSeriesContent(deliveryPipeId, newDeliverable);
+                    fileManager.deleteFile(fileId);
+                }
+                mav.addObject("deliveryPipeId", deliveryPipeId);
+                mav.addObject("deliverable", newDeliverable);
+
+            } catch (Exception ex) {
+                LOG.error(ex);
+//                mav.addObject("deliverable", deliverable);
+//                mav.addObject("error", true);
+                throw new DataHandlingException(ex);
+            }
+        }
+
+        return mav;
+    }
+
+    //
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/scheduled/{contentId}/fileupload"}/*, method = RequestMethod.POST*/)
+    public @ResponseBody
+    ResponseEntity<MyResponse> uploadScheduledFile(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId,
+            MultipartHttpServletRequest request
+    ) {
+        LOG.info("file upload - " + request.getContextPath() + "/deliverypipe/" + deliveryPipeId + "/scheduled/" + contentId + "/fileupload");
+        MyResponse response = new MyResponse();
+
+        try {
+            Iterator<String> itr = request.getFileNames();
+
+            while (itr.hasNext()) {
+                String uploadedFile = itr.next();
+                MultipartFile file = request.getFile(uploadedFile);
+                LOG.info("Saving downloaded file: " + file.getContentType() + "(" + file.getOriginalFilename() + ")");
+
+                ContentFile contentFile = new ContentFile();
+                contentFile.setMimeType(file.getContentType());
+                contentFile.setOriginalFilename(file.getOriginalFilename());
+
+                // SMB and DB save
+                contentFile = fileManager.saveFile(contentFile, file.getBytes());
+
+                // Connect with Deliverable
+                scheduledManager.addFile(contentId, contentFile);
+
+                MyFile resultFile = new MyFile(file.getName(), file.getOriginalFilename(), file.getContentType(), file.getSize(), contentFile.isAccepted(), contentFile.getErrorMessage());
+                response.getFiles().add(resultFile);
+            }
+        } catch (Exception e) {
+            response.setMessage("Error on handling request");
+            response.setError(response.getMessage());
+            return new ResponseEntity<MyResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        if (response.getFiles().stream().anyMatch(x -> {
+            if (x.isAccepted()) {
+                return false;
+            }
+            response.setMessage("Request completed with errors");
+            response.setError(x.getErrorMessage());
+            return true;
+        })) {
+            return new ResponseEntity<MyResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        response.setMessage("Request completed");
+        return new ResponseEntity<MyResponse>(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/scheduled/{contentId}/fileremove/{fileId}"}/*, method = RequestMethod.POST*/)
+    public ModelAndView removeScheduledFile(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("contentId") long contentId,
+            @PathVariable("fileId") long fileId,
+            final ScheduledDeliverable deliverable,
+            final BindingResult bindingResult,
+            final ModelMap model
+    ) {
+        LOG.info("Scheduled " + contentId + " file " + fileId + " remove");
+        ModelAndView mav = new ModelAndView("content");
+
+        if (bindingResult.hasErrors()) {
+            mav = mavAddNLogErrorText(mav, bindingResult.getAllErrors());
+            mav.addObject("deliverable", model.getOrDefault("deliverable", new SeriesDeliverable()));
+            mav.addObject("error", true);
+        } else {
+            try {
+
+                ScheduledDeliverable newDeliverable = scheduledManager.getScheduledContent(contentId);
+                if (newDeliverable.getFiles().removeIf(f -> f.getId() == fileId)) {
+                    scheduledManager.saveScheduledContent(deliveryPipeId, newDeliverable);
                     fileManager.deleteFile(fileId);
                 }
                 mav.addObject("deliveryPipeId", deliveryPipeId);

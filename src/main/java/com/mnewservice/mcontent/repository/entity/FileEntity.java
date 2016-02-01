@@ -24,10 +24,6 @@ import javax.persistence.UniqueConstraint;
 )
 public class FileEntity extends AbstractEntity {
 
-    public FileEntity() {
-        // Default Constructor
-    }
-
     @Column(length = 256)
     private String filename;
 

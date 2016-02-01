@@ -1,7 +1,7 @@
 <div class="content" th:unless="${#lists.isEmpty(deliverable)}">
 
 
-    <script th:src="@{|/lib/dropzone/dropzone.js|}"></script>
+    <script th:src="@{|/lib/dropzone/dropzone.js|}" th:if="${theme == 'comics' and fileUpload == true and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"></script>
     <formfield>
         <legend>Basic info</legend>
         <div th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)}" th:text="@{|Delivery position: ${deliverable.deliveryDaysAfterSubscription}|}"></div>
@@ -10,8 +10,9 @@
     </formfield>
     <formfield>
         <legend>Content</legend>
-        <form name="content-form" class="pure-form pure-form-stacked" action="#" th:action="@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id}"
-              method="post" enctype="multipart/form-data">
+        <form name="content-form" class="pure-form pure-form-stacked" action="#" 
+              th:action="@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id?: '0'}"
+              method="post" enctype="multipart/form-data" >
             <div class="form-fields">
                 <div th:if="${error}" class="alert alert-error" th:text="#{deliverable.error}">
                     Error in content data.
@@ -27,7 +28,8 @@
                 <!-- TODO: content in view mode if status == APPROVED -->
 
                 <!--<input type="checkbox" class="pure-checkbox" th:checked="true" required="false" th:name="autoProcess" th:text="Autoload" th:value="true"/> -->
-                <input type="checkbox" class="pure-checkbox" th:checked="false" required="false" th:name="debugOn" th:text="Debug" th:value="false"/>
+                <!--<input type="checkbox" class="pure-checkbox" th:checked="false" required="false" th:name="debugOn" th:text="Debug" th:value="false"/> -->
+                <input type="hidden" class="pure-checkbox" th:checked="false" required="false" th:name="debugOn" th:text="Debug" th:value="false"/>
 
                 <label for="content.title" th:text="#{content.title}">Title</label>
                 <input type="text"
@@ -51,21 +53,19 @@
                 </span>
 
                 <!--    File Upload option -->
-                <div id="my-dropzone" th:if="${theme == 'comics' and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
+                <div id="my-dropzone" th:if="${theme == 'comics' and fileUpload == true and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
                     <label th:text="#{contentfiles.files}">Files</label>
                     <table class="pure-table">
-                        <tbody>
-                            <tr th:each="contentFile : ${deliverable.files}">
-                                <td th:text="${contentFile.originalFilename}">NAME</td>
-                                <td>
-                                    <div>
-                                        <a class="remove-content-file pure-button" sec:authorize="hasRole('ADMIN')" 
-                                           th:href="@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileremove/' + ${contentFile.id}"
-                                           th:text="#{general.remove}" >Remove</a>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
+                        <tr th:each="contentFile : ${deliverable.files}">
+                            <td th:text="${contentFile.originalFilename}">NAME</td>
+                            <td>
+                                <div>
+                                    <a class="remove-content-file pure-button" sec:authorize="hasRole('ADMIN')" 
+                                       th:href="@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileremove/' + ${contentFile.id}"
+                                       th:text="#{general.remove}" >Remove</a>
+                                </div>
+                            </td>
+                        </tr>
                     </table>
                     <br/>
                     <label th:text="#{contentfiles.dropzone.tip}">Drop new files here or click this area</label>
@@ -77,7 +77,7 @@
                     <br/>
                     <input type="hidden" required="false" name="content.content" th:text="${deliverable.content.content}"/>
                 </div>
-                <div th:unless="${theme == 'comics' and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
+                <div>
                     <label for="content.content" th:text="#{content.content}">Content</label>
                     <textarea required="true"
                               th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
@@ -94,10 +94,10 @@
             </div>
             <br/>
             <div class="form-actions">
-                <a class="submit pure-button" 
+                <a class="content-submit pure-button"
                    th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
                    th:text="#{general.save}">Save</a>
-                <a class="cancel pure-button" th:text="#{general.cancel}">Cancel</a>
+                <a class="content-cancel pure-button" th:text="#{general.cancel}">Cancel</a>
             </div>
         </form>
     </formfield>
@@ -110,8 +110,9 @@
         </div>
     </div>
 
-    <script th:inline="javascript" th:if="${theme == 'comics' and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}" >
+    <script th:inline="javascript" th:if="${theme == 'comics' and fileUpload == true and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
         /*<![CDATA[*/
+
         var fileDropzone = new Dropzone("div#my-dropzone", {
             /*[+
             url: [[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileupload'}]],
@@ -127,7 +128,6 @@
             previewsContainer: '#dropzone-previews',
             init: function () {
                 var myDropzone = this;
-
                 //document.querySelector("[name='autoProcess']").addEventListener("click", function (e) {
                 //    myDropzone.options.autoProcessQueue = $("[name='autoProcess']").prop("checked");
                 //});
@@ -175,40 +175,21 @@
                     file.previewElement.appendChild(removeButton);
                 });
 
-                this.on("removedfile", function (file) {
-                    // Gets triggered when the file have successfully been sent.
-                    // Redirect user or notify of success.
-                    if ($("[name='debugOn']").prop("checked"))  mContent.notify("removedfile - event : "+file.name, "info");
-
-                    if (file.status === Dropzone.SUCCESS) {
-                        // Tiedosto löytyy palvelimelta
-                    }
-                });
-
-                this.on("complete", function (file) {
-                    // Gets triggered when the file have successfully been sent.
-                    // Redirect user or notify of success.
-                    if ($("[name='debugOn']").prop("checked"))  mContent.notify("complete - event : "+file.name, "info");
-
-                });
-
                 this.on("sending", function(file, xhr, formData) {
-                    // Will send the filesize along with the file as POST data.
-                    // mContent.notify("sending - event", "info");
                     formData.append("_csrf", /*[[${_csrf.token}]]*/);
-
                     if ($("[name='debugOn']").prop("checked"))  mContent.notify("sending - event : "+file.name, "info");
                 });
 
                 // Load existing files to Dropzone
             }
         });
+
         /*]]>*/
     </script>
 
-    <script th:inline="javascript">
+    <script th:inline="javascript" >
+        /*<![CDATA[*/
 
-        //$("select[name='providers']").multiSelect();
         $("textarea[name='content.content']").summernote({
             onChange: function (e) {
                 $(".previewer-content").html($("textarea[name='content.content']").code());
@@ -236,7 +217,7 @@
             );
             return false;
         });
-        $(".submit").click(function() {
+        $(".content-submit").click(function() {
             var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipeId}/content/list|}]]*/;
             event.preventDefault();
             mContent.ajax.submit($(this).parents('form'),
@@ -249,8 +230,9 @@
                 }
             );
         })
-        $(".cancel").click(function() {
+        $(".content-cancel").click(function() {
             $('#content-editor').html( "" );
         })
+        /*]]>*/
     </script>
 </div>

@@ -11,7 +11,6 @@ import com.mnewservice.mcontent.domain.mapper.FileMapper;
 import com.mnewservice.mcontent.repository.FileRepository;
 import com.mnewservice.mcontent.repository.entity.FileEntity;
 import java.io.OutputStream;
-import java.net.URLEncoder;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
 import org.apache.log4j.Logger;
@@ -78,12 +77,6 @@ public class FileManager {
         return repository.findOne(id);
     }
 
-    @Transactional(readOnly = true)
-    public ContentFile findByFilename(String filename) {
-        LOG.info("Finding provider with filename=" + filename);
-        return mapper.toDomain(repository.findByFilename(filename));
-    }
-
     private void cleanUpDBEntry(FileEntity entity) {
         LOG.info("Removing File DB entity with id=" + entity.getId());
         repository.delete(entity);
@@ -105,27 +98,20 @@ public class FileManager {
     public ContentFile saveFile(ContentFile contentFile, byte[] bytes) {
         LOG.info("Saving contentFile (" + contentFile.getOriginalFilename() + ") " + bytes.length + " bytes");
 
-        contentFile.setPath(smbPath);
-        FileEntity entity = mapper.toEntity(contentFile);
-        // Save 1st time to get id for entity
-        contentFile = mapper.toDomain(repository.save(entity));
+        contentFile.setPath(smbPath + contentFile.generateFilename());
 
         SmbFile smbFile = null;
-        String path = null;
         try {
             // Create final smb file name
-            contentFile.setFilename(FilePrefix.CONTENT_FILE + String.format("%010d", contentFile.getId()) + "_" + URLEncoder.encode(contentFile.getOriginalFilename(), "UTF-8"));
-            path = contentFile.getPath() + contentFile.getFilename();
-
-            smbFile = getSmbFile(path);
+            smbFile = getSmbFile(contentFile.getPath());
             if (smbFile == null) {
-                contentFile.setErrorMessage("Could not access SMB file! path=" + path);
-                LOG.error("Could not access SMB file! path=" + path);
-                cleanUpDBEntry(entity);
+                contentFile.setErrorMessage("Could not access SMB file! path=" + contentFile.getPath());
+                LOG.error("Could not access SMB file! path=" + contentFile.getPath());
                 contentFile.setAccepted(false);
                 return contentFile;
             }
 
+            // Remove existing file
             cleanUpSMBEntry(smbFile);
 
             LOG.info("Creating new SMB file: " + smbFile.getPath());
@@ -141,24 +127,25 @@ public class FileManager {
             // Virheenkäpistelyä tähän...
             LOG.error(ex);
             contentFile.setErrorMessage(ex.getLocalizedMessage());
-            cleanUpDBEntry(entity);
             cleanUpSMBEntry(smbFile);
             contentFile.setAccepted(false);
             return contentFile;
         }
 
-        LOG.info("Saved SMB file: " + path);
+        LOG.info("Saved SMB file: " + smbFile.getPath());
 
-        entity = mapper.toEntity(contentFile);
-        // Final save with SMB filename
+        // Save to DB
+        FileEntity entity = mapper.toEntity(contentFile);
         entity = repository.save(entity);
-        return mapper.toDomain(entity);
+        contentFile.setId(entity.getId());
+
+        return contentFile;
     }
 
     @Transactional
     public void deleteFile(FileEntity file) {
-        LOG.info("Deleting contentFile: " + file.getFilename() + " (" + file.getOriginalFilename() + ")");
-        SmbFile smbFile = getSmbFile(file.getPath() + file.getFilename());
+        LOG.info("Deleting contentFile: " + file.getPath() + " (" + file.getOriginalFilename() + ")");
+        SmbFile smbFile = getSmbFile(file.getPath());
         cleanUpSMBEntry(smbFile);
         cleanUpDBEntry(file);
     }

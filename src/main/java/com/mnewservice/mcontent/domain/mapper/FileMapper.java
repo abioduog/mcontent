@@ -23,7 +23,8 @@ public class FileMapper extends AbstractMapper<ContentFile, FileEntity> {
         }
         ContentFile domain = new ContentFile();
         domain.setId(entity.getId());
-        domain.setFilename(entity.getFilename());
+        domain.setUuid(entity.getUuid());
+        domain.setThumbImage(entity.getThumbImage());
         domain.setOriginalFilename(entity.getOriginalFilename());
         domain.setMimeType(entity.getMimeType());
         domain.setPath(entity.getPath());
@@ -38,7 +39,8 @@ public class FileMapper extends AbstractMapper<ContentFile, FileEntity> {
         }
         FileEntity entity = new FileEntity();
         entity.setId(domain.getId());
-        entity.setFilename(domain.getFilename());
+        entity.setUuid(domain.getUuid());
+        entity.setThumbImage(domain.getThumbImage());
         entity.setOriginalFilename(domain.getOriginalFilename());
         entity.setMimeType(domain.getMimeType());
         entity.setPath(domain.getPath());

@@ -101,7 +101,7 @@ public class ScheduledDeliverableManager {
 
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.NESTED)
     public ContentFile addFile(Long contentId, ContentFile file) {
-        LOG.info("Adding file [" + file.getFilename() + "] to series contentId=" + contentId);
+        LOG.info("Adding file [" + file.getPath() + "] to series contentId=" + contentId);
         ScheduledDeliverableEntity entity = (ScheduledDeliverableEntity) repository.findOneAndLockIt(contentId);
         if (entity == null) {
             String errMsg = "Don't find scheduled from repository with contentId=" + contentId;
@@ -115,7 +115,7 @@ public class ScheduledDeliverableManager {
         entity.getFiles().add(fileEntity);
         entity = scheduledRepository.save(entity);
         //entity = seriesRepository.findOne(contentId);
-        LOG.info("File added [" + file.getFilename() + "] to scheduled contentId=" + contentId);
+        LOG.info("File added [" + file.getPath() + "] to scheduled contentId=" + contentId);
         return file;
     }
 

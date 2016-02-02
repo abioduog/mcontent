@@ -103,7 +103,7 @@ public class SeriesDeliverableManager {
 
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.NESTED)
     public ContentFile addFile(Long contentId, ContentFile file) {
-        LOG.info("Adding file [" + file.getFilename() + "] to series contentId=" + contentId);
+        LOG.info("Adding file [" + file.getPath() + "] to series contentId=" + contentId);
         SeriesDeliverableEntity entity = (SeriesDeliverableEntity) repository.findOneAndLockIt(contentId);
         if (entity == null) {
             String errMsg = "Don't find series from repository with contentId=" + contentId;
@@ -117,7 +117,7 @@ public class SeriesDeliverableManager {
         entity.getFiles().add(fileEntity);
         entity = seriesRepository.save(entity);
         //entity = seriesRepository.findOne(contentId);
-        LOG.info("File added [" + file.getFilename() + "] to series contentId=" + contentId);
+        LOG.info("File added [" + file.getPath() + "] to series contentId=" + contentId);
         return file;
     }
 

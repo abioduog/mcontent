@@ -25,9 +25,6 @@
                 <input type="hidden" th:name="content.id" th:value="${deliverable.content.id}"/>
                 <input type="hidden" th:name="status" th:value="${deliverable.status}"/>
 
-                <!-- TODO: content in view mode if status == APPROVED -->
-
-                <!--<input type="checkbox" class="pure-checkbox" th:checked="true" required="false" th:name="autoProcess" th:text="Autoload" th:value="true"/> -->
                 <!--<input type="checkbox" class="pure-checkbox" th:checked="false" required="false" th:name="debugOn" th:text="Debug" th:value="false"/> -->
                 <input type="hidden" class="pure-checkbox" th:checked="false" required="false" th:name="debugOn" th:text="Debug" th:value="false"/>
 
@@ -43,20 +40,18 @@
                 <textarea required="true"
                           th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
                           name="content.message" th:text="${deliverable.content.message}" maxlength="140" cols="30" row="6"/>
-                <textarea required="false" readonly="true"
+                <textarea required="false" readonly="true" 
                           th:if="${deliverable.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
                           name="content.message" th:text="${deliverable.content.message}" maxlength="140" cols="30" row="6"/>
-                <span class="message-preview">
-                    <span class="message" th:text="@{|${deliverable.content.message}|}"></span>
-                    <br/>
-                    <span class="url" th:text="${deliverable.content.getContentUrl()}"></span>
-                </span>
 
                 <!--    File Upload option -->
                 <div id="my-dropzone" th:if="${theme == 'comics' and fileUpload == true and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
                     <label th:text="#{contentfiles.files}">Files</label>
-                    <table class="pure-table">
+                    <table id="file-table" class="pure-table">
                         <tr th:each="contentFile : ${deliverable.files}">
+                            <td>
+                                <img th:src="|data:image/png;base64,${contentFile.thumbImageBase64String}|" />
+                            </td>
                             <td th:text="${contentFile.originalFilename}">NAME</td>
                             <td>
                                 <div>
@@ -74,18 +69,21 @@
                             <input type="file" name="file" multiple="multiple"/>
                         </div>
                     </div>
+                </div>
+
+                <span class="message-preview">
+                    <span class="message" th:text="@{|${deliverable.content.message}|}"></span>
                     <br/>
-                    <input type="hidden" required="false" name="content.content" th:text="${deliverable.content.content}"/>
-                </div>
-                <div>
-                    <label for="content.content" th:text="#{content.content}">Content</label>
-                    <textarea required="true"
-                              th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                              name="content.content" th:text="${deliverable.content.content}"/>
-                    <textarea required="false" readonly="true"
-                              th:if="${deliverable.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                              name="content.content" th:text="${deliverable.content.content}"/>
-                </div>
+                    <span class="url" th:text="${deliverable.content.getContentUrl()}"></span>
+                </span>
+
+                <label for="content.content" th:text="#{content.content}">Content</label>
+                <textarea required="true"
+                          th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                          name="content.content" th:text="${deliverable.content.content}"/>
+                <textarea required="false" readonly="true"
+                          th:if="${deliverable.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                          name="content.content" th:text="${deliverable.content.content}"/>
 
                 <input type="hidden" th:name="save" />
                 <input th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)}" type="hidden" th:name="deliveryDaysAfterSubscription" th:value="${deliverable.deliveryDaysAfterSubscription}"/>
@@ -126,11 +124,9 @@
             filesizeBase: 1024,
             acceptedFiles: 'image/*',
             previewsContainer: '#dropzone-previews',
+            thumbnailWidth: 100,
             init: function () {
                 var myDropzone = this;
-                //document.querySelector("[name='autoProcess']").addEventListener("click", function (e) {
-                //    myDropzone.options.autoProcessQueue = $("[name='autoProcess']").prop("checked");
-                //});
 
                 this.on("processing", function (file) {
                     if ($("[name='debugOn']").prop("checked")) mContent.notify("processing - event", "info");
@@ -140,7 +136,7 @@
                     if ($("[name='debugOn']").prop("checked")) mContent.notify("addedfile - event", "info");
                     // Check for duplicates
                     var _file, _i, _len, _ref, _result;
-                    _ref = this.files;
+                    _ref = myDropzone.files;
                     _result = 0;
                     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                         _file = _ref[_i];
@@ -149,13 +145,30 @@
                         }
                     }
                     if (_result > 1) {  // No duplicates thank you
-                        this.removeFile(file);
+                        myDropzone.removeFile(file);
                         mContent.notify("Can not add file ("+file.name+")\nFile is allready uploaded", "error");
                     }
                 });
 
                 this.on("success", function (file, response) {
                     if ($("[name='debugOn']").prop("checked"))  mContent.notify("success - event : "+file.name, "info");
+                    var x1 = file.previewElement.querySelectorAll("div.dz-image"), thumbImage = "data:image/png;base64,";
+                    if (x1.length > 0) {
+                        thumbImage = x1[0].firstChild.src;  //Thumbnail image data
+                    }
+                    // Kuinka selvitetään sec authorize ADMIN ?
+                    var _href = "";
+                    var _text = "";
+                    /*[+
+                        _href =  [[@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileremove/']]  + response.files[0].id ;
+                        _text =  [[#{general.remove}]];
+                    +]*/
+                    $('#file-table tr:last').after( "<tr><td><img src='"+thumbImage+"' alt='"+file.name+"' /></td><td>"+file.name+
+                            "</td><td><div><a class='remove-content-file pure-button' href='" + _href + "' >"+_text+"</a></div></td></tr>");
+                    // re-fresh
+                    $(".remove-content-file").unbind("click", removeFileHandler);
+                    $(".remove-content-file").click(removeFileHandler);
+
                 });
 
                 this.on("error", function (file, response, xhr) {
@@ -169,18 +182,14 @@
                         e.stopPropagation();
                         // Remove the file preview.
                         _this.removeFile(file);
-                        // Remove from server
-
                     });
                     file.previewElement.appendChild(removeButton);
                 });
 
                 this.on("sending", function(file, xhr, formData) {
-                    formData.append("_csrf", /*[[${_csrf.token}]]*/);
+                    formData.append("_csrf", /*[[${_csrf.token}]]*/ "");
                     if ($("[name='debugOn']").prop("checked"))  mContent.notify("sending - event : "+file.name, "info");
                 });
-
-                // Load existing files to Dropzone
             }
         });
 
@@ -203,8 +212,9 @@
         $("textarea[name='content.message']").change(function() {
             $(".message-preview .message").html($(this).val().replace("\n", "<br/>"));
         });
-        $(".remove-content-file").click(function (event) {
-            var deliveryPipeContentUrl = /*[[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id}}]]*/;
+        
+        var removeFileHandler = function (event) {
+            var deliveryPipeContentUrl = /*[[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id}}]]*/ "";
             event.preventDefault();
             mContent.ajax.submitUrl($(this).parents("form"), $(this).attr("href"),
                     function (data) {
@@ -216,9 +226,11 @@
                     }
             );
             return false;
-        });
+        };
+        $(".remove-content-file").click(removeFileHandler);
+
         $(".content-submit").click(function() {
-            var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipeId}/content/list|}]]*/;
+            var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipeId}/content/list|}]]*/ "";
             event.preventDefault();
             mContent.ajax.submit($(this).parents('form'),
                 function(data) {

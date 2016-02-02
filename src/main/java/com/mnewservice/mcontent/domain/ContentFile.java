@@ -6,13 +6,21 @@
 
 package com.mnewservice.mcontent.domain;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.UUID;
+import org.apache.commons.codec.binary.Base64;
+
 /**
  *
  */
 public class ContentFile {
 
     private Long id;
-    private String filename;
+
+    private UUID uuid;
+    private byte[] thumbImage;
+//    private String filename;
     private String originalFilename;
     private String path;
     private String mimeType;
@@ -24,6 +32,7 @@ public class ContentFile {
     public ContentFile() {
         this.errorMessage = "";
         this.accepted = true;
+        this.uuid = UUID.randomUUID();
     }
 
     public Long getId() {
@@ -34,12 +43,28 @@ public class ContentFile {
         this.id = id;
     }
 
-    public String getFilename() {
-        return filename;
+    public UUID getUuid() {
+        return uuid;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public byte[] getThumbImage() {
+        return thumbImage;
+    }
+
+    public String getThumbImageBase64String() {
+        try {
+            return new String(Base64.encodeBase64(thumbImage), "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            return "";
+        }
+    }
+
+    public void setThumbImage(byte[] thumbImage) {
+        this.thumbImage = thumbImage;
     }
 
     public String getOriginalFilename() {
@@ -82,4 +107,13 @@ public class ContentFile {
         this.accepted = accepted;
     }
 
+    public String generateFilename() {
+        String[] parts = this.getOriginalFilename().split("\\.");
+        String name = uuid + "." + parts[parts.length - 1];
+        try {
+            return URLEncoder.encode(name, "UTF-8");
+        } catch (Exception ex) {
+            return name;
+        }
+    }
 }

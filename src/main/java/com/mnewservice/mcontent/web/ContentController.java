@@ -8,10 +8,20 @@ import com.mnewservice.mcontent.manager.ProviderManager;
 import com.mnewservice.mcontent.manager.ScheduledDeliverableManager;
 import com.mnewservice.mcontent.manager.SeriesDeliverableManager;
 import com.mnewservice.mcontent.manager.UserManager;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
+import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -685,14 +695,16 @@ public class ContentController {
     protected class MyFile {
 
         private String name;
+        private long id;
         private String originalFilename;
         private String contentType;
         private long size;
         private boolean accepted;
         private String errorMessage;
 
-        public MyFile(String name, String originalFilename, String contentType, long size, boolean accepted, String errorMessage) {
+        public MyFile(String name, long id, String originalFilename, String contentType, long size, boolean accepted, String errorMessage) {
             this.name = name;
+            this.id = id;
             this.originalFilename = originalFilename;
             this.contentType = contentType;
             this.size = size;
@@ -706,6 +718,14 @@ public class ContentController {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
         }
 
         public String getOriginalFilename() {
@@ -789,14 +809,15 @@ public class ContentController {
     //
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/{contentId}/fileupload"}/*, method = RequestMethod.POST*/)
+    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/{deliverableType}/{contentId}/fileupload"}/*, method = RequestMethod.POST*/)
     public @ResponseBody
-    ResponseEntity<MyResponse> uploadSeriesFile(
+    ResponseEntity<MyResponse> uploadDeliverableFile(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("deliverableType") String deliverableType,
             @PathVariable("contentId") long contentId,
             MultipartHttpServletRequest request
     ) {
-        LOG.info("file upload - " + request.getContextPath() + "/deliverypipe/" + deliveryPipeId + "/series/" + contentId + "/fileupload");
+        LOG.info("file upload - " + request.getContextPath() + "/deliverypipe/" + deliveryPipeId + "/" + deliverableType + "/" + contentId + "/fileupload");
         MyResponse response = new MyResponse();
 
         try {
@@ -805,40 +826,64 @@ public class ContentController {
             while (itr.hasNext()) {
                 String uploadedFile = itr.next();
                 MultipartFile file = request.getFile(uploadedFile);
-                LOG.info("Saving downloaded file: " + file.getContentType() + "(" + file.getOriginalFilename() + ")");
+                LOG.info("Processing downloaded file: " + file.getContentType() + "(" + file.getOriginalFilename() + ")");
 
                 ContentFile contentFile = new ContentFile();
                 contentFile.setMimeType(file.getContentType());
                 contentFile.setOriginalFilename(file.getOriginalFilename());
+                LOG.info("Creating thumbnail image");
+                ByteArrayInputStream in = new ByteArrayInputStream(file.getBytes());
+                BufferedImage img = ImageIO.read(in);
+                Integer newHeight, height = img.getHeight();
+                Integer newWidth, width = img.getWidth();
+                float ratio = width.floatValue() / height.floatValue();
+                // max 100x100
+                newHeight = ratio > 1.0 ? new Double(100 / ratio).intValue() : 100;
+                newWidth = ratio > 1.0 ? 100 : new Double(100 * ratio).intValue();
+                BufferedImage newImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+                newImg.createGraphics().drawImage(img.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH), 0, 0, null);
+                in.close();
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                ImageIO.write(newImg, "png", out);
+                contentFile.setThumbImage(out.toByteArray());
+                out.close();
 
                 // SMB and DB save
                 contentFile = fileManager.saveFile(contentFile, file.getBytes());
 
                 // Connect with Deliverable
-                seriesManager.addFile(contentId, contentFile);
+                if (deliverableType.equals("series")) {
+                    seriesManager.addFile(contentId, contentFile);
+                }
+                if (deliverableType.equals("scheduled")) {
+                    scheduledManager.addFile(contentId, contentFile);
+                }
 
-                MyFile resultFile = new MyFile(file.getName(), file.getOriginalFilename(), file.getContentType(), file.getSize(), contentFile.isAccepted(), contentFile.getErrorMessage());
+                MyFile resultFile = new MyFile(file.getName(), contentFile.getId(), file.getOriginalFilename(), file.getContentType(), file.getSize(), contentFile.isAccepted(), contentFile.getErrorMessage());
                 response.getFiles().add(resultFile);
             }
         } catch (Exception e) {
+            LOG.error("File upload failed", e);
             response.setMessage("Error on handling request");
             response.setError(response.getMessage());
-            return new ResponseEntity<MyResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         if (response.getFiles().stream().anyMatch(x -> {
             if (x.isAccepted()) {
                 return false;
             }
+            LOG.error("Request completed with errors. " + x.getErrorMessage());
             response.setMessage("Request completed with errors");
             response.setError(x.getErrorMessage());
             return true;
         })) {
-            return new ResponseEntity<MyResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+        LOG.info("File upload completed");
         response.setMessage("Request completed");
-        return new ResponseEntity<MyResponse>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
@@ -878,60 +923,6 @@ public class ContentController {
         }
 
         return mav;
-    }
-
-    //
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/scheduled/{contentId}/fileupload"}/*, method = RequestMethod.POST*/)
-    public @ResponseBody
-    ResponseEntity<MyResponse> uploadScheduledFile(
-            @PathVariable("deliveryPipeId") long deliveryPipeId,
-            @PathVariable("contentId") long contentId,
-            MultipartHttpServletRequest request
-    ) {
-        LOG.info("file upload - " + request.getContextPath() + "/deliverypipe/" + deliveryPipeId + "/scheduled/" + contentId + "/fileupload");
-        MyResponse response = new MyResponse();
-
-        try {
-            Iterator<String> itr = request.getFileNames();
-
-            while (itr.hasNext()) {
-                String uploadedFile = itr.next();
-                MultipartFile file = request.getFile(uploadedFile);
-                LOG.info("Saving downloaded file: " + file.getContentType() + "(" + file.getOriginalFilename() + ")");
-
-                ContentFile contentFile = new ContentFile();
-                contentFile.setMimeType(file.getContentType());
-                contentFile.setOriginalFilename(file.getOriginalFilename());
-
-                // SMB and DB save
-                contentFile = fileManager.saveFile(contentFile, file.getBytes());
-
-                // Connect with Deliverable
-                scheduledManager.addFile(contentId, contentFile);
-
-                MyFile resultFile = new MyFile(file.getName(), file.getOriginalFilename(), file.getContentType(), file.getSize(), contentFile.isAccepted(), contentFile.getErrorMessage());
-                response.getFiles().add(resultFile);
-            }
-        } catch (Exception e) {
-            response.setMessage("Error on handling request");
-            response.setError(response.getMessage());
-            return new ResponseEntity<MyResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        if (response.getFiles().stream().anyMatch(x -> {
-            if (x.isAccepted()) {
-                return false;
-            }
-            response.setMessage("Request completed with errors");
-            response.setError(x.getErrorMessage());
-            return true;
-        })) {
-            return new ResponseEntity<MyResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        response.setMessage("Request completed");
-        return new ResponseEntity<MyResponse>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")

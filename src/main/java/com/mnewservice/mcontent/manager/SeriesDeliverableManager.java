@@ -1,6 +1,5 @@
 package com.mnewservice.mcontent.manager;
 
-import com.mnewservice.mcontent.domain.ContentFile;
 import com.mnewservice.mcontent.domain.SeriesDeliverable;
 import com.mnewservice.mcontent.domain.mapper.FileMapper;
 import com.mnewservice.mcontent.domain.mapper.SeriesDeliverableMapper;
@@ -10,7 +9,6 @@ import com.mnewservice.mcontent.repository.DeliveryPipeRepository;
 import com.mnewservice.mcontent.repository.SeriesDeliverableRepository;
 import com.mnewservice.mcontent.repository.entity.AbstractDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
-import com.mnewservice.mcontent.repository.entity.FileEntity;
 import com.mnewservice.mcontent.repository.entity.SeriesDeliverableEntity;
 import com.mnewservice.mcontent.util.ShortUrlUtils;
 import java.util.Collection;
@@ -18,9 +16,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
 
 /**
  *
@@ -101,31 +98,5 @@ public class SeriesDeliverableManager {
         seriesRepository.delete(entity);
     }
 
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.NESTED)
-    public ContentFile addFile(Long contentId, ContentFile file) {
-        LOG.info("Adding file [" + file.getPath() + "] to series contentId=" + contentId);
-        SeriesDeliverableEntity entity = (SeriesDeliverableEntity) repository.findOneAndLockIt(contentId);
-        if (entity == null) {
-            String errMsg = "Don't find series from repository with contentId=" + contentId;
-            LOG.error(errMsg);
-            file.setAccepted(false);
-            file.setErrorMessage(errMsg);
-            return file;
-        }
-
-        FileEntity fileEntity = fileMapper.toEntity(file);
-        entity.getFiles().add(fileEntity);
-        entity = seriesRepository.save(entity);
-        //entity = seriesRepository.findOne(contentId);
-        LOG.info("File added [" + file.getPath() + "] to series contentId=" + contentId);
-        return file;
-    }
-
-    @Transactional(readOnly = true)
-    public Collection<ContentFile> getDeliveryPipeSeriesFiles(long id) {
-        LOG.info("Getting series files with series id=" + id);
-        Collection<FileEntity> files = repository.findDeliverableFiles(id);
-        return fileMapper.toDomain(files);
-    }
 
 }

@@ -1,12 +1,10 @@
 package com.mnewservice.mcontent.domain;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 public class Content {
 
-    private String contentUrl = "http://3wc4.com/%s";
+    private static final String contentUrl = "http://3wc4.com/%s";
+    private static final String contentDir = "";
+    private static final String imageDir = "images/";
 
     private Long id;
     private String uuid;
@@ -14,8 +12,12 @@ public class Content {
     private String message;
     private String content;
 
+    public static String getContentImageUrl(String imagePath) {
+        return String.format(contentUrl, imageDir + imagePath);
+    }
+
     public String getContentUrl() {
-        return String.format(contentUrl, uuid);
+        return String.format(contentUrl, contentDir + uuid);
     }
 
     public String getSmsMessageContent() {

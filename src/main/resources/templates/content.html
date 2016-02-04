@@ -48,6 +48,11 @@
                 <div id="my-dropzone" th:if="${theme == 'comics' and fileUpload == true and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
                     <label th:text="#{contentfiles.files}">Files</label>
                     <table id="file-table" class="pure-table">
+                        <tr style="display: none" > <!-- 1st row as header for later addition of rows to table from JavaScript -->
+                            <td>Image</td>
+                            <td>File</td>
+                            <td/>
+                        </tr>
                         <tr th:each="contentFile : ${deliverable.files}">
                             <td>
                                 <img th:src="|data:image/png;base64,${contentFile.thumbImageBase64String}|" />
@@ -77,13 +82,19 @@
                     <span class="url" th:text="${deliverable.content.getContentUrl()}"></span>
                 </span>
 
-                <label for="content.content" th:text="#{content.content}">Content</label>
-                <textarea required="true"
-                          th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                          name="content.content" th:text="${deliverable.content.content}"/>
-                <textarea required="false" readonly="true"
-                          th:if="${deliverable.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                          name="content.content" th:text="${deliverable.content.content}"/>
+                <div th:if="${theme != 'comics'}" >
+                    <label for="content.content" th:text="#{content.content}">Content</label>
+                    <textarea required="true"
+                              th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                              name="content.content" th:text="${deliverable.content.content}"/>
+                    <textarea required="false" readonly="true"
+                              th:if="${deliverable.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                              name="content.content" th:text="${deliverable.content.content}"/>
+                </div>
+                <div th:if="${theme == 'comics'}" >
+                    <textarea required="false" style ="display: none;"
+                              name="content.content" th:text="${deliverable.content.content}"/>
+                </div>
 
                 <input type="hidden" th:name="save" />
                 <input th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)}" type="hidden" th:name="deliveryDaysAfterSubscription" th:value="${deliverable.deliveryDaysAfterSubscription}"/>
@@ -125,6 +136,7 @@
             acceptedFiles: 'image/*',
             previewsContainer: '#dropzone-previews',
             thumbnailWidth: 100,
+            thumbnailHeight: 100,
             init: function () {
                 var myDropzone = this;
 
@@ -152,23 +164,26 @@
 
                 this.on("success", function (file, response) {
                     if ($("[name='debugOn']").prop("checked"))  mContent.notify("success - event : "+file.name, "info");
-                    var x1 = file.previewElement.querySelectorAll("div.dz-image"), thumbImage = "data:image/png;base64,";
-                    if (x1.length > 0) {
-                        thumbImage = x1[0].firstChild.src;  //Thumbnail image data
+                    // insert new row to table and re-fresh Remove buttons in table
+                    if (/*[[${#authorization.expression('hasRole(''ADMIN'')')}]]*/ == true){
+                        var x1 = file.previewElement.querySelectorAll("div.dz-image"), thumbImage = "data:image/png;base64,";
+                        if (x1.length > 0) {
+                            thumbImage = x1[0].firstChild.src;  //Thumbnail image data
+                        }
+                        $(".remove-content-file").unbind("click", removeFileHandler);
+                        var _href = "";
+                        var _text = "";
+                        /*[+
+                            _href =  [[@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileremove/']]  + response.files[0].id ;
+                            _text =  [[#{general.remove}]];
+                        +]*/
+                        $('#file-table tr:last').after( "<tr><td><img src='"+thumbImage+"' alt='"+file.name+"' /></td><td>"+file.name+
+                                "</td><td><div><a class='remove-content-file pure-button' href='" + _href + "' >"+_text+"</a></div></td></tr>");
+                        $(".remove-content-file").click(removeFileHandler);
+                        var originalHtml = $("textarea[name='content.content']").text();
+                        $("textarea[name='content.content']").html(originalHtml+response.files[0].imageHtmlBlock);
+                        $(".previewer-content").html(originalHtml+response.files[0].imageHtmlBlock);
                     }
-                    // Kuinka selvitetään sec authorize ADMIN ?
-                    var _href = "";
-                    var _text = "";
-                    /*[+
-                        _href =  [[@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileremove/']]  + response.files[0].id ;
-                        _text =  [[#{general.remove}]];
-                    +]*/
-                    $('#file-table tr:last').after( "<tr><td><img src='"+thumbImage+"' alt='"+file.name+"' /></td><td>"+file.name+
-                            "</td><td><div><a class='remove-content-file pure-button' href='" + _href + "' >"+_text+"</a></div></td></tr>");
-                    // re-fresh
-                    $(".remove-content-file").unbind("click", removeFileHandler);
-                    $(".remove-content-file").click(removeFileHandler);
-
                 });
 
                 this.on("error", function (file, response, xhr) {
@@ -199,11 +214,13 @@
     <script th:inline="javascript" >
         /*<![CDATA[*/
 
-        $("textarea[name='content.content']").summernote({
-            onChange: function (e) {
-                $(".previewer-content").html($("textarea[name='content.content']").code());
-            }
-        });
+        if (typeof fileDropzone === 'undefined' || fileDropzone === null) {
+            $("textarea[name='content.content']").summernote({
+                onChange: function (e) {
+                    $(".previewer-content").html($("textarea[name='content.content']").code());
+                }
+            });
+        }
         $("input[name='content.title']").change(function() {
             if(!$("textarea[name='content.message']").val()) {
                 $("textarea[name='content.message']").val($(this).val() + "\n\nClick for more");

@@ -10,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.UUID;
 import org.apache.commons.codec.binary.Base64;
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
 /**
  *
@@ -19,7 +20,7 @@ public class ContentFile {
     private Long id;
 
     private UUID uuid;
-    private byte[] thumbImage;
+    private byte[] thumbImage; // png format
 //    private String filename;
     private String originalFilename;
     private String path;
@@ -61,6 +62,17 @@ public class ContentFile {
         } catch (UnsupportedEncodingException ex) {
             return "";
         }
+    }
+
+    public String getImageHtmlBlock(String theme) {
+        theme = theme.toLowerCase().trim();
+        theme.replaceAll("/([\\t\\n\\r\\s])+/g", "-");
+        theme.replaceAll("/([^A-Za-z0-9\\-])+/g", "");
+        return "<div class=\"content-image " + (theme.length() > 0 ? "content-theme-" + theme : "") + "\">" // class = content-image [content-theme-{theme}]
+                + "<img src=\"" + Content.getContentImageUrl(generateFilename()) + "\" alt=\"" + escapeHtml4(getOriginalFilename()) + "\" /></div>";
+        // use Thumbimage and load it
+        //return "<div class=\"content-" + theme + "-image\">"
+        //        + "<img src=\"data:image/png;base64," + getThumbImageBase64String() + "\" alt=\"" + escapeHtml4(getOriginalFilename()) + "\" ></div>";
     }
 
     public void setThumbImage(byte[] thumbImage) {

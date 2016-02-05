@@ -25,9 +25,6 @@
                 <input type="hidden" th:name="content.id" th:value="${deliverable.content.id}"/>
                 <input type="hidden" th:name="status" th:value="${deliverable.status}"/>
 
-                <!--<input type="checkbox" class="pure-checkbox" th:checked="false" required="false" th:name="debugOn" th:text="Debug" th:value="false"/> -->
-                <input type="hidden" class="pure-checkbox" th:checked="false" required="false" th:name="debugOn" th:text="Debug" th:value="false"/>
-
                 <label for="content.title" th:text="#{content.title}">Title</label>
                 <input type="text"
                        th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
@@ -55,7 +52,7 @@
                         </tr>
                         <tr th:each="contentFile : ${deliverable.files}">
                             <td>
-                                <img th:src="|data:image/png;base64,${contentFile.thumbImageBase64String}|" />
+                                <img class="content-thumb-image" th:src="|data:image/png;base64,${contentFile.thumbBase64Png}|" />
                             </td>
                             <td th:text="${contentFile.originalFilename}">NAME</td>
                             <td>
@@ -135,17 +132,12 @@
             filesizeBase: 1024,
             acceptedFiles: 'image/*',
             previewsContainer: '#dropzone-previews',
-            thumbnailWidth: 100,
-            thumbnailHeight: 100,
+            //thumbnailWidth: 100,
+            //thumbnailHeight: 100,
             init: function () {
                 var myDropzone = this;
 
-                this.on("processing", function (file) {
-                    if ($("[name='debugOn']").prop("checked")) mContent.notify("processing - event", "info");
-                 });
-
                  this.on("addedfile", function (file) {
-                    if ($("[name='debugOn']").prop("checked")) mContent.notify("addedfile - event", "info");
                     // Check for duplicates
                     var _file, _i, _len, _ref, _result;
                     _ref = myDropzone.files;
@@ -163,13 +155,8 @@
                 });
 
                 this.on("success", function (file, response) {
-                    if ($("[name='debugOn']").prop("checked"))  mContent.notify("success - event : "+file.name, "info");
                     // insert new row to table and re-fresh Remove buttons in table
                     if (/*[[${#authorization.expression('hasRole(''ADMIN'')')}]]*/ == true){
-                        var x1 = file.previewElement.querySelectorAll("div.dz-image"), thumbImage = "data:image/png;base64,";
-                        if (x1.length > 0) {
-                            thumbImage = x1[0].firstChild.src;  //Thumbnail image data
-                        }
                         $(".remove-content-file").unbind("click", removeFileHandler);
                         var _href = "";
                         var _text = "";
@@ -177,7 +164,7 @@
                             _href =  [[@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileremove/']]  + response.files[0].id ;
                             _text =  [[#{general.remove}]];
                         +]*/
-                        $('#file-table tr:last').after( "<tr><td><img src='"+thumbImage+"' alt='"+file.name+"' /></td><td>"+file.name+
+                        $('#file-table tr:last').after( "<tr><td><img src='data:image/png;base64,"+response.files[0].thumbBase64Png+"' alt='"+file.name+"' /></td><td>"+file.name+
                                 "</td><td><div><a class='remove-content-file pure-button' href='" + _href + "' >"+_text+"</a></div></td></tr>");
                         $(".remove-content-file").click(removeFileHandler);
                         var originalHtml = $("textarea[name='content.content']").text();
@@ -188,7 +175,6 @@
 
                 this.on("error", function (file, response, xhr) {
                     var _filename = file.name;
-                    if ($("[name='debugOn']").prop("checked"))  mContent.notify("error - event : "+_filename, "info");
                     mContent.notify("Error on uploading file "+_filename+"\nResponse message: "+response.message ,"error");
                     var removeButton = Dropzone.createElement("<button>Clear</button>");
                     var _this = this;
@@ -203,7 +189,6 @@
 
                 this.on("sending", function(file, xhr, formData) {
                     formData.append("_csrf", /*[[${_csrf.token}]]*/ "");
-                    if ($("[name='debugOn']").prop("checked"))  mContent.notify("sending - event : "+file.name, "info");
                 });
             }
         });
@@ -211,16 +196,57 @@
         /*]]>*/
     </script>
 
+    <script th:inline="javascript" th:unless="${theme == 'comics' and fileUpload == true and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
+        /*<![CDATA[*/
+
+        var mySummernote;
+
+        $("textarea[name='content.content']").summernote({
+            onInit: function() {
+                mySummernote = this;
+            }
+            onImageUpload: function(files, editor) {
+                console.log(mySummernote);
+                console.log(files);
+                console.log(editor);
+                var _i, _len;
+                for (_i = 0, _len = files.length; _i < _len; _i++) {
+                    sendFile(files[_i], editor);
+                }
+            },
+            onChange: function (e) {
+                $(".previewer-content").html($("textarea[name='content.content']").code());
+            }
+        });
+
+        function sendFile(file,editor) {
+                data = new FormData();
+                data.append("file", file);
+                data.append("_csrf", /*[[${_csrf.token}]]*/ "");
+                console.log('image upload:', file, editor);
+                console.log(data);
+                $.ajax({
+                    data: data,
+                    type: "POST",
+                    url: /*[[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileupload'}]] */ "",
+                    cache: false,
+                    contentType: 'multipart/form-data',
+                    processData: false,
+                    success: function(data,response) {
+                        console.log(data);
+                        console.log(response);
+                        mySummernote.insertNode(response.files[0].imageHtmlBlock);
+                        mySummernote.insertImage(response.files[0].imageUrl, response.files[0].originalFilename);
+                    }
+                });
+            }
+
+        /*]]>*/
+    </script>
+
     <script th:inline="javascript" >
         /*<![CDATA[*/
 
-        if (typeof fileDropzone === 'undefined' || fileDropzone === null) {
-            $("textarea[name='content.content']").summernote({
-                onChange: function (e) {
-                    $(".previewer-content").html($("textarea[name='content.content']").code());
-                }
-            });
-        }
         $("input[name='content.title']").change(function() {
             if(!$("textarea[name='content.message']").val()) {
                 $("textarea[name='content.message']").val($(this).val() + "\n\nClick for more");
@@ -246,22 +272,26 @@
         };
         $(".remove-content-file").click(removeFileHandler);
 
-        $(".content-submit").click(function() {
-            var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipeId}/content/list|}]]*/ "";
-            event.preventDefault();
-            mContent.ajax.submit($(this).parents('form'),
-                function(data) {
-                    mContent.notify("Changes stored", "info");
-                    mContent.loaders.workArea(deliveryPipeContentListUrl);
-                }, function(error) {
-                    console.log(error);
-                    mContent.notify("Failed to save the changes", "error");
-                }
-            );
-        })
+        $(document).ready(function() {
+            $(".content-submit").click(function() {
+                var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipeId}/content/list|}]]*/ "";
+                event.preventDefault();
+                mContent.ajax.submit($(this).parents('form'),
+                    function(data) {
+                        mContent.notify("Changes stored", "info");
+                        mContent.loaders.workArea(deliveryPipeContentListUrl);
+                    }, function(error) {
+                        console.log(error);
+                        mContent.notify("Failed to save the changes", "error");
+                    }
+                );
+            });
+        });
+
         $(".content-cancel").click(function() {
             $('#content-editor').html( "" );
-        })
+        });
+
         /*]]>*/
     </script>
 </div>

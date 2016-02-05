@@ -13,8 +13,10 @@ import com.mnewservice.mcontent.domain.SeriesDeliverable;
 import com.mnewservice.mcontent.domain.mapper.FileMapper;
 import com.mnewservice.mcontent.repository.AbstractDeliverableRepository;
 import com.mnewservice.mcontent.repository.ContentRepository;
+import com.mnewservice.mcontent.repository.DeliveryPipeRepository;
 import com.mnewservice.mcontent.repository.entity.AbstractDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.CustomContentEntity;
+import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.FileEntity;
 import java.util.Collection;
 import org.apache.log4j.Logger;
@@ -34,6 +36,12 @@ public class AbstractDeliverableManager {
     ContentRepository contentRepository;
 
     @Autowired
+    DeliveryPipeRepository deliverypipeRepository;
+
+    @Autowired
+    FileManager fileManager;
+
+    @Autowired
     AbstractDeliverableRepository repository;
 
     @Autowired
@@ -47,6 +55,31 @@ public class AbstractDeliverableManager {
         return repository.findOne(id);
     }
 
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
+    public void removeDeliverable(AbstractDeliverableEntity entity) {
+        LOG.info("Removing deliverable id=" + entity.getId());
+
+        DeliveryPipeEntity pipeEntity = deliverypipeRepository.findOne(entity.getDeliveryPipe().getId());
+        if (pipeEntity != null) {
+            if (pipeEntity.getDeliverables().remove(entity)) {
+                LOG.info("Removing deliverable from pipe id=" + pipeEntity.getId());
+                deliverypipeRepository.save(pipeEntity);
+            }
+        }
+
+        LOG.info("Removing deliverable's files");
+        entity.getFiles().stream().forEach(f -> {
+            LOG.info("File: " + f.getOriginalFilename());
+            fileManager.deleteFile(f);
+        });
+        if (entity.getContent() instanceof CustomContentEntity) {
+            LOG.info("Removing deliverable's content id=" + entity.getContent().getId());
+            contentRepository.delete((CustomContentEntity) entity.getContent());
+        }
+        repository.delete(entity);
+        LOG.info("Removing finished.");
+    }
+
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.NESTED)
     public ContentFile addFileAndContent(AbstractDeliverableEntity entity, ContentFile file) {
         LOG.info("Adding image content to deliverable id=" + entity.getId());
@@ -57,7 +90,7 @@ public class AbstractDeliverableManager {
             LOG.info("Generating HTML image block for content");
             CustomContentEntity contentEntity = (CustomContentEntity) entity.getContent();
             LOG.info("HTML before: " + contentEntity.getContent());
-            contentEntity.setContent(contentEntity.getContent() + file.getImageHtmlBlock(entity.getDeliveryPipe().getTheme()));
+            contentEntity.setContent(contentEntity.getContent() + file.createAndSetImageHtmlBlock(entity.getDeliveryPipe().getTheme()));
             LOG.info("HTML after: " + contentEntity.getContent());
             entity.setContent(contentEntity);
         }
@@ -81,7 +114,7 @@ public class AbstractDeliverableManager {
         for (ContentFile file : domain.getFiles()) {
             // generate html blocks file by file
             LOG.info("Generating HTML image block for file: " + file.getOriginalFilename());
-            domain.getContent().setContent(domain.getContent().getContent() + file.getImageHtmlBlock(theme));
+            domain.getContent().setContent(domain.getContent().getContent() + file.createAndSetImageHtmlBlock(theme));
         }
         LOG.info("Content re-generated for deliverable id=" + domain.getId());
         return domain;

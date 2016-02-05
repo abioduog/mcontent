@@ -6,9 +6,15 @@
 
 package com.mnewservice.mcontent.domain;
 
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.UUID;
+import javax.imageio.ImageIO;
 import org.apache.commons.codec.binary.Base64;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
@@ -29,34 +35,91 @@ public class ContentFile {
     // Only DTO level
     private String errorMessage;
     private boolean accepted;
+    private String imageHtmlBlock;
 
     public ContentFile() {
         this.errorMessage = "";
         this.accepted = true;
         this.uuid = UUID.randomUUID();
+        this.imageHtmlBlock = "";
     }
 
+//<editor-fold defaultstate="collapsed" desc="Std get/set">
     public Long getId() {
         return id;
     }
-
+    
     public void setId(Long id) {
         this.id = id;
     }
-
+    
     public UUID getUuid() {
         return uuid;
     }
-
+    
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
     }
-
+    
     public byte[] getThumbImage() {
         return thumbImage;
     }
+    
+    public void setThumbImage(byte[] thumbImage) {
+        this.thumbImage = thumbImage;
+    }
+    
+    public String getOriginalFilename() {
+        return originalFilename;
+    }
+    
+    public void setOriginalFilename(String originalFilename) {
+        this.originalFilename = originalFilename;
+    }
+    
+    public String getPath() {
+        return path;
+    }
+    
+    public void setPath(String path) {
+        this.path = path;
+    }
+    
+    public String getMimeType() {
+        return mimeType;
+    }
+    
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
+    }
+    
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+    
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+    
+    public boolean isAccepted() {
+        return accepted;
+    }
+    
+    public void setAccepted(boolean accepted) {
+        this.accepted = accepted;
+    }
+    
+    public String getImageHtmlBlock() {
+        return imageHtmlBlock;
+    }
+    
+    public void setImageHtmlBlock(String imageHtmlBlock) {
+        this.imageHtmlBlock = imageHtmlBlock;
+    }
+//</editor-fold>
 
-    public String getThumbImageBase64String() {
+    // get method for thymeleaf, can be assigned in thymeleaf as "variable.thumbBase64Png"
+    public String getThumbBase64Png() {
         try {
             return new String(Base64.encodeBase64(thumbImage), "UTF-8");
         } catch (UnsupportedEncodingException ex) {
@@ -64,59 +127,20 @@ public class ContentFile {
         }
     }
 
-    public String getImageHtmlBlock(String theme) {
+    public String createAndSetImageHtmlBlock(String theme) {
         theme = theme.toLowerCase().trim();
         theme.replaceAll("/([\\t\\n\\r\\s])+/g", "-");
         theme.replaceAll("/([^A-Za-z0-9\\-])+/g", "");
-        return "<div class=\"content-image " + (theme.length() > 0 ? "content-theme-" + theme : "") + "\">" // class = content-image [content-theme-{theme}]
-                + "<img src=\"" + Content.getContentImageUrl(generateFilename()) + "\" alt=\"" + escapeHtml4(getOriginalFilename()) + "\" /></div>";
+        this.imageHtmlBlock = "<div class=\"content-image " + (theme.length() > 0 ? "content-theme-" + theme : "") + "\">" // class = content-image [content-theme-{theme}]
+                + "<img src=\"" + getImageUrl() + "\" alt=\"" + escapeHtml4(getOriginalFilename()) + "\" /></div>";
         // use Thumbimage and load it
         //return "<div class=\"content-" + theme + "-image\">"
-        //        + "<img src=\"data:image/png;base64," + getThumbImageBase64String() + "\" alt=\"" + escapeHtml4(getOriginalFilename()) + "\" ></div>";
+        //        + "<img src=\"data:image/png;base64," + getThumbBase64Png() + "\" alt=\"" + escapeHtml4(getOriginalFilename()) + "\" ></div>";
+        return this.imageHtmlBlock;
     }
 
-    public void setThumbImage(byte[] thumbImage) {
-        this.thumbImage = thumbImage;
-    }
-
-    public String getOriginalFilename() {
-        return originalFilename;
-    }
-
-    public void setOriginalFilename(String originalFilename) {
-        this.originalFilename = originalFilename;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getMimeType() {
-        return mimeType;
-    }
-
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    public boolean isAccepted() {
-        return accepted;
-    }
-
-    public void setAccepted(boolean accepted) {
-        this.accepted = accepted;
+    public String getImageUrl() {
+        return Content.createContentImageUrl(generateFilename());
     }
 
     public String generateFilename() {
@@ -127,5 +151,24 @@ public class ContentFile {
         } catch (Exception ex) {
             return name;
         }
+    }
+
+    public static byte[] generateThumbImage(byte[] data) throws IOException {
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        BufferedImage img = ImageIO.read(in);
+        Integer newHeight, height = img.getHeight();
+        Integer newWidth, width = img.getWidth();
+        float ratio = width.floatValue() / height.floatValue();
+        // max 100x100
+        newHeight = ratio > 1.0 ? new Double(100 / ratio).intValue() : 100;
+        newWidth = ratio > 1.0 ? 100 : new Double(100 * ratio).intValue();
+        BufferedImage newImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+        newImg.createGraphics().drawImage(img.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH), 0, 0, null);
+        in.close();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ImageIO.write(newImg, "png", out);
+        byte[] retval = out.toByteArray();
+        out.close();
+        return retval;
     }
 }

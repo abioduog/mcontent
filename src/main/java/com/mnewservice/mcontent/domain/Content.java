@@ -1,10 +1,8 @@
 package com.mnewservice.mcontent.domain;
 
-public class Content {
+import com.mnewservice.mcontent.util.ContentUtils;
 
-    private static final String contentUrl = "http://3wc4.com/%s";
-    private static final String contentDir = "";
-    private static final String imageDir = "images/";
+public class Content {
 
     private Long id;
     private String uuid;
@@ -12,12 +10,12 @@ public class Content {
     private String message;
     private String content;
 
-    public static String getContentImageUrl(String imagePath) {
-        return String.format(contentUrl, imageDir + imagePath);
+    public String getContentUrl() {
+        return ContentUtils.getContentUrl() + uuid;
     }
 
-    public String getContentUrl() {
-        return String.format(contentUrl, contentDir + uuid);
+    public static String createContentImageUrl(String imagePath) {
+        return ContentUtils.createContentImageUrl(imagePath);
     }
 
     public String getSmsMessageContent() {

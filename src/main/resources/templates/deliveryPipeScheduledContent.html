@@ -50,9 +50,8 @@
                     mContent.notify("Failed to approve content.", "warning");
                     mContent.loaders.workArea(deliveryPipeContentListUrl);
                 });
-                return false;
-            }
-            ;
+            return false;
+        };
 
 
             // Obsoleted
@@ -73,7 +72,7 @@
             $(".calendar-menu").find(".day:not(.past):not(.event)").attr("data-jq-dropdown", "#create-content-context-menu");
             $(".calendar-menu").find(".day:not(.past).event").attr("data-jq-dropdown", "#edit-content-context-menu");
             $(".calendar-menu").find(".day.past.event").attr("data-jq-dropdown", "#view-content-context-menu");
-        }
+        };
 
         $(".calendar-menu").clndr({
             weekOffset: 1,

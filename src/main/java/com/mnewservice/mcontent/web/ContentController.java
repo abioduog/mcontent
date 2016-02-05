@@ -10,10 +10,6 @@ import com.mnewservice.mcontent.manager.ScheduledDeliverableManager;
 import com.mnewservice.mcontent.manager.SeriesDeliverableManager;
 import com.mnewservice.mcontent.manager.UserManager;
 import com.mnewservice.mcontent.repository.entity.AbstractDeliverableEntity;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,7 +19,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -174,6 +169,7 @@ public class ContentController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/create"})
     public ModelAndView viewDeliveryPipe() {
+        LOG.info("/deliverypipe/create");
         ModelAndView mav = new ModelAndView("deliveryPipeDetail");
         mav.addObject("deliveryPipe", new DeliveryPipe());
         return mav;
@@ -182,6 +178,7 @@ public class ContentController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/{pipeId}"})
     public ModelAndView viewDeliveryPipe(@PathVariable("pipeId") long id) {
+        LOG.info("/deliverypipe/" + id);
         ModelAndView mav = new ModelAndView("deliveryPipeDetail");
         mav.addObject("deliveryPipe", deliveryPipeManager.getDeliveryPipe(id));
         return mav;
@@ -194,6 +191,7 @@ public class ContentController {
             final DeliveryPipe deliveryPipe,
             final BindingResult bindingResult,
             final ModelMap model) {
+        LOG.info("/deliverypipe/" + id + " param=save");
         ModelAndView mav = new ModelAndView("deliveryPipeDetail");
 
         if (bindingResult.hasErrors()) {
@@ -220,6 +218,7 @@ public class ContentController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/remove/{pipeId}"})
     public ModelAndView viewRemovableDeliveryPipe(@PathVariable("pipeId") long id) {
+        LOG.info("/deliverypipe/remove/" + id);
         ModelAndView mav = new ModelAndView("deliveryPipeRemove");
         mav.addObject("deliveryPipe", deliveryPipeManager.getDeliveryPipe(id));
         if (deliveryPipeManager.hasContent(id)) {
@@ -235,6 +234,7 @@ public class ContentController {
             final DeliveryPipe deliveryPipe,
             final BindingResult bindingResult,
             final ModelMap model) {
+        LOG.info("/deliverypipe/remove/" + id + " param=remove");
         ModelAndView mav = new ModelAndView("deliveryPipeRemove");
 
         if (bindingResult.hasErrors()) {
@@ -265,6 +265,7 @@ public class ContentController {
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping({"/deliverypipe/{pipeId}/content/list"})
     public ModelAndView viewDeliveryPipeContent(@PathVariable("pipeId") long id) {
+        LOG.info("/deliverypipe/" + id + "/content/list");
         ModelAndView mav;
         DeliveryPipe pipe = deliveryPipeManager.getDeliveryPipe(id);
         switch (pipe.getDeliverableType()) {
@@ -303,6 +304,7 @@ public class ContentController {
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/create"})
     public ModelAndView createSeriesContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId) {
+        LOG.info("/deliverypipe/" + deliveryPipeId + "/series/create");
         ModelAndView mav = new ModelAndView("content");
         SeriesDeliverable newDeliverable = new SeriesDeliverable();
         newDeliverable.setStatus(DeliverableStatus.PENDING_APPROVAL);
@@ -325,6 +327,7 @@ public class ContentController {
     public ModelAndView viewSeriesContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("deliverableId") long deliverableId) {
+        LOG.info("/deliverypipe/" + deliveryPipeId + "/series/" + deliverableId);
         ModelAndView mav = new ModelAndView("content");
         DeliveryPipe deliveryPipe = deliveryPipeManager.getDeliveryPipe(deliveryPipeId);
         mav.addObject("theme", deliveryPipe.getTheme());
@@ -342,6 +345,7 @@ public class ContentController {
     public void approveSeriesContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("deliverableId") long deliverableId) throws Exception {
+        LOG.info("/deliverypipe/" + deliveryPipeId + "/series/" + deliverableId + "/approve");
         SeriesDeliverable content = getSeriesContent(deliverableId, DeliverableStatus.APPROVED);
         DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
 
@@ -380,6 +384,7 @@ public class ContentController {
     public void disapproveSeriesContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("deliverableId") long deliverableId) throws Exception {
+        LOG.info("/deliverypipe/" + deliveryPipeId + "/series/" + deliverableId + "/disapprove");
         SeriesDeliverable content
                 = getSeriesContent(deliverableId, DeliverableStatus.PENDING_APPROVAL);
         DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
@@ -398,8 +403,7 @@ public class ContentController {
             final SeriesDeliverable deliverable,
             final BindingResult bindingResult,
             final ModelMap model) {
-
-        LOG.info("saveSeriesContent - STARTED");
+        LOG.info("/deliverypipe/" + deliveryPipeId + "/series/" + deliverableId + " param=save");
         ModelAndView mav = new ModelAndView("content");
 
         if (bindingResult.hasErrors()) {
@@ -444,6 +448,7 @@ public class ContentController {
     public ModelAndView viewRemovableSeriesContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("deliverableId") long deliverableId) {
+        LOG.info("/deliverypipe/" + deliveryPipeId + "/series/remove/" + deliverableId);
         SeriesDeliverable deliverable = seriesManager.getSeriesContent(deliverableId);
         ModelAndView mav = new ModelAndView("contentSeriesRemove");
         mav.addObject("deliverable", deliverable);
@@ -458,7 +463,7 @@ public class ContentController {
             final SeriesDeliverable deliverable,
             final BindingResult bindingResult,
             final ModelMap model) {
-        //SeriesDeliverable deliverable = deliveryPipeManager.getSeriesContent(deliverableId);
+        LOG.info("/deliverypipe/" + deliveryPipeId + "/series/remove/" + deliverableId + " param=remove");
         ModelAndView mav = new ModelAndView("contentSeriesRemove");
         if (bindingResult.hasErrors()) {
             mav = mavAddNLogErrorText(mav, bindingResult.getAllErrors());
@@ -486,6 +491,7 @@ public class ContentController {
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/scheduled/create"}, params = {"date"})
     public ModelAndView createScheduledContent(@PathVariable("deliveryPipeId") long deliveryPipeId, @RequestParam(value = "date") String date) {
+        LOG.info("/deliverypipe/" + deliveryPipeId + "/scheduled/create param=date " + date);
         ModelAndView mav = new ModelAndView("content");
         ScheduledDeliverable newDeliverable = new ScheduledDeliverable();
         try {
@@ -505,6 +511,7 @@ public class ContentController {
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping({"/deliverypipe/{deliveryPipeId}/scheduled/{deliverableId}"})
     public ModelAndView viewScheduledContent(@PathVariable("deliveryPipeId") long deliveryPipeId, @PathVariable("deliverableId") long deliverableId) {
+        LOG.info("/deliverypipe/" + deliveryPipeId + "/scheduled/" + deliverableId);
         ModelAndView mav = new ModelAndView("content");
         DeliveryPipe deliveryPipe = deliveryPipeManager.getDeliveryPipe(deliveryPipeId);
         mav.addObject("theme", deliveryPipe.getTheme());
@@ -522,6 +529,7 @@ public class ContentController {
             final ScheduledDeliverable deliverable,
             final BindingResult bindingResult,
             final ModelMap model) {
+        LOG.info("/deliverypipe/" + deliveryPipeId + "/scheduled/" + deliverableId + " param=save");
         ModelAndView mav = new ModelAndView("content");
 
         if (bindingResult.hasErrors()) {
@@ -565,6 +573,7 @@ public class ContentController {
     public void approveScheduledContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("deliverableId") long deliverableId) throws Exception {
+        LOG.info("/deliverypipe/" + deliveryPipeId + "/scheduled/" + deliverableId + "/approve");
         ScheduledDeliverable content = getScheduledContent(deliverableId, DeliverableStatus.APPROVED);
         DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
 
@@ -580,6 +589,7 @@ public class ContentController {
     public void disapproveScheduledContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("deliverableId") long deliverableId) throws Exception {
+        LOG.info("/deliverypipe/" + deliveryPipeId + "/scheduled/" + deliverableId + "/disapprove");
         ScheduledDeliverable content = getScheduledContent(deliverableId, DeliverableStatus.PENDING_APPROVAL);
         DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
 
@@ -608,6 +618,7 @@ public class ContentController {
     public ModelAndView viewRemovableScheduledContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("deliverableId") long deliverableId) {
+        LOG.info("/deliverypipe/" + deliveryPipeId + "/scheduled/remove/" + deliverableId);
         ScheduledDeliverable deliverable = scheduledManager.getScheduledContent(deliverableId);
         ModelAndView mav = new ModelAndView("contentScheduledRemove");
         mav.addObject("deliverable", deliverable);
@@ -622,7 +633,7 @@ public class ContentController {
             final ScheduledDeliverable deliverable,
             final BindingResult bindingResult,
             final ModelMap model) {
-        //SeriesDeliverable deliverable = deliveryPipeManager.getSeriesContent(deliverableId);
+        LOG.info("/deliverypipe/" + deliveryPipeId + "/scheduled/remove/" + deliverableId + " param=remove");
         ModelAndView mav = new ModelAndView("contentScheduledRemove");
         if (bindingResult.hasErrors()) {
             mav = mavAddNLogErrorText(mav, bindingResult.getAllErrors());
@@ -701,100 +712,15 @@ public class ContentController {
     }
     //</editor-fold>
 
-//<editor-fold defaultstate="collapsed" desc="MyFile/MyResponse">
-    protected class MyFile {
 
-        private String name;
-        private long id;
-        private String originalFilename;
-        private String contentType;
-        private String fileUrl;
-        private String imageHtmlBlock;
-        private long size;
-        private boolean accepted;
-        private String errorMessage;
-
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public long getId() {
-            return id;
-        }
-
-        public void setId(long id) {
-            this.id = id;
-        }
-
-        public String getOriginalFilename() {
-            return originalFilename;
-        }
-
-        public void setOriginalFilename(String originalFilename) {
-            this.originalFilename = originalFilename;
-        }
-
-        public String getContentType() {
-            return contentType;
-        }
-
-        public void setContentType(String contentType) {
-            this.contentType = contentType;
-        }
-
-        public String getFileUrl() {
-            return fileUrl;
-        }
-
-        public void setFileUrl(String fileUrl) {
-            this.fileUrl = fileUrl;
-        }
-
-        public String getImageHtmlBlock() {
-            return imageHtmlBlock;
-        }
-
-        public void setImageHtmlBlock(String imageHtmlBlock) {
-            this.imageHtmlBlock = imageHtmlBlock;
-        }
-
-        public long getSize() {
-            return size;
-        }
-
-        public void setSize(long size) {
-            this.size = size;
-        }
-
-        public boolean isAccepted() {
-            return accepted;
-        }
-
-        public void setAccepted(boolean accepted) {
-            this.accepted = accepted;
-        }
-
-        public String getErrorMessage() {
-            return errorMessage;
-        }
-
-        public void setErrorMessage(String errorMessage) {
-            this.errorMessage = errorMessage;
-        }
-
-    }
-
+//<editor-fold defaultstate="collapsed" desc="MyResponse">
     protected class MyResponse {
 
         private String message;
         private String error;
-        private List<MyFile> files;
+        private List<ContentFile> files;
 
+//<editor-fold defaultstate="collapsed" desc="getter/setter">
         public MyResponse() {
             this.files = new ArrayList<>();
         }
@@ -807,11 +733,11 @@ public class ContentController {
             this.message = message;
         }
 
-        public List<MyFile> getFiles() {
+        public List<ContentFile> getFiles() {
             return files;
         }
 
-        public void setFiles(List<MyFile> files) {
+        public void setFiles(List<ContentFile> files) {
             this.files = files;
         }
 
@@ -822,9 +748,10 @@ public class ContentController {
         public void setError(String error) {
             this.error = error;
         }
-
+//</editor-fold>
     }
 //</editor-fold>
+
     //
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
@@ -851,21 +778,7 @@ public class ContentController {
                 contentFile.setMimeType(file.getContentType());
                 contentFile.setOriginalFilename(file.getOriginalFilename());
                 LOG.info("Creating thumbnail image");
-                ByteArrayInputStream in = new ByteArrayInputStream(file.getBytes());
-                BufferedImage img = ImageIO.read(in);
-                Integer newHeight, height = img.getHeight();
-                Integer newWidth, width = img.getWidth();
-                float ratio = width.floatValue() / height.floatValue();
-                // max 100x100
-                newHeight = ratio > 1.0 ? new Double(100 / ratio).intValue() : 100;
-                newWidth = ratio > 1.0 ? 100 : new Double(100 * ratio).intValue();
-                BufferedImage newImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
-                newImg.createGraphics().drawImage(img.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH), 0, 0, null);
-                in.close();
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                ImageIO.write(newImg, "png", out);
-                contentFile.setThumbImage(out.toByteArray());
-                out.close();
+                contentFile.setThumbImage(ContentFile.generateThumbImage(file.getBytes()));
 
                 // SMB and DB save
                 contentFile = fileManager.saveFile(contentFile, file.getBytes());
@@ -882,17 +795,8 @@ public class ContentController {
 
                 contentFile = deliverableManager.addFileAndContent(entity, contentFile);
 
-                MyFile resultFile = new MyFile();
-                resultFile.setName(file.getName());
-                resultFile.setId(contentFile.getId());
-                resultFile.setOriginalFilename(contentFile.getOriginalFilename());
-                resultFile.setContentType(contentFile.getMimeType());
-                resultFile.setFileUrl(Content.getContentImageUrl(contentFile.generateFilename()));
-                resultFile.setImageHtmlBlock(contentFile.getImageHtmlBlock(entity.getDeliveryPipe().getTheme()));
-                resultFile.setSize(file.getSize());
-                resultFile.setAccepted(contentFile.isAccepted());
-                resultFile.setErrorMessage(contentFile.getErrorMessage());
-                response.getFiles().add(resultFile);
+                response.getFiles().add(contentFile);
+
             }
         } catch (Exception e) {
             LOG.error("File upload failed", e);

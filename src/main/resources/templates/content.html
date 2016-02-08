@@ -1,7 +1,7 @@
 <div class="content" th:unless="${#lists.isEmpty(deliverable)}">
 
 
-    <script th:src="@{|/lib/dropzone/dropzone.js|}" th:if="${theme == 'comics' and fileUpload == true and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"></script>
+    <script th:src="@{|/lib/dropzone/dropzone.min.js|}" th:if="${theme == 'comics' and fileUpload == true and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"></script>
     <formfield>
         <legend>Basic info</legend>
         <div th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)}" th:text="@{|Delivery position: ${deliverable.deliveryDaysAfterSubscription}|}"></div>
@@ -199,47 +199,48 @@
     <script th:inline="javascript" th:unless="${theme == 'comics' and fileUpload == true and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
         /*<![CDATA[*/
 
-        var mySummernote;
-
         $("textarea[name='content.content']").summernote({
-            onInit: function() {
-                mySummernote = this;
-            }
-            onImageUpload: function(files, editor) {
-                console.log(mySummernote);
-                console.log(files);
-                console.log(editor);
-                var _i, _len;
-                for (_i = 0, _len = files.length; _i < _len; _i++) {
-                    sendFile(files[_i], editor);
+            callbacks: {
+                onImageUpload: function(files) {
+                    console.log("OnImageUpload");
+                    console.log(files);
+                    var _i, _len;
+                    for (_i = 0, _len = files.length; _i < _len; _i++) {
+                        sendFile(files[_i]);
+                    }
+                },
+                onImageUploadError: function(err){
+                    alert('Upload error : '+err);
+                },
+                onChange: function (e) {
+                    $(".previewer-content").html($("textarea[name='content.content']").val());
                 }
-            },
-            onChange: function (e) {
-                $(".previewer-content").html($("textarea[name='content.content']").code());
             }
         });
 
-        function sendFile(file,editor) {
-                data = new FormData();
-                data.append("file", file);
-                data.append("_csrf", /*[[${_csrf.token}]]*/ "");
-                console.log('image upload:', file, editor);
-                console.log(data);
-                $.ajax({
-                    data: data,
-                    type: "POST",
-                    url: /*[[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileupload'}]] */ "",
-                    cache: false,
-                    contentType: 'multipart/form-data',
-                    processData: false,
-                    success: function(data,response) {
-                        console.log(data);
-                        console.log(response);
-                        mySummernote.insertNode(response.files[0].imageHtmlBlock);
-                        mySummernote.insertImage(response.files[0].imageUrl, response.files[0].originalFilename);
-                    }
-                });
-            }
+        function sendFile(file) {
+            data = new FormData();
+            data.append("file", file);
+            data.append("_csrf", /*[[${_csrf.token}]]*/ "");
+            console.log('Image Upload:');
+            console.log(file);
+            $.ajax({
+                data: data,
+                type: "POST",
+                /*[+
+                url: [[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileupload'}]] ,
+                +]*/
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function(response, status, xhr) {
+                    // method 1, brutal
+                    $("textarea[name='content.content']").summernote('code', $("textarea[name='content.content']").val() + response.files[0].imageHtmlBlock);
+                    // method 2
+                    //$("textarea[name='content.content']").summernote('insertImage', response.files[0].imageUrl, response.files[0].originalFilename );
+                }
+            });
+        }
 
         /*]]>*/
     </script>

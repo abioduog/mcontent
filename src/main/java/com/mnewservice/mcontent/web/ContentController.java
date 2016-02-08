@@ -755,6 +755,24 @@ public class ContentController {
     //
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/{deliverableType}/{deliverableId}/fileupload"}, params = {"file"})
+    public @ResponseBody
+    ResponseEntity<MyResponse> uploadDeliverableFile2(
+            @PathVariable("deliveryPipeId") long deliveryPipeId,
+            @PathVariable("deliverableType") String deliverableType,
+            @PathVariable("deliverableId") long deliverableId,
+            @RequestParam("file") MultipartFile file,
+            MultipartHttpServletRequest request
+    ) {
+        LOG.info("file upload2 - " + request.getContextPath() + "/deliverypipe/" + deliveryPipeId + "/" + deliverableType + "/" + deliverableId + "/fileupload");
+        MyResponse response = new MyResponse();
+
+        LOG.info("File upload2 completed");
+        response.setMessage("Request completed");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/{deliverableType}/{deliverableId}/fileupload"}/*, method = RequestMethod.POST*/)
     public @ResponseBody
     ResponseEntity<MyResponse> uploadDeliverableFile(

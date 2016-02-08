@@ -6,6 +6,8 @@
 
 package com.mnewservice.mcontent.util;
 
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
+
 /**
  *
  */
@@ -35,4 +37,12 @@ public class ContentUtils {
         return imageDir;
     }
 
+    public static String getImageHtmlBlock(String theme, String url, String filename) {
+        theme = theme.toLowerCase().trim();
+        theme.replaceAll("/([\\t\\n\\r\\s])+/g", "-");
+        theme.replaceAll("/([^A-Za-z0-9\\-])+/g", "");
+        String escFilename = escapeHtml4(filename);
+        return "<div class=\"content-image " + (theme.length() > 0 ? "content-theme-" + theme : "") + "\">" // class = content-image [content-theme-{theme}]
+                + "<img src=\"" + url + "\" alt=\"" + escFilename + "\" /></div>";
+    }
 }

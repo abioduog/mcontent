@@ -6,6 +6,7 @@
 
 package com.mnewservice.mcontent.domain;
 
+import com.mnewservice.mcontent.util.ContentUtils;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -16,7 +17,6 @@ import java.net.URLEncoder;
 import java.util.UUID;
 import javax.imageio.ImageIO;
 import org.apache.commons.codec.binary.Base64;
-import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
 /**
  *
@@ -128,14 +128,7 @@ public class ContentFile {
     }
 
     public String createAndSetImageHtmlBlock(String theme) {
-        theme = theme.toLowerCase().trim();
-        theme.replaceAll("/([\\t\\n\\r\\s])+/g", "-");
-        theme.replaceAll("/([^A-Za-z0-9\\-])+/g", "");
-        this.imageHtmlBlock = "<div class=\"content-image " + (theme.length() > 0 ? "content-theme-" + theme : "") + "\">" // class = content-image [content-theme-{theme}]
-                + "<img src=\"" + getImageUrl() + "\" alt=\"" + escapeHtml4(getOriginalFilename()) + "\" /></div>";
-        // use Thumbimage and load it
-        //return "<div class=\"content-" + theme + "-image\">"
-        //        + "<img src=\"data:image/png;base64," + getThumbBase64Png() + "\" alt=\"" + escapeHtml4(getOriginalFilename()) + "\" ></div>";
+        this.imageHtmlBlock = ContentUtils.getImageHtmlBlock(theme, getImageUrl(), getOriginalFilename());
         return this.imageHtmlBlock;
     }
 

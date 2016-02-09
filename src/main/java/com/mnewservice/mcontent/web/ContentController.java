@@ -10,6 +10,7 @@ import com.mnewservice.mcontent.manager.ScheduledDeliverableManager;
 import com.mnewservice.mcontent.manager.SeriesDeliverableManager;
 import com.mnewservice.mcontent.manager.UserManager;
 import com.mnewservice.mcontent.repository.entity.AbstractDeliverableEntity;
+import com.mnewservice.mcontent.repository.entity.FileEntity;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
@@ -772,7 +774,7 @@ public class ContentController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/{deliverableType}/{deliverableId}/fileupload"}/*, method = RequestMethod.POST*/)
     public @ResponseBody
     ResponseEntity<MyResponse> uploadDeliverableFile(
@@ -840,18 +842,42 @@ public class ContentController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    // File removing without automatic content regeneration
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @RequestMapping(value = {"/fileremovebyuuid/{fileUuid}"}/*, method = RequestMethod.POST*/)
+    public @ResponseBody
+    ResponseEntity<String> removeFileByUuid(
+            @PathVariable("fileUuid") String fileUuid,
+            ServletWebRequest request
+    ) {
+        LOG.info("Removing file by UUID=" + fileUuid);
+        String response = "";
+
+        //  Find file
+        FileEntity fileToRemove = fileManager.getFileByUuid(fileUuid);
+        if (fileToRemove != null) {
+            //
+            deliverableManager.removeFileFromDeliverables(fileToRemove);
+        }
+
+        LOG.info("Removing completed");
+        response = "Request completed";
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    // Following 2 methods are only for "comics" -theme like deliverables witch content is automatically generated
+    // Don't use with deliverables that uses Summernote for manual editing of content
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/{deliverableType}/{deliverableId}/fileremove/{fileId}"}/*, method = RequestMethod.POST*/)
+    @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/{deliverableId}/fileremove/{fileId}"}/*, method = RequestMethod.POST*/)
     public ModelAndView removeSeriesFile(
             @PathVariable("deliveryPipeId") long deliveryPipeId,
-            @PathVariable("deliverableType") String deliverableType,
             @PathVariable("deliverableId") long deliverableId,
             @PathVariable("fileId") long fileId,
             final SeriesDeliverable deliverable,
             final BindingResult bindingResult,
             final ModelMap model
     ) {
-        LOG.info(deliverableType + " " + deliverableId + " file " + fileId + " remove");
+        LOG.info("Series " + deliverableId + " file " + fileId + " remove");
         ModelAndView mav = new ModelAndView("content");
 
         if (bindingResult.hasErrors()) {
@@ -860,6 +886,7 @@ public class ContentController {
             mav.addObject("error", true);
         } else {
             try {
+//                DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
                 SeriesDeliverable newDeliverable = seriesManager.getSeriesContent(deliverableId);
                 if (newDeliverable.getFiles().removeIf(f -> f.getId() == fileId)) {
                     newDeliverable = deliverableManager.regenerateSeriesImageContent(newDeliverable);
@@ -867,6 +894,8 @@ public class ContentController {
                     fileManager.deleteFile(fileId);
                 }
 
+//                mav.addObject("theme", deliveryPipe.getTheme());
+//                mav.addObject("fileUpload", true);
                 mav.addObject("deliveryPipeId", deliveryPipeId);
                 mav.addObject("deliverable", newDeliverable);
 
@@ -900,13 +929,15 @@ public class ContentController {
             mav.addObject("error", true);
         } else {
             try {
-
+//                DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
                 ScheduledDeliverable newDeliverable = scheduledManager.getScheduledContent(deliverableId);
                 if (newDeliverable.getFiles().removeIf(f -> f.getId() == fileId)) {
                     newDeliverable = deliverableManager.regenerateScheduledImageContent(newDeliverable);
                     scheduledManager.saveScheduledContent(deliveryPipeId, newDeliverable);
                     fileManager.deleteFile(fileId);
                 }
+//                mav.addObject("theme", deliveryPipe.getTheme());
+//                mav.addObject("fileUpload", true);
                 mav.addObject("deliveryPipeId", deliveryPipeId);
                 mav.addObject("deliverable", newDeliverable);
 

@@ -29,4 +29,9 @@ public interface AbstractDeliverableRepository extends CrudRepository<AbstractDe
     @Query("select sd.files from AbstractDeliverableEntity sd where sd.id = :id")
     public Collection<FileEntity> findDeliverableFiles(@Param("id") Long id);
 
+    @Query("select sd from AbstractDeliverableEntity sd "
+            + "left join sd.files f "
+            + "where f.uuid = :uuid")
+    public Collection<AbstractDeliverableEntity> findDeliverablesByFileUuid(@Param("uuid") String fileUuid);
+
 }

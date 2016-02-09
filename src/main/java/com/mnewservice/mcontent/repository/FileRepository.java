@@ -7,7 +7,9 @@
 package com.mnewservice.mcontent.repository;
 
 import com.mnewservice.mcontent.repository.entity.FileEntity;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -16,5 +18,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FileRepository extends CrudRepository<FileEntity, Long> {
 
-
+    @Query("select fe from FileEntity fe where fe.uuid = :uuid")
+    public FileEntity getFileByUuid(@Param("uuid") String uuid);
 }

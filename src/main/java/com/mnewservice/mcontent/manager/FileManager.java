@@ -77,6 +77,12 @@ public class FileManager {
         return repository.findOne(id);
     }
 
+    @Transactional(readOnly = true)
+    public FileEntity getFileByUuid(String uuid) {
+        LOG.info("Getting file with uuid=" + uuid);
+        return repository.getFileByUuid(uuid);
+    }
+
     private void cleanUpDBEntry(FileEntity entity) {
         LOG.info("Removing File DB entity with id=" + entity.getId());
         repository.delete(entity);

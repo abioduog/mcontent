@@ -25,7 +25,7 @@ public class ContentFile {
 
     private Long id;
 
-    private UUID uuid;
+    private String uuid;
     private byte[] thumbImage; // png format
 //    private String filename;
     private String originalFilename;
@@ -40,7 +40,7 @@ public class ContentFile {
     public ContentFile() {
         this.errorMessage = "";
         this.accepted = true;
-        this.uuid = UUID.randomUUID();
+        this.uuid = UUID.randomUUID().toString();
         this.imageHtmlBlock = "";
     }
 
@@ -53,11 +53,11 @@ public class ContentFile {
         this.id = id;
     }
     
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
     }
     
-    public void setUuid(UUID uuid) {
+    public void setUuid(String uuid) {
         this.uuid = uuid;
     }
     
@@ -128,7 +128,7 @@ public class ContentFile {
     }
 
     public String createAndSetImageHtmlBlock(String theme) {
-        this.imageHtmlBlock = ContentUtils.getImageHtmlBlock(theme, getImageUrl(), getOriginalFilename());
+        this.imageHtmlBlock = ContentUtils.getImageHtmlBlock(theme, getImageUrl(), getUuid().toString(), getOriginalFilename());
         return this.imageHtmlBlock;
     }
 

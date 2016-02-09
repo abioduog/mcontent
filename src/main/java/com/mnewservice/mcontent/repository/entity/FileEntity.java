@@ -6,7 +6,6 @@
 
 package com.mnewservice.mcontent.repository.entity;
 
-import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -25,7 +24,8 @@ import javax.persistence.UniqueConstraint;
 )
 public class FileEntity extends AbstractEntity {
 
-    private UUID uuid;
+    @Column(length = 36)
+    private String uuid;
 
     @Column(columnDefinition = "LONGBLOB")
     private byte[] thumbImage;
@@ -41,11 +41,11 @@ public class FileEntity extends AbstractEntity {
 
     private String mimeType;
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
     }
 
-    public void setUuid(UUID uuid) {
+    public void setUuid(String uuid) {
         this.uuid = uuid;
     }
 

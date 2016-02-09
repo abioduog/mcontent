@@ -56,6 +56,21 @@ public class AbstractDeliverableManager {
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
+    public void removeFileFromDeliverables(FileEntity fileEntity) {
+        String uuid = fileEntity.getUuid().toString();
+        LOG.info("Removing from deliverables the file with UUID=" + uuid);
+        LOG.info("1. Finding Deliverables with File UUID=" + uuid);
+        Collection<AbstractDeliverableEntity> entities = repository.findDeliverablesByFileUuid(uuid);
+        for (AbstractDeliverableEntity entity : entities) {
+            entity.getFiles().remove(fileEntity);
+            LOG.info("2. Removing from deliverable " + entity.getId());
+            repository.save(entity);
+        }
+        LOG.info("3. Removing file ");
+        fileManager.deleteFile(fileEntity);
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public void removeDeliverable(AbstractDeliverableEntity entity) {
         LOG.info("Removing deliverable id=" + entity.getId());
 

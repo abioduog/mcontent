@@ -17,7 +17,6 @@ public class DeliveryPipe {
 
     // DTO read-only local variable
     private long contentCount;
-    private long providerCount;
 
     public Long getId() {
         return id;
@@ -71,8 +70,5 @@ public class DeliveryPipe {
         return providers.size();
     }
 
-    public void setProviderCount(long providerCount) {
-        // no need to set, providers collection tells the amount
-    }
 
 }

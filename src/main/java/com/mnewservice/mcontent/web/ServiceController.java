@@ -3,8 +3,10 @@ package com.mnewservice.mcontent.web;
 import com.mnewservice.mcontent.domain.DeliveryPipe;
 import com.mnewservice.mcontent.domain.DeliveryTime;
 import com.mnewservice.mcontent.domain.Service;
+import com.mnewservice.mcontent.domain.Subscription;
 import com.mnewservice.mcontent.manager.DeliveryPipeManager;
 import com.mnewservice.mcontent.manager.ServiceManager;
+import com.mnewservice.mcontent.manager.SubscriptionManager;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +36,9 @@ public class ServiceController {
 
     @Autowired
     private ServiceManager serviceManager;
+
+    @Autowired
+    private SubscriptionManager subscriptionManager;
 
     @Autowired
     private DeliveryPipeManager deliveryPipeManager;
@@ -104,17 +109,17 @@ public class ServiceController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping({"/service/{id}"})
-    public ModelAndView viewService(@PathVariable("id") long id) {
+    @RequestMapping({"/service/{serviceid}"})
+    public ModelAndView viewService(@PathVariable("serviceid") long id) {
         ModelAndView mav = new ModelAndView("serviceDetail");
         mav.addObject("service", serviceManager.getService(id));
         return mav;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping(value = {"/service/{id}"}, params = {"save"})
+    @RequestMapping(value = {"/service/{serviceid}"}, params = {"save"})
     public ModelAndView saveService(
-            @PathVariable("id") String id,
+            @PathVariable("serviceid") String id,
             final Service service,
             final BindingResult bindingResult,
             final ModelMap model) {
@@ -145,19 +150,21 @@ public class ServiceController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping({"/service/remove/{id}"})
-    public ModelAndView viewRemovableService(@PathVariable("id") long id) {
+    @RequestMapping({"/service/remove/{serviceid}"})
+    public ModelAndView viewRemovableService(@PathVariable("serviceid") long id) {
         ModelAndView mav = new ModelAndView("serviceRemove");
         Service service = serviceManager.getService(id);
         mav.addObject("service", service);
-        mav.addObject("serviceDeliveryPipe", service.getDeliveryPipe());
+        if (subscriptionManager.getAllSubscriptionsByService(id).size() > 0) {
+            mav.addObject("hasSubscription", "true");
+        }
         return mav;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping(value = {"/service/remove/{id}"}, params = {"remove"})
+    @RequestMapping(value = {"/service/remove/{serviceid}"}, params = {"remove"})
     public ModelAndView removeService(
-            @PathVariable("id") String id,
+            @PathVariable("serviceid") long id,
             final Service service,
             final BindingResult bindingResult,
             final ModelMap model) {
@@ -165,22 +172,26 @@ public class ServiceController {
 
         if (bindingResult.hasErrors()) {
             mav = mavAddNLogErrorText(mav, bindingResult.getAllErrors());
-//            bindingResult.getAllErrors().stream().forEach((error) -> {
-//                LOG.error(error.toString());
-//            });
             mav.addObject("service", model.getOrDefault("service", new Service()));
             mav.addObject("error", true);
         } else {
             try {
-                // persist the object "service"
+                for (Subscription s : subscriptionManager.getAllSubscriptionsByService(id)) {
+                    if (s.getSubscriber() != null) {
+                        try {
+                            subscriptionManager.unRegisterSubscription(s);
+                        } catch (Exception ex) {
+                            // Most propably send message failure
+                            LOG.error("Unregisteration caused exception : ", ex);
+                        }
+                    }
+                    subscriptionManager.removeSubscription(s);
+                };
                 serviceManager.removeService(service.getId());
                 mav.addObject("service", service);
                 mav.addObject("removed", true);
             } catch (Exception ex) {
                 LOG.error(ex);
-//                mav.addObject("service", service);
-//                mav.addObject("error", true);
-//                mav.addObject("errortext", ex.getLocalizedMessage());
                 throw new DataHandlingException(ex);
             }
         }

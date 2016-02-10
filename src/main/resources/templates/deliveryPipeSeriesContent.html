@@ -16,7 +16,7 @@
                 <td sec:authorize="hasRole('ADMIN')"><!-- icon (?) -->
                     <a class="approve pure-button" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/approve|}"
                        th:text="#{deliverable.status.approve}">Approve</a>
-                    <a class="disapprove pure-button" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).DISAPPROVED}" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/disapprove|}"
+                    <a class="disapprove pure-button" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).PENDING_APPROVAL}" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/disapprove|}"
                        th:text="#{deliverable.status.disapprove}">Disapprove</a>
                 </td>
                 <td sec:authorize="hasAnyRole('ADMIN','PROVIDER')">

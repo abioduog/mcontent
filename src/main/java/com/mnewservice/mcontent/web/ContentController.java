@@ -8,6 +8,7 @@ import com.mnewservice.mcontent.manager.NotificationManager;
 import com.mnewservice.mcontent.manager.ProviderManager;
 import com.mnewservice.mcontent.manager.ScheduledDeliverableManager;
 import com.mnewservice.mcontent.manager.SeriesDeliverableManager;
+import com.mnewservice.mcontent.manager.ServiceManager;
 import com.mnewservice.mcontent.manager.UserManager;
 import com.mnewservice.mcontent.repository.entity.AbstractDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.FileEntity;
@@ -83,6 +84,9 @@ public class ContentController {
 
     @Autowired
     private UserManager userManager;
+
+    @Autowired
+    private ServiceManager serviceManager;
 
     @Autowired
     private FileManager fileManager;
@@ -167,6 +171,7 @@ public class ContentController {
     }
 
 //</editor-fold>
+    //
 //<editor-fold defaultstate="collapsed" desc="Delivery pipe">
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/create"})
@@ -208,8 +213,6 @@ public class ContentController {
                 mav.addObject("saved", true);
             } catch (Exception ex) {
                 LOG.error(ex);
-                //mav.addObject("service", deliveryPipe);
-                //mav.addObject("error", true);
                 throw new DataHandlingException(ex);
             }
         }
@@ -222,9 +225,14 @@ public class ContentController {
     public ModelAndView viewRemovableDeliveryPipe(@PathVariable("pipeId") long id) {
         LOG.info("/deliverypipe/remove/" + id);
         ModelAndView mav = new ModelAndView("deliveryPipeRemove");
-        mav.addObject("deliveryPipe", deliveryPipeManager.getDeliveryPipe(id));
+        DeliveryPipe pipe = deliveryPipeManager.getDeliveryPipe(id);
+        mav.addObject("deliveryPipe", pipe);
         if (deliveryPipeManager.hasContent(id)) {
             mav.addObject("hasContent", "true");
+        }
+        if (serviceManager.getAllServicesByDeliveryPipe(id).size() > 0) {
+            mav.addObject("error", "true");
+            mav.addObject("errortext", "Service(s) uses delivery pipe. Can't remove. Remove service(s) first.");
         }
         return mav;
     }
@@ -251,9 +259,6 @@ public class ContentController {
                 mav.addObject("removed", true);
             } catch (Exception ex) {
                 LOG.error(ex);
-                // mav.addObject("deliveryPipe", deliveryPipe);
-                // mav.addObject("error", true);
-                // mav.addObject("errortext", ex.getLocalizedMessage());
                 throw new DataHandlingException(ex);
             }
         }
@@ -274,7 +279,7 @@ public class ContentController {
             case SCHEDULED:
                 mav = new ModelAndView("deliveryPipeScheduledContent");
                 mav.addObject("contents", //Thyme leaf javascript support is well unknown, so we do some magic here
-                        scheduledManager.getDeliveryPipeScheduledContent(id).stream().map(
+                        scheduledManager.getDeliveryPipeScheduledDeliverable(id).stream().map(
                                 deliverable -> new HashMap<String, Object>() {
                                     {
                                         put("id", deliverable.getId());
@@ -289,7 +294,7 @@ public class ContentController {
 
             case SERIES:
                 mav = new ModelAndView("deliveryPipeSeriesContent");
-                mav.addObject("contents", seriesManager.getDeliveryPipeSeriesContent(id));
+                mav.addObject("contents", seriesManager.getDeliveryPipeSeriesDeliverable(id));
                 break;
 
             default:
@@ -301,7 +306,46 @@ public class ContentController {
     }
 //</editor-fold>
 
-//<editor-fold defaultstate="collapsed" desc="Series content">
+//<editor-fold defaultstate="collapsed" desc="getters">
+    private DeliveryPipe getDeliveryPipe(long deliveryPipeId) throws Exception {
+        DeliveryPipe deliveryPipe = deliveryPipeManager.getDeliveryPipe(deliveryPipeId);
+        if (deliveryPipe == null) {
+            throw new IllegalArgumentException(
+                    "delivery pipe was not found with id=" + deliveryPipeId);
+        }
+        return deliveryPipe;
+    }
+
+    private SeriesDeliverable getSeriesDeliverable(long deliverableId,
+                                                   DeliverableStatus disallowedStatus) throws Exception {
+        SeriesDeliverable deliverable = seriesManager.getSeriesDeliverable(deliverableId);
+        if (deliverable == null) {
+            throw new IllegalArgumentException(
+                    "series deliverable was not found with id=" + deliverableId);
+        }
+        if (disallowedStatus.equals(deliverable.getStatus())) {
+            throw new IllegalStateException(
+                    "series deliverable is on the wrong state : " + disallowedStatus.toString());
+        }
+        return deliverable;
+    }
+
+    private ScheduledDeliverable getScheduledDeliverable(long deliverableId,
+                                                         DeliverableStatus disallowedStatus) {
+        ScheduledDeliverable deliverable = scheduledManager.getScheduledDeliverable(deliverableId);
+        if (deliverable == null) {
+            throw new IllegalArgumentException(
+                    "scheduled deliverable was not found with id=" + deliverableId);
+        }
+        if (disallowedStatus.equals(deliverable.getStatus())) {
+            throw new IllegalStateException(
+                    "scheduled deliverable is on the wrong state : " + disallowedStatus.toString());
+        }
+        return deliverable;
+    }
+//</editor-fold>
+
+//<editor-fold defaultstate="collapsed" desc="Series deliverable">
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/series/create"})
     public ModelAndView createSeriesContent(
@@ -315,7 +359,6 @@ public class ContentController {
 
         DeliveryPipe deliveryPipe = deliveryPipeManager.getDeliveryPipe(deliveryPipeId);
         mav.addObject("theme", deliveryPipe.getTheme());
-        mav.addObject("fileUpload", false);
         mav.addObject("deliveryPipeId", deliveryPipeId);
         mav.addObject(
                 "deliverable",
@@ -333,11 +376,10 @@ public class ContentController {
         ModelAndView mav = new ModelAndView("content");
         DeliveryPipe deliveryPipe = deliveryPipeManager.getDeliveryPipe(deliveryPipeId);
         mav.addObject("theme", deliveryPipe.getTheme());
-        mav.addObject("fileUpload", true);
         mav.addObject("deliveryPipeId", deliveryPipeId);
         mav.addObject(
                 "deliverable",
-                seriesManager.getSeriesContent(deliverableId));
+                seriesManager.getSeriesDeliverable(deliverableId));
         return mav;
     }
 
@@ -348,36 +390,13 @@ public class ContentController {
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("deliverableId") long deliverableId) throws Exception {
         LOG.info("/deliverypipe/" + deliveryPipeId + "/series/" + deliverableId + "/approve");
-        SeriesDeliverable content = getSeriesContent(deliverableId, DeliverableStatus.APPROVED);
+        SeriesDeliverable content = getSeriesDeliverable(deliverableId, DeliverableStatus.APPROVED);
         DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
 
         content.setStatus(DeliverableStatus.APPROVED);
-        seriesManager.saveSeriesContent(deliveryPipeId, content);
+        seriesManager.saveSeriesDeliverable(deliveryPipeId, content);
 
         contentApproveNotification(content, deliveryPipe);
-    }
-
-    private DeliveryPipe getDeliveryPipe(long deliveryPipeId) throws Exception {
-        DeliveryPipe deliveryPipe = deliveryPipeManager.getDeliveryPipe(deliveryPipeId);
-        if (deliveryPipe == null) {
-            throw new IllegalArgumentException(
-                    "delivery pipe was not found with id=" + deliveryPipeId);
-        }
-        return deliveryPipe;
-    }
-
-    private SeriesDeliverable getSeriesContent(long deliverableId,
-                                               DeliverableStatus disallowedStatus) throws Exception {
-        SeriesDeliverable content = seriesManager.getSeriesContent(deliverableId);
-        if (content == null) {
-            throw new IllegalArgumentException(
-                    "series deliverable was not found with id=" + deliverableId);
-        }
-        if (disallowedStatus.equals(content.getStatus())) {
-            throw new IllegalStateException(
-                    "series deliverable is already on the desired state");
-        }
-        return content;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -388,11 +407,11 @@ public class ContentController {
             @PathVariable("deliverableId") long deliverableId) throws Exception {
         LOG.info("/deliverypipe/" + deliveryPipeId + "/series/" + deliverableId + "/disapprove");
         SeriesDeliverable content
-                = getSeriesContent(deliverableId, DeliverableStatus.PENDING_APPROVAL);
+                = getSeriesDeliverable(deliverableId, DeliverableStatus.PENDING_APPROVAL);
         DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
 
         content.setStatus(DeliverableStatus.DISAPPROVED);
-        seriesManager.saveSeriesContent(deliveryPipeId, content);
+        seriesManager.saveSeriesDeliverable(deliveryPipeId, content);
 
         contentDisapproveNotification(content, deliveryPipe);
     }
@@ -423,10 +442,9 @@ public class ContentController {
 //                deliverable.getContent().setContent(deliverableManager.generateImageContent(deliverableId, deliverable.getFiles()));
 
                 // Save
-                SeriesDeliverable savedContent = seriesManager.saveSeriesContent(deliveryPipeId, deliverable);
+                SeriesDeliverable savedContent = seriesManager.saveSeriesDeliverable(deliveryPipeId, deliverable);
 
                 mav.addObject("theme", deliveryPipe.getTheme());
-                mav.addObject("fileUpload", true);
                 mav.addObject("deliveryPipeId", deliveryPipeId);
                 mav.addObject("deliverable", savedContent);
                 mav.addObject("saved", true);
@@ -436,8 +454,6 @@ public class ContentController {
 
             } catch (Exception ex) {
                 LOG.error(ex);
-//                mav.addObject("deliverable", deliverable);
-//                mav.addObject("error", true);
                 throw new DataHandlingException(ex);
             }
         }
@@ -451,7 +467,7 @@ public class ContentController {
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("deliverableId") long deliverableId) {
         LOG.info("/deliverypipe/" + deliveryPipeId + "/series/remove/" + deliverableId);
-        SeriesDeliverable deliverable = seriesManager.getSeriesContent(deliverableId);
+        SeriesDeliverable deliverable = seriesManager.getSeriesDeliverable(deliverableId);
         ModelAndView mav = new ModelAndView("contentSeriesRemove");
         mav.addObject("deliverable", deliverable);
         return mav;
@@ -473,13 +489,11 @@ public class ContentController {
             mav.addObject("error", true);
         } else {
             try {
-                seriesManager.removeSeriesContentAndFiles(deliverable.getId());
+                seriesManager.removeSeriesDeliverable(deliverable.getId());
                 mav.addObject("deliverable", deliverable);
                 mav.addObject("removed", true);
             } catch (Exception ex) {
                 LOG.error(ex);
-//                mav.addObject("deliverable", deliverable);
-//                mav.addObject("error", true);
                 throw new DataHandlingException(ex);
             }
         }
@@ -489,7 +503,7 @@ public class ContentController {
 
 //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Scheduled content">
+//<editor-fold defaultstate="collapsed" desc="Scheduled deliverable">
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/scheduled/create"}, params = {"date"})
     public ModelAndView createScheduledContent(@PathVariable("deliveryPipeId") long deliveryPipeId, @RequestParam(value = "date") String date) {
@@ -504,7 +518,6 @@ public class ContentController {
 
         DeliveryPipe deliveryPipe = deliveryPipeManager.getDeliveryPipe(deliveryPipeId);
         mav.addObject("theme", deliveryPipe.getTheme());
-        mav.addObject("fileUpload", false);
         mav.addObject("deliveryPipeId", deliveryPipeId);
         mav.addObject("deliverable", newDeliverable);
         return mav;
@@ -517,9 +530,8 @@ public class ContentController {
         ModelAndView mav = new ModelAndView("content");
         DeliveryPipe deliveryPipe = deliveryPipeManager.getDeliveryPipe(deliveryPipeId);
         mav.addObject("theme", deliveryPipe.getTheme());
-        mav.addObject("fileUpload", true);
         mav.addObject("deliveryPipeId", deliveryPipeId);
-        mav.addObject("deliverable", scheduledManager.getScheduledContent(deliverableId));
+        mav.addObject("deliverable", scheduledManager.getScheduledDeliverable(deliverableId));
         return mav;
     }
 
@@ -547,9 +559,8 @@ public class ContentController {
                 if (deliverableId != 0) { // deliverableId == 0 when deliverable is in create state
                     deliverable.setFiles((List<ContentFile>) deliverableManager.getDeliverablesFiles(deliverableId));
                 }
-                ScheduledDeliverable savedContent = scheduledManager.saveScheduledContent(deliveryPipeId, deliverable);
+                ScheduledDeliverable savedContent = scheduledManager.saveScheduledDeliverable(deliveryPipeId, deliverable);
                 mav.addObject("theme", deliveryPipe.getTheme());
-                mav.addObject("fileUpload", true);
                 mav.addObject("deliveryPipeId", deliveryPipeId);
                 mav.addObject("deliverable", savedContent);
                 mav.addObject("saved", true);
@@ -560,8 +571,6 @@ public class ContentController {
 
             } catch (Exception ex) {
                 LOG.error(ex);
-//                mav.addObject("deliverable", deliverable);
-//                mav.addObject("error", true);
                 throw new DataHandlingException(ex);
             }
         }
@@ -576,11 +585,11 @@ public class ContentController {
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("deliverableId") long deliverableId) throws Exception {
         LOG.info("/deliverypipe/" + deliveryPipeId + "/scheduled/" + deliverableId + "/approve");
-        ScheduledDeliverable content = getScheduledContent(deliverableId, DeliverableStatus.APPROVED);
+        ScheduledDeliverable content = getScheduledDeliverable(deliverableId, DeliverableStatus.APPROVED);
         DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
 
         content.setStatus(DeliverableStatus.APPROVED);
-        scheduledManager.saveScheduledContent(deliveryPipeId, content);
+        scheduledManager.saveScheduledDeliverable(deliveryPipeId, content);
 
         contentApproveNotification(content, deliveryPipe);
     }
@@ -592,27 +601,13 @@ public class ContentController {
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("deliverableId") long deliverableId) throws Exception {
         LOG.info("/deliverypipe/" + deliveryPipeId + "/scheduled/" + deliverableId + "/disapprove");
-        ScheduledDeliverable content = getScheduledContent(deliverableId, DeliverableStatus.PENDING_APPROVAL);
+        ScheduledDeliverable content = getScheduledDeliverable(deliverableId, DeliverableStatus.PENDING_APPROVAL);
         DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
 
         content.setStatus(DeliverableStatus.DISAPPROVED);
-        scheduledManager.saveScheduledContent(deliveryPipeId, content);
+        scheduledManager.saveScheduledDeliverable(deliveryPipeId, content);
 
         contentDisapproveNotification(content, deliveryPipe);
-    }
-
-    private ScheduledDeliverable getScheduledContent(long deliverableId,
-                                                     DeliverableStatus disallowedStatus) {
-        ScheduledDeliverable content = scheduledManager.getScheduledContent(deliverableId);
-        if (content == null) {
-            throw new IllegalArgumentException(
-                    "scheduled deliverable was not found with id=" + deliverableId);
-        }
-        if (disallowedStatus.equals(content.getStatus())) {
-            throw new IllegalStateException(
-                    "scheduled deliverable is already on the desired state");
-        }
-        return content;
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
@@ -621,7 +616,7 @@ public class ContentController {
             @PathVariable("deliveryPipeId") long deliveryPipeId,
             @PathVariable("deliverableId") long deliverableId) {
         LOG.info("/deliverypipe/" + deliveryPipeId + "/scheduled/remove/" + deliverableId);
-        ScheduledDeliverable deliverable = scheduledManager.getScheduledContent(deliverableId);
+        ScheduledDeliverable deliverable = scheduledManager.getScheduledDeliverable(deliverableId);
         ModelAndView mav = new ModelAndView("contentScheduledRemove");
         mav.addObject("deliverable", deliverable);
         return mav;
@@ -643,13 +638,11 @@ public class ContentController {
             mav.addObject("error", true);
         } else {
             try {
-                scheduledManager.removeScheduledContentAndFiles(deliverable.getId());
+                scheduledManager.removeScheduledDeliverable(deliverable.getId());
                 mav.addObject("deliverable", deliverable);
                 mav.addObject("removed", true);
             } catch (Exception ex) {
                 LOG.error(ex);
-//                mav.addObject("deliverable", deliverable);
-//                mav.addObject("error", true);
                 throw new DataHandlingException(ex);
             }
         }
@@ -659,7 +652,7 @@ public class ContentController {
 
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="notifications">
+//<editor-fold defaultstate="collapsed" desc="notifications">
     private void contentCreationNotification(AbstractDeliverable deliverable,
             DeliveryPipe deliveryPipe) {
         String notificationSubject = String.format(
@@ -714,7 +707,7 @@ public class ContentController {
     }
     //</editor-fold>
 
-
+//<editor-fold defaultstate="collapsed" desc="File upload/remove">
 //<editor-fold defaultstate="collapsed" desc="MyResponse">
     protected class MyResponse {
 
@@ -755,7 +748,6 @@ public class ContentController {
 //</editor-fold>
 
     //
-
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @RequestMapping(value = {"/deliverypipe/{deliveryPipeId}/{deliverableType}/{deliverableId}/fileupload"}, params = {"file"})
     public @ResponseBody
@@ -886,23 +878,19 @@ public class ContentController {
             mav.addObject("error", true);
         } else {
             try {
-//                DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
-                SeriesDeliverable newDeliverable = seriesManager.getSeriesContent(deliverableId);
+                SeriesDeliverable newDeliverable = seriesManager.getSeriesDeliverable(deliverableId);
                 if (newDeliverable.getFiles().removeIf(f -> f.getId() == fileId)) {
                     newDeliverable = deliverableManager.regenerateSeriesImageContent(newDeliverable);
-                    seriesManager.saveSeriesContent(deliveryPipeId, newDeliverable);
+                    seriesManager.saveSeriesDeliverable(deliveryPipeId, newDeliverable);
                     fileManager.deleteFile(fileId);
                 }
 
 //                mav.addObject("theme", deliveryPipe.getTheme());
-//                mav.addObject("fileUpload", true);
                 mav.addObject("deliveryPipeId", deliveryPipeId);
                 mav.addObject("deliverable", newDeliverable);
 
             } catch (Exception ex) {
                 LOG.error(ex);
-//                mav.addObject("deliverable", deliverable);
-//                mav.addObject("error", true);
                 throw new DataHandlingException(ex);
             }
         }
@@ -930,25 +918,24 @@ public class ContentController {
         } else {
             try {
 //                DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
-                ScheduledDeliverable newDeliverable = scheduledManager.getScheduledContent(deliverableId);
+                ScheduledDeliverable newDeliverable = scheduledManager.getScheduledDeliverable(deliverableId);
                 if (newDeliverable.getFiles().removeIf(f -> f.getId() == fileId)) {
                     newDeliverable = deliverableManager.regenerateScheduledImageContent(newDeliverable);
-                    scheduledManager.saveScheduledContent(deliveryPipeId, newDeliverable);
+                    scheduledManager.saveScheduledDeliverable(deliveryPipeId, newDeliverable);
                     fileManager.deleteFile(fileId);
                 }
 //                mav.addObject("theme", deliveryPipe.getTheme());
-//                mav.addObject("fileUpload", true);
                 mav.addObject("deliveryPipeId", deliveryPipeId);
                 mav.addObject("deliverable", newDeliverable);
 
             } catch (Exception ex) {
                 LOG.error(ex);
-//                mav.addObject("deliverable", deliverable);
-//                mav.addObject("error", true);
                 throw new DataHandlingException(ex);
             }
         }
 
         return mav;
     }
+//</editor-fold>
+
 }

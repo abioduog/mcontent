@@ -1,7 +1,7 @@
 <div class="content" th:unless="${#lists.isEmpty(deliverable)}">
 
 
-    <script th:src="@{|/lib/dropzone/dropzone.min.js|}" th:if="${theme == 'comics' and fileUpload == true and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"></script>
+    <script th:src="@{|/lib/dropzone/dropzone.min.js|}" th:if="${theme == 'comics' and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"></script>
     <formfield>
         <legend>Basic info</legend>
         <div th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)}" th:text="@{|Delivery position: ${deliverable.deliveryDaysAfterSubscription}|}"></div>
@@ -44,7 +44,7 @@
                           name="content.message" th:text="${deliverable.content.message}" maxlength="140" cols="30" row="6"/>
 
                 <!--    File Upload option -->
-                <div id="my-dropzone" th:if="${theme == 'comics' and fileUpload == true and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
+                <div id="my-dropzone" th:if="${theme == 'comics' and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
                     <label th:text="#{contentfiles.files}">Files</label>
                     <table id="file-table" class="pure-table">
                         <tr style="display: none" > <!-- 1st row as header for later addition of rows to table from JavaScript -->
@@ -81,7 +81,7 @@
                     <span class="url" th:text="${deliverable.content.getContentUrl()}"></span>
                 </span>
 
-                <div th:if="${theme != 'comics'}" >
+                <div th:if="${theme != 'comics' and deliverable.id != null}" >
                     <label for="content.content" th:text="#{content.content}">Content</label>
                     <textarea required="true"
                               th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
@@ -90,7 +90,7 @@
                               th:if="${deliverable.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
                               name="content.content" th:text="${deliverable.content.content}"/>
                 </div>
-                <div th:if="${theme == 'comics'}" >
+                <div th:if="${theme == 'comics' or deliverable.id == null}" >
                     <textarea required="false" style ="display: none;"
                               name="content.content" th:text="${deliverable.content.content}"/>
                 </div>
@@ -118,7 +118,7 @@
         </div>
     </div>
 
-    <script th:inline="javascript" th:if="${theme == 'comics' and fileUpload == true and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
+    <script th:inline="javascript" th:if="${theme == 'comics' and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
         /*<![CDATA[*/
 
         var fileDropzone = new Dropzone("div#my-dropzone", {
@@ -198,7 +198,7 @@
         /*]]>*/
     </script>
 
-    <script th:inline="javascript" th:unless="${theme == 'comics' and fileUpload == true and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
+    <script th:inline="javascript" th:if="${theme != 'comics' and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
         /*<![CDATA[*/
 
         $("textarea[name='content.content']").summernote({

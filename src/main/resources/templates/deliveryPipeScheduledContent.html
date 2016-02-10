@@ -85,8 +85,10 @@
                         $(".context-menu-content-title").text(target.events[0].title);
                         if (target.events[0].myStatus == "approved") {
                             $(".context-menu-approve").css("display", "none");
+                            $(".context-menu-edit").css("display", "none");
                         }
-                        if (target.events[0].myStatus == "disapproved") {
+                        if (target.events[0].myStatus == "disapproved" || target.events[0].myStatus == "pending_approval") {
+                            $(".context-menu-view").css("display", "none");
                             $(".context-menu-disapprove").css("display", "none");
                         }
                     }
@@ -118,7 +120,12 @@
         <ul class="jq-dropdown-menu">
             <li class="context-menu-content-title"></li>
             <li class="jq-dropdown-divider"></li>
-            <li><a onclick="editContent(event);">Edit</a></li>
+            <li class="context-menu-edit">
+                <a class="context-menu-edit" onclick="editContent(event);">Edit</a>
+            </li>
+            <li class="context-menu-view">
+                <a class="context-menu-view" onclick="editContent(event);">View</a>
+            </li>
             <li class="jq-dropdown-divider" sec:authorize="hasRole('ADMIN')"></li>
             <li class="context-menu-approve" sec:authorize="hasRole('ADMIN')">
                 <a class="context-menu-approve" th:text="#{deliverable.status.approve}" onclick="changeStatus(event, 'approve');">Approve</a>

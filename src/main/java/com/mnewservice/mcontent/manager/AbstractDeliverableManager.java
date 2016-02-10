@@ -33,16 +33,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class AbstractDeliverableManager {
 
     @Autowired
-    ContentRepository contentRepository;
+    private ContentRepository contentRepository;
 
     @Autowired
-    DeliveryPipeRepository deliverypipeRepository;
+    private DeliveryPipeRepository deliverypipeRepository;
 
     @Autowired
-    FileManager fileManager;
+    private FileManager fileManager;
 
     @Autowired
-    AbstractDeliverableRepository repository;
+    private AbstractDeliverableRepository repository;
 
     @Autowired
     private FileMapper fileMapper;

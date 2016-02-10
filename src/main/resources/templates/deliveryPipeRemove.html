@@ -13,7 +13,7 @@
             </div>
             <input type="hidden" name="id" th:value="${deliveryPipe.id}"/>
 
-            <legend th:text="#{general.remove}+ ': ' + ${deliveryPipe.name}">Remove: Delivery pipe</legend>
+            <legend th:unless="${error}" th:text="#{general.remove}+ ': ' + ${deliveryPipe.name}">Remove: Delivery pipe</legend>
             <label th:if="${hasContent}" th:text="#{deliverypipe.warning.hascontent}">Warning! Delivery pipe has content.</label>
  
             <input type="hidden" th:name="remove" />
@@ -21,12 +21,11 @@
         </div>
         <br/>
         <div class="form-actions">
-            <a class="submit pure-button" th:text="#{general.remove}">Delete</a>
+            <a th:unless="${error}" class="submit pure-button" th:text="#{general.remove}">Delete</a>
             <a class="cancel pure-button" th:text="#{general.cancel}">Cancel</a>
         </div>
     </form>
     <script th:inline="javascript">
-        $("select[name='providers']").multiSelect();
 
         $(".submit").click(function (event) {
             var deliveryPipeListUrl = /*[[@{/content/list}]]*/;

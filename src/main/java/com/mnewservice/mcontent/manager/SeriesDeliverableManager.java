@@ -48,21 +48,21 @@ public class SeriesDeliverableManager {
     }
 
     @Transactional(readOnly = true)
-    public Collection<SeriesDeliverable> getDeliveryPipeSeriesContent(long id) {
-        LOG.info("Getting series content for delivery pipe with id=" + id);
+    public Collection<SeriesDeliverable> getDeliveryPipeSeriesDeliverable(long id) {
+        LOG.info("Getting series deliverable for delivery pipe with id=" + id);
         DeliveryPipeEntity entity = deliveryPipeRepository.findOne(id);
-        List<SeriesDeliverableEntity> contents = repository.findByDeliveryPipeOrderByDeliveryDaysAfterSubscriptionAsc(entity);
-        return seriesMapper.toDomain(contents);
+        List<SeriesDeliverableEntity> deliverables = repository.findByDeliveryPipeOrderByDeliveryDaysAfterSubscriptionAsc(entity);
+        return seriesMapper.toDomain(deliverables);
     }
 
     @Transactional(readOnly = true)
-    public SeriesDeliverable getSeriesContent(long id) {
-        SeriesDeliverableEntity content = repository.findOne(id);
-        return seriesMapper.toDomain(content);
+    public SeriesDeliverable getSeriesDeliverable(long id) {
+        SeriesDeliverableEntity deliverable = repository.findOne(id);
+        return seriesMapper.toDomain(deliverable);
     }
 
     @Transactional
-    public SeriesDeliverable saveSeriesContent(long deliveryPipeId, SeriesDeliverable deliverable) {
+    public SeriesDeliverable saveSeriesDeliverable(long deliveryPipeId, SeriesDeliverable deliverable) {
         SeriesDeliverableEntity entity = seriesMapper.toEntity(deliverable);
         if (deliverable.getId() == null || deliverable.getId() == 0) {
             entity.setStatus(AbstractDeliverableEntity.DeliverableStatusEnum.PENDING_APPROVAL);
@@ -80,8 +80,8 @@ public class SeriesDeliverableManager {
     }
 
     @Transactional
-    public void removeSeriesContentAndFiles(Long id) {
-        LOG.info("Removing series content with id=" + id);
+    public void removeSeriesDeliverable(Long id) {
+        LOG.info("Removing series deliverable with id=" + id);
         SeriesDeliverableEntity entity = repository.findOne(id);
         deliverableManager.removeDeliverable(entity);
     }

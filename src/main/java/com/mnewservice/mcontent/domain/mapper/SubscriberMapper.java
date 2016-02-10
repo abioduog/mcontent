@@ -57,11 +57,11 @@ public class SubscriberMapper extends AbstractMapper<Subscriber, SubscriberEntit
         for (SubscriptionEntity subscription : entity.getSubscriptions()) {
             if (subscription.isActive()) {
                 activeSubscriptions++;
-                domain.getSubscriptions().add(subscriptionMapper.toDomain(subscription));
+                domain.getSubscriptions().add(subscriptionMapper.toDomainNoSubscriber(subscription));
             } else {
                 inactiveSubscriptions++;
                 if (showAll) {
-                    domain.getSubscriptions().add(subscriptionMapper.toDomain(subscription));
+                    domain.getSubscriptions().add(subscriptionMapper.toDomainNoSubscriber(subscription));
                 }
             }
         }

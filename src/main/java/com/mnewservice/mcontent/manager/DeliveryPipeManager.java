@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Collections;
+import java.util.HashSet;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 @org.springframework.stereotype.Service
 @javax.transaction.Transactional
 public class DeliveryPipeManager {
+
+    @Autowired
+    private AbstractDeliverableManager deliverableManager;
 
     @Autowired
     private DeliveryPipeRepository repository;
@@ -85,7 +89,13 @@ public class DeliveryPipeManager {
     @Transactional
     public void removeDeliveryPipe(Long id) {
         LOG.info("Removing delivery pipe with id=" + id);
-        DeliveryPipeEntity entity = repository.findOne(id);
+        DeliveryPipeEntity entity = repository.findOneAndLockIt(id);
+        Collection<AbstractDeliverableEntity> deliverables = new HashSet<>();
+        entity.getDeliverables().stream().forEach(d -> deliverables.add(d)); // Otetaan alkuperäinen lista talteen
+        for (AbstractDeliverableEntity deliverable : deliverables) {
+            deliverableManager.removeDeliverable(deliverable); // Tämä muokkaa listaa
+        };
+        entity = repository.findOne(id);
         repository.delete(entity);
     }
 

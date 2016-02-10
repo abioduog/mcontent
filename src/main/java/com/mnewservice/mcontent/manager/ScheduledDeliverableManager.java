@@ -46,21 +46,21 @@ public class ScheduledDeliverableManager {
     private static final Logger LOG = Logger.getLogger(ScheduledDeliverableManager.class);
 
     @Transactional(readOnly = true)
-    public Collection<ScheduledDeliverable> getDeliveryPipeScheduledContent(long id) {
-        LOG.info("Getting scheduled content for delivery pipe with id=" + id);
+    public Collection<ScheduledDeliverable> getDeliveryPipeScheduledDeliverable(long id) {
+        LOG.info("Getting scheduled deliverable for delivery pipe with id=" + id);
         DeliveryPipeEntity entity = deliveryPipeRepository.findOne(id);
-        List<ScheduledDeliverableEntity> contents = repository.findByDeliveryPipeOrderByDeliveryDateAsc(entity);
-        return scheduledMapper.toDomain(contents);
+        List<ScheduledDeliverableEntity> deliverables = repository.findByDeliveryPipeOrderByDeliveryDateAsc(entity);
+        return scheduledMapper.toDomain(deliverables);
     }
 
     @Transactional(readOnly = true)
-    public ScheduledDeliverable getScheduledContent(long id) {
-        ScheduledDeliverableEntity content = repository.findOne(id);
-        return scheduledMapper.toDomain(content);
+    public ScheduledDeliverable getScheduledDeliverable(long id) {
+        ScheduledDeliverableEntity deliverable = repository.findOne(id);
+        return scheduledMapper.toDomain(deliverable);
     }
 
     @Transactional
-    public ScheduledDeliverable saveScheduledContent(long deliveryPipeId, ScheduledDeliverable deliverable) {
+    public ScheduledDeliverable saveScheduledDeliverable(long deliveryPipeId, ScheduledDeliverable deliverable) {
         ScheduledDeliverableEntity entity = scheduledMapper.toEntity(deliverable);
         if (deliverable.getId() == null || deliverable.getId() == 0) {
             entity.setStatus(AbstractDeliverableEntity.DeliverableStatusEnum.PENDING_APPROVAL);
@@ -77,8 +77,8 @@ public class ScheduledDeliverableManager {
     }
 
     @Transactional
-    public void removeScheduledContentAndFiles(Long id) {
-        LOG.info("Removing scheduled content with id=" + id);
+    public void removeScheduledDeliverable(Long id) {
+        LOG.info("Removing scheduled deliverable with id=" + id);
         ScheduledDeliverableEntity entity = repository.findOne(id);
         deliverableManager.removeDeliverable(entity);
     }

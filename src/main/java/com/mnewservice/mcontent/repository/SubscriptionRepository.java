@@ -41,4 +41,9 @@ public interface SubscriptionRepository
             @Param("expiryAt") Date expiryAt,
             @Param("minDuration") Integer minDuration
     );
+
+    @Query("select se from SubscriptionEntity se "
+            + "where se.service.id = :serviceId")
+    List<SubscriptionEntity> findAllByServiceId(@Param("serviceId") Long serviceId);
+
 }

@@ -32,7 +32,20 @@ public class SubscriptionMapper extends AbstractMapper<Subscription, Subscriptio
         domain.setActive(entity.isActive());
         domain.setPeriods(subscriptionPeriodMapper.toDomain(entity.getPeriods()));
         domain.setService(serviceMapper.toDomain(entity.getService()));
-        //domain.setSubscriber(subscriberMapper.toDomain(entity.getSubscriber()));
+        domain.setSubscriber(subscriberMapper.toDomain(entity.getSubscriber()));
+
+        return domain;
+    }
+
+    public Subscription toDomainNoSubscriber(SubscriptionEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        Subscription domain = new Subscription();
+        domain.setId(entity.getId());
+        domain.setActive(entity.isActive());
+        domain.setPeriods(subscriptionPeriodMapper.toDomain(entity.getPeriods()));
+        domain.setService(serviceMapper.toDomain(entity.getService()));
 
         return domain;
     }

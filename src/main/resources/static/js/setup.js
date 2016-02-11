@@ -6,7 +6,7 @@ window.mContent = {
 };
 var mContent = window.mContent;
 
-mContent.ajax.get = function(url, success, error) {
+mContent.ajax.get = function (url, success, error) {
     $.ajax({
         type: "GET",
         url: url,
@@ -22,21 +22,6 @@ mContent.ajax.submit = function (form, success, error) {
         $.ajax({
             type: form.attr('method'),
             url: form.attr('action'),
-            data: form.serialize(),
-            success: success,
-            error: error
-        });
-        return false;
-    });
-    form.submit();
-}
-
-mContent.ajax.submitUrl = function (form, url, success, error) {
-    form.submit(function (event) {
-        event.preventDefault();
-        $.ajax({
-            type: form.attr('method'),
-            url: url,
             data: form.serialize(),
             success: success,
             error: error

@@ -5,10 +5,8 @@ import com.mnewservice.mcontent.domain.mapper.SeriesDeliverableMapper;
 import com.mnewservice.mcontent.repository.ContentRepository;
 import com.mnewservice.mcontent.repository.DeliveryPipeRepository;
 import com.mnewservice.mcontent.repository.SeriesDeliverableRepository;
-import com.mnewservice.mcontent.repository.entity.AbstractDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.SeriesDeliverableEntity;
-import com.mnewservice.mcontent.util.ShortUrlUtils;
 import java.util.Collection;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -64,17 +62,7 @@ public class SeriesDeliverableManager {
     @Transactional
     public SeriesDeliverable saveSeriesDeliverable(long deliveryPipeId, SeriesDeliverable deliverable) {
         SeriesDeliverableEntity entity = seriesMapper.toEntity(deliverable);
-        if (deliverable.getId() == null || deliverable.getId() == 0) {
-            entity.setStatus(AbstractDeliverableEntity.DeliverableStatusEnum.PENDING_APPROVAL);
-            entity.setDeliveryPipe(deliveryPipeRepository.findOne(deliveryPipeId));
-            entity.setDeliveryDaysAfterSubscription((int) (repository.countByDeliveryPipeId(deliveryPipeId) + 1));
-        }
-        if (entity.getContent().getShortUuid() == null) {
-            String shortUuid;
-            while (contentRepository.findByShortUuid(shortUuid = ShortUrlUtils.getRandomShortIdentifier()) != null);
-            entity.getContent().setShortUuid(shortUuid);
-        }
-
+        entity = (SeriesDeliverableEntity) deliverableManager.saveDeliverable(deliveryPipeId, entity);
         // TODO: for the providers: allow save if and only if status == PENDING_APPROVAL
         return seriesMapper.toDomain(repository.save(entity));
     }

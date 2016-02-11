@@ -70,5 +70,4 @@ public class DeliveryPipe {
         return providers.size();
     }
 
-
 }

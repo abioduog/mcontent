@@ -15,7 +15,7 @@ public class Content {
     }
 
     public static String createContentImageUrl(String imagePath) {
-        return ContentUtils.createContentImageUrl(imagePath);
+        return ContentUtils.createImageUrl(imagePath);
     }
 
     public String getSmsMessageContent() {

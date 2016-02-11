@@ -11,10 +11,8 @@ import com.mnewservice.mcontent.domain.mapper.ScheduledDeliverableMapper;
 import com.mnewservice.mcontent.repository.ContentRepository;
 import com.mnewservice.mcontent.repository.DeliveryPipeRepository;
 import com.mnewservice.mcontent.repository.ScheduledDeliverableRepository;
-import com.mnewservice.mcontent.repository.entity.AbstractDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.ScheduledDeliverableEntity;
-import com.mnewservice.mcontent.util.ShortUrlUtils;
 import java.util.Collection;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -62,16 +60,7 @@ public class ScheduledDeliverableManager {
     @Transactional
     public ScheduledDeliverable saveScheduledDeliverable(long deliveryPipeId, ScheduledDeliverable deliverable) {
         ScheduledDeliverableEntity entity = scheduledMapper.toEntity(deliverable);
-        if (deliverable.getId() == null || deliverable.getId() == 0) {
-            entity.setStatus(AbstractDeliverableEntity.DeliverableStatusEnum.PENDING_APPROVAL);
-            entity.setDeliveryPipe(deliveryPipeRepository.findOne(deliveryPipeId));
-        }
-        if (entity.getContent().getShortUuid() == null) {
-            String shortUuid;
-            while (contentRepository.findByShortUuid(shortUuid = ShortUrlUtils.getRandomShortIdentifier()) != null);
-            entity.getContent().setShortUuid(shortUuid);
-        }
-
+        entity = (ScheduledDeliverableEntity) deliverableManager.saveDeliverable(deliveryPipeId, entity);
         // TODO: for the providers: allow save if and only if status == PENDING_APPROVAL
         return scheduledMapper.toDomain(repository.save(entity));
     }

@@ -127,8 +127,8 @@ public class ContentFile {
         }
     }
 
-    public String createAndSetImageHtmlBlock(String theme) {
-        this.imageHtmlBlock = ContentUtils.getImageHtmlBlock(theme, getImageUrl(), getUuid().toString(), getOriginalFilename());
+    public String createAndSetImageHtmlBlock() {
+        this.imageHtmlBlock = ContentUtils.getImageHtmlBlock(getImageUrl(), getUuid().toString(), getOriginalFilename());
         return this.imageHtmlBlock;
     }
 

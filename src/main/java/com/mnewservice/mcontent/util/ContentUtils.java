@@ -11,38 +11,28 @@ import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 /**
  *
  */
+
 public class ContentUtils {
 
 //    private static final String contentUrl = "http://3wc4.com/";
-//    private static final String contentDir = "";
-//    private static final String imageDir = "images/";
-//
-    private static final String contentUrl = "http://127.0.0.1:8084/";
-    private static final String contentDir = "";
-    private static final String imageDir = "images/";
+//    private static final String imageUrl = "http://3wc4.com/images/";
+    private static final String contentUrl = "http://127.0.0.1:8084/mContent/show/a/";
+    private static final String imageUrl = "http://127.0.0.1:8085/images/";
 
-    public static String createContentImageUrl(String imagePath) {
-        return contentUrl + imageDir + imagePath;
+    public static String createImageUrl(String imagePath) {
+        return imageUrl + imagePath;
     }
 
     public static String getContentUrl() {
-        return contentUrl + getContentDir();
+        return contentUrl;
     }
 
-    public static String getContentDir() {
-        return contentDir;
+    public static String getImageUrl() {
+        return imageUrl;
     }
 
-    public static String getImageDir() {
-        return imageDir;
-    }
-
-    public static String getImageHtmlBlock(String theme, String url, String id, String filename) {
-        theme = theme.toLowerCase().trim();
-        theme.replaceAll("/([\\t\\n\\r\\s])+/g", "-");
-        theme.replaceAll("/([^A-Za-z0-9\\-])+/g", "");
+    public static String getImageHtmlBlock(String url, String id, String filename) {
         String escFilename = escapeHtml4(filename);
-        return "<div class=\"content-image " + (theme.length() > 0 ? "content-theme-" + theme : "") + "\">" // class = content-image [content-theme-{theme}]
-                + "<img id=\"" + id + "\" src=\"" + url + "\" alt=\"" + escFilename + "\" /></div>";
+        return "<div class='content-image'><img id='" + id + "' src='" + url + "' alt='" + escFilename + "' /></div>";
     }
 }

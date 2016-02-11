@@ -1,7 +1,7 @@
 <div class="content" th:unless="${#lists.isEmpty(deliverable)}">
 
 
-    <script th:src="@{|/lib/dropzone/dropzone.min.js|}" th:if="${theme == 'comics' and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"></script>
+    <script th:src="@{|/lib/dropzone/dropzone.min.js|}" th:if="${autoGenerateContent and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"></script>
     <formfield>
         <legend>Basic info</legend>
         <div th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)}" th:text="@{|Delivery position: ${deliverable.deliveryDaysAfterSubscription}|}"></div>
@@ -24,7 +24,7 @@
 
                 <input type="hidden" th:name="content.id" th:value="${deliverable.content.id}"/>
                 <input type="hidden" th:name="status" th:value="${deliverable.status}"/>
-                <input type="hidden" th:name="theme" th:value="${theme}"/>
+                <input type="hidden" th:name="autoGenerateContent" th:value="${autoGenerateContent}"/>
                 <input type="hidden" th:name="fileUpload" th:value="${fileUpload}"/>
 
                 <label for="content.title" th:text="#{content.title}">Title</label>
@@ -44,7 +44,7 @@
                           name="content.message" th:text="${deliverable.content.message}" maxlength="140" cols="30" row="6"/>
 
                 <!--    File Upload option -->
-                <div id="my-dropzone" th:if="${theme == 'comics' and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
+                <div id="my-dropzone" th:if="${autoGenerateContent and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
                     <label th:text="#{contentfiles.files}">Files</label>
                     <table id="file-table" class="pure-table">
                         <tr style="display: none" > <!-- 1st row as header for later addition of rows to table from JavaScript -->
@@ -81,7 +81,7 @@
                     <span class="url" th:text="${deliverable.content.getContentUrl()}"></span>
                 </span>
 
-                <div th:if="${theme != 'comics' and deliverable.id != null}" >
+                <div th:if="${!autoGenerateContent and deliverable.id != null}" >
                     <label for="content.content" th:text="#{content.content}">Content</label>
                     <textarea required="true"
                               th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
@@ -90,7 +90,7 @@
                               th:if="${deliverable.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
                               name="content.content" th:text="${deliverable.content.content}"/>
                 </div>
-                <div th:if="${theme == 'comics' or deliverable.id == null}" >
+                <div th:if="${autoGenerateContent or deliverable.id == null}" >
                     <textarea required="false" style ="display: none;"
                               name="content.content" th:text="${deliverable.content.content}"/>
                 </div>
@@ -118,7 +118,7 @@
         </div>
     </div>
 
-    <script th:inline="javascript" th:if="${theme == 'comics' and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
+    <script th:inline="javascript" th:if="${autoGenerateContent and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
         /*<![CDATA[*/
 
         var fileDropzone = new Dropzone("div#my-dropzone", {
@@ -159,19 +159,25 @@
                 this.on("success", function (file, response) {
                     // insert new row to table and re-fresh Remove buttons in table
                     if (/*[[${#authorization.expression('hasRole(''ADMIN'')')}]]*/ == true){
-                        $(".remove-content-file").unbind("click", removeFileHandler);
+                        // $(".remove-content-file").unbind("click", removeFileHandler);
                         var _href = "";
                         var _text = "";
                         /*[+
                             _href =  [[@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileremove/']]  + response.files[0].id ;
                             _text =  [[#{general.remove}]];
                         +]*/
-                        $('#file-table tr:last').after( "<tr><td><img src='data:image/png;base64,"+response.files[0].thumbBase64Png+"' alt='"+file.name+"' /></td><td>"+file.name+
-                                "</td><td><div><a class='remove-content-file pure-button' href='" + _href + "' >"+_text+"</a></div></td></tr>");
-                        $(".remove-content-file").click(removeFileHandler);
+                        // var newrow = $('#file-table tr:last').after( "<tr><td><img src='data:image/png;base64,"+response.files[0].thumbBase64Png+"' alt='"+file.name+"' /></td><td>"+file.name+
+                        //         "</td><td><div><a class='remove-content-file pure-button' href='" + _href + "' >"+_text+"</a></div></td></tr>");
+                        // newrow.find(".remove-content-file").click(removeFileHandler);
+                        // var originalHtml = $("textarea[name='content.content']").text();
+                        // $("textarea[name='content.content']").html(originalHtml+response.files[0].imageHtmlBlock);
+                        var newrow = $('#file-table tr:last').after( "<tr><td><img src='data:image/png;base64,"+response.files[0].thumbBase64Png+"' alt='"+file.name+"' /></td><td>"+file.name+
+                                "</td><td>Not saved</td></tr>");
+                        // newrow.find(".remove-content-file").click(removeFileHandler);
                         var originalHtml = $("textarea[name='content.content']").text();
                         $("textarea[name='content.content']").html(originalHtml+response.files[0].imageHtmlBlock);
                         $(".previewer-content").html(originalHtml+response.files[0].imageHtmlBlock);
+                        addNewFile(response.files[0]);
                     }
                 });
 
@@ -198,7 +204,7 @@
         /*]]>*/
     </script>
 
-    <script th:inline="javascript" th:if="${theme != 'comics' and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
+    <script th:inline="javascript" th:if="${!autoGenerateContent and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
         /*<![CDATA[*/
 
         $("textarea[name='content.content']").summernote({
@@ -237,8 +243,20 @@
                 processData: false,
                 success: function(response, status, xhr) {
                     $("textarea[name='content.content']").summernote('code', $("textarea[name='content.content']").val() + response.files[0].imageHtmlBlock);
+                    addNewFile(response.files[0]);
                 }
             });
+        }
+
+        /*]]>*/
+    </script>
+
+    <script th:inline="javascript" >
+        /*<![CDATA[*/
+        var newFiles = new Array();
+
+        function addNewFile(file) {
+            newFiles.push(file);
         }
 
         function removeFile(uuid) {
@@ -259,11 +277,23 @@
             });
         }
 
-        /*]]>*/
-    </script>
-
-    <script th:inline="javascript" >
-        /*<![CDATA[*/
+        function saveFile(file) {
+            data = new FormData();
+            data.append("_csrf", /*[[${_csrf.token}]]*/ "");
+            $.ajax({
+                data: data,
+                type: "POST",
+                /*[+
+                url: [[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/filesave/'}]] + file.uuid ,
+                +]*/
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function(response, status, xhr) {
+                    console.log('File Saved - ', status)
+                }
+            });
+        }
 
         $("input[name='content.title']").change(function() {
             if(!$("textarea[name='content.message']").val()) {
@@ -276,14 +306,17 @@
         
         var removeFileHandler = function (event) {
             event.preventDefault();
-            var deliveryPipeContentUrl = /*[[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id}}]]*/ "";
-            mContent.ajax.submitUrl($(this).parents("form"), $(this).attr("href"),
+            var _ref = $(this);
+            mContent.ajax.get($(this).attr("href"),
                     function (data) {
                         mContent.notify("Remove successful", "info");
-                        mContent.loaders.contentEditor(deliveryPipeContentUrl);
+                        _ref.parents("tr").remove();
+                        console.dir(data);
+                        $(".previewer-content").html(data.message);
                     },
                     function (error) {
                         mContent.notify("Remove of file failed", "error");
+                        debugger;
                     }
             );
             return false;
@@ -295,6 +328,10 @@
             $(".content-submit").click(function() {
                 var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipeId}/content/list|}]]*/ "";
                 event.preventDefault();
+                var _i;
+                for (_i = 0; _i < newFiles.length; _i++) {
+                    saveFile(newFiles[_i]);
+                }
                 mContent.ajax.submit($(this).parents('form'),
                     function(data) {
                         mContent.notify("Changes stored", "info");
@@ -304,10 +341,15 @@
                     }
                 );
             });
-        });
 
-        $(".content-cancel").click(function() {
-            $('#content-editor').html( "" );
+            $(".content-cancel").click(function() {
+                var _i;
+                for (_i = 0; _i < newFiles.length; _i++) {
+                    removeFile(newFiles[_i].uuid);
+                }
+                $('#content-editor').html( "" );
+            });
+
         });
 
         /*]]>*/

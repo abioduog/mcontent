@@ -49,6 +49,13 @@ public class ServiceManager {
     }
 
     @Transactional(readOnly = true)
+    public Collection<Service> getAllServicesByDeliveryPipe(Long pipeId) {
+        LOG.info("Getting all services by delivery pipe id = " + pipeId);
+        Collection<ServiceEntity> entities = mapper.makeCollection(repository.findAllByPipeId(pipeId));
+        return mapper.toDomain(entities);
+    }
+
+    @Transactional(readOnly = true)
     public Collection<Service> getAllServices() {
         LOG.info("Getting all services");
         Collection<ServiceEntity> entities = mapper.makeCollection(repository.findAll());
@@ -66,6 +73,8 @@ public class ServiceManager {
     public void removeService(long id) {
         LOG.info("Removing service with id=" + id);
         ServiceEntity entity = repository.findOne(id);
+        entity.setDeliveryPipe(null);
+        repository.save(entity);
         repository.delete(entity);
     }
 

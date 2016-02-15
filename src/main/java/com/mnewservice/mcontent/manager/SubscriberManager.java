@@ -45,11 +45,23 @@ public class SubscriberManager {
         return mapper.toDomain(entity);
     }
 
+    @Transactional(readOnly = true)
+    public Subscriber getSubscriberWithSubscriptions(long id, boolean showAll) {
+        LOG.info("Getting subscriber with id=" + id);
+        SubscriberEntity entity = repository.findOne(id);
+        return mapper.toDomainWithSubscriptions(entity, showAll);
+    }
+
     @Transactional
     public void removeSubscriber(long id) {
         LOG.info("Removing subscriber with id=" + id);
         SubscriberEntity entity = repository.findOne(id);
         repository.delete(entity);
+    }
+
+    @Transactional
+    public void removeSubscriptions(Long id) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

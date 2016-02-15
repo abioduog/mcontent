@@ -5,6 +5,9 @@
             <div th:if="${error}" class="alert alert-error" th:text="#{content.error}">
                 Error in content data
             </div>
+            <div th:if="${error} and ${errortext}" class="alert alert-error" th:text="${errortext}">
+                - No message -
+            </div>
             <div th:if="${removed}" class="alert alert-success" th:text="#{content.series.removed}">
                 Content series removed
             </div>

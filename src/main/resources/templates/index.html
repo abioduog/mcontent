@@ -7,12 +7,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <link rel="stylesheet" th:href="@{|/lib/jquery/jquery-ui.min.css|}"/>
         <link rel="stylesheet" th:href="@{|/lib/bootstrap/bootstrap.min.css|}"/>
-        <link rel="stylesheet" th:href="@{|/lib/font-awesome/font-awesome.min.css|}"/>
+        <link rel="stylesheet" th:href="@{|/lib/font-awesome/css/font-awesome.min.css|}"/>
         <link rel="stylesheet" th:href="@{|/lib/pure/pure-0.6.0.min.css|}"/>
         <link rel="stylesheet" th:href="@{|/lib/jquery/multi-select.css|}"/>
         <link rel="stylesheet" th:href="@{|/lib/jquery/jquery.dropdown.min.css|}"/>
         <link rel="stylesheet" th:href="@{|/lib/clndr/clndr.css|}"/>
         <link rel="stylesheet" th:href="@{|/lib/summernote/summernote.css|}"/>
+        <link rel="stylesheet" th:href="@{|/lib/dropzone/dropzone.min.css|}"/>
         <link rel="stylesheet" th:href="@{|/css/index.css|}"/>
     </head>
     <body>
@@ -51,7 +52,7 @@
         <script th:src="@{|/lib/underscore/underscore.min.js|}"></script>
         <script th:src="@{|/lib/moment/moment.min.js|}"></script>
         <script th:src="@{|/lib/clndr/clndr.min.js|}"></script>
-        <script th:src="@{|/lib/summernote/summernote.min.js|}"></script>
+        <script th:src="@{|/lib/summernote/summernote.js|}"></script>
         <script th:src="@{|/js/setup.js|}"></script>
         <script sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
             $("#menu a").click(function(event) {
@@ -60,7 +61,7 @@
                 $('#menu .pure-menu-selected').removeClass('pure-menu-selected');
                 $(this).parent('li').addClass('pure-menu-selected');
                 return false;
-            })
+            });
         </script>
     </body>
 </html>

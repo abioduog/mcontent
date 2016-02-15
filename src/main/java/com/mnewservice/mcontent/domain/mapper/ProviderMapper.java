@@ -35,19 +35,17 @@ public class ProviderMapper extends AbstractMapper<Provider, ProviderEntity> {
         domain.setName(entity.getName());
         domain.setState(entity.getState());
         domain.setCountry(entity.getCountry());
-        domain.setPhone(phoneNumberMapper.toDomain(entity.getPhone()));
-        domain.setEmail(emailMapper.toDomain(entity.getEmail()));
+//        domain.setPhone(phoneNumberMapper.toDomain(entity.getPhone()));
+//        domain.setEmail(emailMapper.toDomain(entity.getEmail()));
+        domain.setPhone(entity.getPhone());
+        domain.setEmail(entity.getEmail());
         domain.setUser(userMapper.toDomain(entity.getUser()));
         domain.setNameOfContactPerson(entity.getNameOfContactPerson());
         domain.setPositionOfContactPerson(entity.getPositionOfContactPerson());
-        domain.setPhoneOfContactPerson(
-                phoneNumberMapper.toDomain(
-                        entity.getPhoneOfContactPerson()
-                ));
-        domain.setEmailOfContactPerson(
-                emailMapper.toDomain(
-                        entity.getEmailOfContactPerson()
-                ));
+//        domain.setPhoneOfContactPerson(phoneNumberMapper.toDomain(entity.getPhoneOfContactPerson()));
+//        domain.setEmailOfContactPerson(emailMapper.toDomain(entity.getEmailOfContactPerson()));
+        domain.setPhoneOfContactPerson(entity.getPhoneOfContactPerson());
+        domain.setEmailOfContactPerson(entity.getEmailOfContactPerson());
         domain.setContentName(entity.getContentName());
         domain.setContentDescription(entity.getContentDescription());
         domain.setCorrespondences(
@@ -68,19 +66,17 @@ public class ProviderMapper extends AbstractMapper<Provider, ProviderEntity> {
         entity.setName(domain.getName());
         entity.setState(domain.getState());
         entity.setCountry(domain.getCountry());
-        entity.setPhone(phoneNumberMapper.toEntity(domain.getPhone()));
-        entity.setEmail(emailMapper.toEntity(domain.getEmail()));
+//        entity.setPhone(phoneNumberMapper.toEntity(domain.getPhone()));
+//        entity.setEmail(emailMapper.toEntity(domain.getEmail()));
+        entity.setPhone(domain.getPhone());
+        entity.setEmail(domain.getEmail());
         entity.setUser(userMapper.toEntity(domain.getUser()));
         entity.setNameOfContactPerson(domain.getNameOfContactPerson());
         entity.setPositionOfContactPerson(domain.getPositionOfContactPerson());
-        entity.setPhoneOfContactPerson(
-                phoneNumberMapper.toEntity(
-                        domain.getPhoneOfContactPerson()
-                ));
-        entity.setEmailOfContactPerson(
-                emailMapper.toEntity(
-                        domain.getEmailOfContactPerson()
-                ));
+//        entity.setPhoneOfContactPerson(phoneNumberMapper.toEntity(domain.getPhoneOfContactPerson()));
+//        entity.setEmailOfContactPerson(emailMapper.toEntity(domain.getEmailOfContactPerson()));
+        entity.setPhoneOfContactPerson(domain.getPhoneOfContactPerson());
+        entity.setEmailOfContactPerson(domain.getEmailOfContactPerson());
         entity.setContentName(domain.getContentName());
         entity.setContentDescription(domain.getContentDescription());
         entity.setCorrespondences(

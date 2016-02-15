@@ -1,7 +1,10 @@
 package com.mnewservice.mcontent.domain.mapper;
 
+import com.mnewservice.mcontent.domain.ContentFile;
 import com.mnewservice.mcontent.domain.ScheduledDeliverable;
+import com.mnewservice.mcontent.repository.entity.FileEntity;
 import com.mnewservice.mcontent.repository.entity.ScheduledDeliverableEntity;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +13,9 @@ public class ScheduledDeliverableMapper extends AbstractMapper<ScheduledDelivera
 
     @Autowired
     private ContentMapper contentMapper;
+
+    @Autowired
+    private FileMapper fileMapper;
 
     @Autowired
     private DeliverableStatusMapper deliverableStatusMapper;
@@ -24,6 +30,7 @@ public class ScheduledDeliverableMapper extends AbstractMapper<ScheduledDelivera
         domain.setStatus(deliverableStatusMapper.toDomain(entity.getStatus()));
         domain.setContent(contentMapper.toDomain(entity.getContent()));
         domain.setDeliveryDate(entity.getDeliveryDate());
+        domain.setFiles((List<ContentFile>) fileMapper.toDomain(entity.getFiles()));
         return domain;
     }
 
@@ -37,6 +44,7 @@ public class ScheduledDeliverableMapper extends AbstractMapper<ScheduledDelivera
         entity.setStatus(deliverableStatusMapper.toEntity(domain.getStatus()));
         entity.setContent(contentMapper.toEntity(domain.getContent()));
         entity.setDeliveryDate(domain.getDeliveryDate());
+        entity.setFiles((List<FileEntity>) fileMapper.toEntity(domain.getFiles()));
         return entity;
     }
 

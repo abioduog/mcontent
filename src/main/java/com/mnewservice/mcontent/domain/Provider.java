@@ -13,23 +13,23 @@ public class Provider {
     private String name;
     private String state;
     private String country;
-    private PhoneNumber phone;
-    private Email email;
+    private String phone;
+    private String email;
     private User user;
     private String nameOfContactPerson;
     private String positionOfContactPerson;
-    private PhoneNumber phoneOfContactPerson;
-    private Email emailOfContactPerson;
+    private String phoneOfContactPerson;
+    private String emailOfContactPerson;
     private String contentName;
     private String contentDescription;
     private Collection<BinaryContent> correspondences;
 
     public Provider() {
-        phone = new PhoneNumber();
-        email = new Email();
+//        phone = new PhoneNumber();
+//        email = new Email();
         user = new User();
-        phoneOfContactPerson = new PhoneNumber();
-        emailOfContactPerson = new Email();
+//        phoneOfContactPerson = new PhoneNumber();
+//        emailOfContactPerson = new Email();
         correspondences = new ArrayList<>();
     }
 
@@ -65,19 +65,19 @@ public class Provider {
         this.country = country;
     }
 
-    public PhoneNumber getPhone() {
+    public String getPhone() {
         return phone;
     }
 
-    public void setPhone(PhoneNumber phone) {
+    public void setPhone(String phone) {
         this.phone = phone;
     }
 
-    public Email getEmail() {
+    public String getEmail() {
         return email;
     }
 
-    public void setEmail(Email email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
@@ -105,19 +105,19 @@ public class Provider {
         this.positionOfContactPerson = positionOfContactPerson;
     }
 
-    public PhoneNumber getPhoneOfContactPerson() {
+    public String getPhoneOfContactPerson() {
         return phoneOfContactPerson;
     }
 
-    public void setPhoneOfContactPerson(PhoneNumber phoneOfContactPerson) {
+    public void setPhoneOfContactPerson(String phoneOfContactPerson) {
         this.phoneOfContactPerson = phoneOfContactPerson;
     }
 
-    public Email getEmailOfContactPerson() {
+    public String getEmailOfContactPerson() {
         return emailOfContactPerson;
     }
 
-    public void setEmailOfContactPerson(Email emailOfContactPerson) {
+    public void setEmailOfContactPerson(String emailOfContactPerson) {
         this.emailOfContactPerson = emailOfContactPerson;
     }
 

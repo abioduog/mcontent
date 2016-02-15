@@ -5,6 +5,9 @@
             <div th:if="${error}" class="alert alert-error" th:text="#{provider.error}">
                 Error in provider data.
             </div>
+            <div th:if="${error} and ${errortext}" class="alert alert-error" th:text="${errortext}">
+                - No message -
+            </div>
             <div th:if="${saved}" class="alert alert-success" th:text="#{provider.saved}">
                 Provider saved.
             </div>
@@ -27,10 +30,10 @@
                 </fieldset>
 
                 <label for="phone" th:text="#{provider.phone}">Telephone</label>
-                <input type="text" disabled="disabled" required="true" name="phone" th:value="${provider.phone.number}"/>
+                <input type="text" disabled="disabled" required="true" name="phone" th:value="${provider.phone}"/>
 
                 <label for="email" th:text="#{provider.email}">Email address</label>
-                <input type="text" disabled="disabled" required="true" name="email" th:value="${provider.email.address}"/>
+                <input type="text" disabled="disabled" required="true" name="email" th:value="${provider.email}"/>
             </fieldset>
 
             <fieldset>
@@ -53,10 +56,10 @@
                 <input type="text" disabled="disabled" required="true" name="positionOfContactPerson" th:value="${provider.positionOfContactPerson}"/>
 
                 <label for="phoneOfContactPerson" th:text="#{provider.phoneOfContactPerson}">Mobile number of contact person</label>
-                <input type="text" disabled="disabled" required="true" name="phoneOfContactPerson" th:value="${provider.phoneOfContactPerson.number}"/>
+                <input type="text" disabled="disabled" required="true" name="phoneOfContactPerson" th:value="${provider.phoneOfContactPerson}"/>
 
                 <label for="emailOfContactPerson" th:text="#{provider.emailOfContactPerson}">Email of contact person</label>
-                <input type="text" disabled="disabled" required="true" name="emailOfContactPerson" th:value="${provider.emailOfContactPerson.address}"/>
+                <input type="text" disabled="disabled" required="true" name="emailOfContactPerson" th:value="${provider.emailOfContactPerson}"/>
             </fieldset>
 
             <fieldset>
@@ -87,7 +90,7 @@
         </div>
         <div class="form-actions">
             <!-- <a href="#" onclick="submitFormOnPopup(this, event);" th:text="#{general.save}">Save</a> -->
-            <a href="#" onclick="closePopup(this, event);" th:text="#{general.back}">Back</a>
+            <a class="pure-button" href="#" onclick="closePopup(this, event);" th:text="#{general.back}">Back</a>
         </div>
     </form>
 </div>

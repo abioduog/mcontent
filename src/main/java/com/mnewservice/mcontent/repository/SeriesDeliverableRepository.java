@@ -23,4 +23,5 @@ public interface SeriesDeliverableRepository
             AbstractDeliverableEntity.DeliverableStatusEnum status);
 
     Long countByDeliveryPipeId(Long deliveryPipeId);
+
 }

@@ -37,12 +37,13 @@ import javax.persistence.UniqueConstraint;
         + "WHERE "
         + "    TIMESTAMPDIFF(DAY,p.`start`,p.`end`) >= :minDuration AND "
         + "    p.`end`= DATE(:expiryAt) AND "
-        + "    p.`id` > :startId AND "
         + "    s.service_id = :serviceId "
         + "ORDER BY "
         + "    s.id "
         + "LIMIT "
-        + "    :limit ",
+        + "    :limit "
+        + "OFFSET "
+        + "    :offset ",
         resultClass = SubscriptionEntity.class
 )
 @Table(

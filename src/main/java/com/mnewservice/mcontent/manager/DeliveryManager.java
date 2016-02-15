@@ -155,11 +155,11 @@ public class DeliveryManager {
             Integer sendSize) {
         List<SubscriptionEntity> subscriptions;
         boolean subscriptionsFound;
-        long startId = 0L;
+        long offSet = 0L;
         do {
             LOG.info("Getting subscriptions, start");
             subscriptions = subscriptionRepository.findByExpiry(
-                    startId, service.getId(), pageSize, expiryAt, expiryMinDuration);
+                    service.getId(), expiryAt, expiryMinDuration, pageSize, offSet);
             subscriptionsFound = subscriptions != null && subscriptions.size() > 0;
 
             if (subscriptionsFound) {
@@ -167,7 +167,6 @@ public class DeliveryManager {
                         "Getting subscriptions, end (count %d)",
                         subscriptions.size())
                 );
-                startId = subscriptions.get(subscriptions.size() - 1).getId();
                 processExpiringSubscriptions(service,
                         subscriptions,
                         expiryMessage,
@@ -179,6 +178,7 @@ public class DeliveryManager {
                         0)
                 );
             }
+            offSet += pageSize;
         } while (subscriptionsFound);
     }
 

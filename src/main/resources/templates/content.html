@@ -10,7 +10,7 @@
     </formfield>
     <formfield>
         <legend>Content</legend>
-        <form name="content-form" class="pure-form pure-form-stacked" action="#" 
+        <form th:id="${deliverable.id?: '0'} + '-content-form'" name="content-form" class="pure-form pure-form-stacked" action="#"
               th:action="@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id?: '0'}"
               method="post" enctype="multipart/form-data" >
             <div class="form-fields">
@@ -59,8 +59,8 @@
                             <td th:text="${contentFile.originalFilename}">NAME</td>
                             <td>
                                 <div>
-                                    <a class="remove-content-file pure-button" sec:authorize="hasRole('ADMIN')" 
-                                       th:href="@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileremove/' + ${contentFile.id}"
+                                    <a class="remove-content-file pure-button" sec:authorize="hasRole('ADMIN')"
+                                       th:href="${contentFile.uuid}"
                                        th:text="#{general.remove}" >Remove</a>
                                 </div>
                             </td>
@@ -122,9 +122,7 @@
         /*<![CDATA[*/
 
         var fileDropzone = new Dropzone("div#my-dropzone", {
-            /*[+
-            url: [[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileupload'}]],
-            +]*/
+            url: /*[[@{'/fileupload'}]]*/ "/fileupload",
             autoProcessQueue: true,
             uploadMultiple: false, // Multiple ei toimi kunnolla virhetilanteessa, koska flagaa kaikki virheellisiksi
             createImageThumbnails: true,
@@ -134,8 +132,6 @@
             filesizeBase: 1024,
             acceptedFiles: 'image/*',
             previewsContainer: '#dropzone-previews',
-            //thumbnailWidth: 100,
-            //thumbnailHeight: 100,
             init: function () {
                 var myDropzone = this;
 
@@ -157,25 +153,12 @@
                 });
 
                 this.on("success", function (file, response) {
-                    // insert new row to table and re-fresh Remove buttons in table
                     if (/*[[${#authorization.expression('hasRole(''ADMIN'')')}]]*/ == true){
-                        // $(".remove-content-file").unbind("click", removeFileHandler);
-                        var _href = "";
-                        var _text = "";
-                        /*[+
-                            _href =  [[@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileremove/']]  + response.files[0].id ;
-                            _text =  [[#{general.remove}]];
-                        +]*/
-                        // var newrow = $('#file-table tr:last').after( "<tr><td><img src='data:image/png;base64,"+response.files[0].thumbBase64Png+"' alt='"+file.name+"' /></td><td>"+file.name+
-                        //         "</td><td><div><a class='remove-content-file pure-button' href='" + _href + "' >"+_text+"</a></div></td></tr>");
-                        // newrow.find(".remove-content-file").click(removeFileHandler);
-                        // var originalHtml = $("textarea[name='content.content']").text();
-                        // $("textarea[name='content.content']").html(originalHtml+response.files[0].imageHtmlBlock);
+                        var _href = file.uuid;
+                        var _text =  /*[[#{general.remove}]]*/ "Remove";
                         var newrow = $('#file-table tr:last').after( "<tr><td><img src='data:image/png;base64,"+response.files[0].thumbBase64Png+"' alt='"+file.name+"' /></td><td>"+file.name+
                                 "</td><td>Not saved</td></tr>");
-                        // newrow.find(".remove-content-file").click(removeFileHandler);
-                        var originalHtml = $("textarea[name='content.content']").text();
-                        $("textarea[name='content.content']").html(originalHtml+response.files[0].imageHtmlBlock);
+                        var originalHtml = $(".previewer-content").first().html();
                         $(".previewer-content").html(originalHtml+response.files[0].imageHtmlBlock);
                         addNewFile(response.files[0]);
                     }
@@ -210,7 +193,7 @@
         $("textarea[name='content.content']").summernote({
             callbacks: {
                 onMediaDelete : function(target, editor) {
-                    removeFile(target[0].id);
+                    addRemovedFile(target[0].id);
                     target.remove();
                 },
                 onImageUpload: function(files) {
@@ -235,9 +218,7 @@
             $.ajax({
                 data: data,
                 type: "POST",
-                /*[+
-                url: [[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/fileupload'}]] ,
-                +]*/
+                url: /*[[@{'/fileupload'}]]*/ "/fileupload",
                 cache: false,
                 contentType: false,
                 processData: false,
@@ -254,12 +235,28 @@
     <script th:inline="javascript" >
         /*<![CDATA[*/
         var newFiles = new Array();
+        var removedFiles = new Array();
+        var thisForm = $(/*[['#'+ ${deliverable.id?: '0'} + '-content-form']]*/);
 
         function addNewFile(file) {
-            newFiles.push(file);
+            newFiles.push(file.uuid);
         }
 
-        function removeFile(uuid) {
+        function addRemovedFile(uuid) {
+            removedFiles.push(uuid);
+        }
+
+        $("input[name='content.title']").change(function() {
+            if(!$("textarea[name='content.message']").val()) {
+                $("textarea[name='content.message']").val($(this).val() + "\n\nClick for more");
+            }
+        });
+        
+        $("textarea[name='content.message']").change(function() {
+            $(".message-preview .message").html($(this).val().replace("\n", "<br/>"));
+        });
+        
+       function removeFile(uuid) {
             data = new FormData();
             data.append("_csrf", /*[[${_csrf.token}]]*/ "");
             $.ajax({
@@ -272,82 +269,77 @@
                 contentType: false,
                 processData: false,
                 success: function(response, status, xhr) {
-                    console.log('File Removed - ', status)
+                    console.log('File '+uuid+'Removed - ', status)
                 }
             });
         }
 
-        function saveFile(file) {
+        function handleFiles() {
             data = new FormData();
+            var _i;
+            for ( _i = 0; _i < newFiles.length; _i++) {
+                data.append("addFile",newFiles[_i]);
+            }
+            for ( _i = 0; _i < removedFiles.length; _i++) {
+                data.append("removeFile",removedFiles[_i]);
+            }
             data.append("_csrf", /*[[${_csrf.token}]]*/ "");
             $.ajax({
                 data: data,
                 type: "POST",
                 /*[+
-                url: [[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/filesave/'}]] + file.uuid ,
+                url: [[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/files'}]] ,
                 +]*/
                 cache: false,
                 contentType: false,
                 processData: false,
                 success: function(response, status, xhr) {
-                    console.log('File Saved - ', status)
+                    console.log('File(s) handling - ', status);
+                    $("textarea[name='content.content']").html(response.data);
+                    newFiles = new Array();
+                    removedFiles = new Array();
+                    formSubmit();
+                },
+                error: function(error) {
+                    console.log('File(s) handling failed - ', error);
+                    mContent.notify("Failed to save the changes", "error");
                 }
             });
         }
 
-        $("input[name='content.title']").change(function() {
-            if(!$("textarea[name='content.message']").val()) {
-                $("textarea[name='content.message']").val($(this).val() + "\n\nClick for more");
-            }
-        });
-        $("textarea[name='content.message']").change(function() {
-            $(".message-preview .message").html($(this).val().replace("\n", "<br/>"));
-        });
-        
-        var removeFileHandler = function (event) {
-            event.preventDefault();
-            var _ref = $(this);
-            mContent.ajax.get($(this).attr("href"),
-                    function (data) {
-                        mContent.notify("Remove successful", "info");
-                        _ref.parents("tr").remove();
-                        console.dir(data);
-                        $(".previewer-content").html(data.message);
-                    },
-                    function (error) {
-                        mContent.notify("Remove of file failed", "error");
-                        debugger;
-                    }
+        function formSubmit() {
+            var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipeId}/content/list|}]]*/ "";
+            mContent.ajax.submit(thisForm,
+                function(data) {
+                    mContent.notify("Changes stored", "info");
+                    mContent.loaders.workArea(deliveryPipeContentListUrl);
+                }, function(error) {
+                    mContent.notify("Failed to save the changes", "error");
+                }
             );
-            return false;
-        };
-        
-        $(".remove-content-file").click(removeFileHandler);
+        }
 
         $(document).ready(function() {
-            $(".content-submit").click(function() {
-                var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipeId}/content/list|}]]*/ "";
+
+            $(".remove-content-file").click(function (event) {
                 event.preventDefault();
-                var _i;
-                for (_i = 0; _i < newFiles.length; _i++) {
-                    saveFile(newFiles[_i]);
-                }
-                mContent.ajax.submit($(this).parents('form'),
-                    function(data) {
-                        mContent.notify("Changes stored", "info");
-                        mContent.loaders.workArea(deliveryPipeContentListUrl);
-                    }, function(error) {
-                        mContent.notify("Failed to save the changes", "error");
-                    }
-                );
+                addRemovedFile($(this).attr("href"));
+                // etsi poistettu esikatselusta ja poista
+                $(".previewer-content div:has(#"+$(this).attr("href")+")").remove();
+                $(this).parents("tr").remove();
+            });
+
+            $(".content-submit").click(function() {
+                event.preventDefault();
+                handleFiles();
             });
 
             $(".content-cancel").click(function() {
                 var _i;
-                for (_i = 0; _i < newFiles.length; _i++) {
-                    removeFile(newFiles[_i].uuid);
+                for (_i = 0; _i < newFiles.length; _i++) {  // remove newly added files
+                    removeFile(newFiles[_i]);
                 }
-                $('#content-editor').html( "" );
+                $('#content-editor').html( "" );  // remove/clear content form
             });
 
         });

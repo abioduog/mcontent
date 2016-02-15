@@ -5,6 +5,9 @@
             <div th:if="${error}" class="alert alert-error" th:text="#{deliverypipe.error}">
                 Error in delivery pipe data
             </div>
+            <div th:if="${error} and ${errortext}" class="alert alert-error" th:text="${errortext}">
+                - No message -
+            </div>
             <div th:if="${saved}" class="alert alert-success" th:text="#{deliverypipe.saved}">
                 Delivery pipe saved
             </div>

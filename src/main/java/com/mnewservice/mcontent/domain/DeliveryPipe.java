@@ -66,4 +66,9 @@ public class DeliveryPipe {
         this.contentCount = contentCount;
     }
 
+    public long getProviderCount() {
+        return providers.size();
+    }
+
+
 }

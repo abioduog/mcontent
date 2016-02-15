@@ -51,7 +51,7 @@ public class NotificationManager {
         EmailMessage message
                 = createEmailMessage(notificationSubject, notificationMessage);
         Collection<Email> emails
-                = providers.stream().map(p -> p.getEmail()).collect(Collectors.toList());
+                = providers.stream().map(p -> new Email(p.getEmail())).collect(Collectors.toList());
         message.getReceivers().addAll(emails);
 
         return sendMessage(message);
@@ -61,7 +61,7 @@ public class NotificationManager {
             String notificationMessage) {
         EmailMessage message
                 = createEmailMessage(notificationSubject, notificationMessage);
-        message.getReceivers().add(provider.getEmail());
+        message.getReceivers().add(new Email(provider.getEmail()));
 
         return sendMessage(message);
     }

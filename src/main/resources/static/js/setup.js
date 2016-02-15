@@ -16,12 +16,27 @@ mContent.ajax.get = function(url, success, error) {
 }
 
 
-mContent.ajax.submit = function(form, success, error) {
+mContent.ajax.submit = function (form, success, error) {
     form.submit(function (event) {
         event.preventDefault();
         $.ajax({
             type: form.attr('method'),
             url: form.attr('action'),
+            data: form.serialize(),
+            success: success,
+            error: error
+        });
+        return false;
+    });
+    form.submit();
+}
+
+mContent.ajax.submitUrl = function (form, url, success, error) {
+    form.submit(function (event) {
+        event.preventDefault();
+        $.ajax({
+            type: form.attr('method'),
+            url: url,
             data: form.serialize(),
             success: success,
             error: error
@@ -47,17 +62,27 @@ mContent.loaders.contentEditor  = function(url) {
 }
 
 
-mContent.popup.load = function(title, url) {
+mContent.popup.load = function (title, url) {
     $.get(url, function (data) {
         var popup = $('<div>').attr('title', title).html(data);
-        popup.dialog();
+        var width40 = $(window).width() * 0.4; // Default size
+        popup.dialog({modal: true, width: width40});
     });
 }
 
-mContent.popup.close = function(src, event) {
+mContent.popup.loadWide = function (title, url) {
+    $.get(url, function (data) {
+        var popup = $('<div>').attr('title', title).html(data);
+        var width75 = $(window).width() * 0.75; // Default size
+        popup.dialog({modal: true, width: width75});
+    });
+}
+
+mContent.popup.close = function (src, event) {
     if(event)
         event.preventDefault();
-    $(src).parents('.ui-dialog-content').dialog('close');
+    $(src).parents('.ui-dialog-content').dialog('destroy');
+    $(src).parents('.ui-dialog').remove();
     return false;
 }
 

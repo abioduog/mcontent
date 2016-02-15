@@ -29,7 +29,7 @@
 
         $(".submit").click(function (event) {
             var deliveryPipeSeriesListUrl = /*[[@{|/deliverypipe/${deliveryPipeId}/content/list|}]]*/;
-                    event.preventDefault();
+            event.preventDefault();
             mContent.popup.submit($(this).parents("form"),
                     function (data) {
                         mContent.notify("Remove successful", "info");

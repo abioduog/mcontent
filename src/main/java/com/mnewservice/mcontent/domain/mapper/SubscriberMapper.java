@@ -3,6 +3,7 @@ package com.mnewservice.mcontent.domain.mapper;
 import com.mnewservice.mcontent.domain.Subscriber;
 import com.mnewservice.mcontent.repository.entity.SubscriberEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
+import java.util.HashSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,9 @@ public class SubscriberMapper extends AbstractMapper<Subscriber, SubscriberEntit
 
     @Autowired
     private PhoneNumberMapper phoneNumberMapper;
+
+    @Autowired
+    private SubscriptionMapper subscriptionMapper;
 
     @Override
     public Subscriber toDomain(SubscriberEntity entity) {
@@ -31,6 +35,34 @@ public class SubscriberMapper extends AbstractMapper<Subscriber, SubscriberEntit
                 activeSubscriptions++;
             } else {
                 inactiveSubscriptions++;
+            }
+        }
+
+        domain.setActiveSubscriptionCount(activeSubscriptions);
+        domain.setInactiveSubscriptionCount(inactiveSubscriptions);
+
+        return domain;
+    }
+
+    public Subscriber toDomainWithSubscriptions(SubscriberEntity entity, boolean showAll) {
+        if (entity == null) {
+            return null;
+        }
+        Subscriber domain = new Subscriber();
+        domain.setId(entity.getId());
+        domain.setPhone(phoneNumberMapper.toDomain(entity.getPhone()));
+        domain.setSubscriptions(new HashSet<>());
+
+        int activeSubscriptions = 0, inactiveSubscriptions = 0;
+        for (SubscriptionEntity subscription : entity.getSubscriptions()) {
+            if (subscription.isActive()) {
+                activeSubscriptions++;
+                domain.getSubscriptions().add(subscriptionMapper.toDomainNoSubscriber(subscription));
+            } else {
+                inactiveSubscriptions++;
+                if (showAll) {
+                    domain.getSubscriptions().add(subscriptionMapper.toDomainNoSubscriber(subscription));
+                }
             }
         }
 

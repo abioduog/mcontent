@@ -41,4 +41,9 @@ public interface SubscriptionRepository
             @Param("limit") Integer limit,
             @Param("offset") Long offsest
     );
+
+    @Query("select se from SubscriptionEntity se "
+            + "where se.service.id = :serviceId")
+    List<SubscriptionEntity> findAllByServiceId(@Param("serviceId") Long serviceId);
+
 }

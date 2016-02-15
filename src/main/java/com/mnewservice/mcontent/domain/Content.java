@@ -1,12 +1,8 @@
 package com.mnewservice.mcontent.domain;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import com.mnewservice.mcontent.util.ContentUtils;
 
 public class Content {
-
-    private String contentUrl = "http://3wc4.com/%s";
 
     private Long id;
     private String uuid;
@@ -15,7 +11,11 @@ public class Content {
     private String content;
 
     public String getContentUrl() {
-        return String.format(contentUrl, uuid);
+        return ContentUtils.getContentUrl() + uuid;
+    }
+
+    public static String createContentImageUrl(String imagePath) {
+        return ContentUtils.createContentImageUrl(imagePath);
     }
 
     public String getSmsMessageContent() {

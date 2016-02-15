@@ -12,15 +12,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -55,6 +59,38 @@ public class RegisterController {
     @Autowired
     private NotificationManager notificationManager;
 
+//<editor-fold defaultstate="collapsed" desc="error handling">
+    @ResponseStatus(value = HttpStatus.CONFLICT, reason = "Data handling error")  // 409
+    private class DataHandlingException extends RuntimeException {
+
+        public DataHandlingException() {
+            super();
+        }
+
+        public DataHandlingException(String s) {
+            super(s);
+        }
+
+        public DataHandlingException(String s, Throwable throwable) {
+            super(s, throwable);
+        }
+
+        public DataHandlingException(Throwable throwable) {
+            super(throwable);
+        }
+    }
+
+    private ModelAndView mavAddNLogErrorText(ModelAndView mav, List<ObjectError> errors) {
+        String errorText = "";
+        errors.stream().forEach((error) -> {
+            errorText.concat(error.toString());
+        });
+        LOG.error(errorText);
+        mav.addObject("errortext", errorText);
+        return mav;
+    }
+
+//</editor-fold>
     @RequestMapping(value = {"/register/provider"}, method = RequestMethod.GET)
     public ModelAndView registerProvider() {
         ModelAndView mav = new ModelAndView("providerRegister");
@@ -73,9 +109,10 @@ public class RegisterController {
         ModelAndView mav = new ModelAndView("providerRegister");
 
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().stream().forEach((error) -> {
-                LOG.error(error.toString());
-            });
+            mav = mavAddNLogErrorText(mav, bindingResult.getAllErrors());
+//            bindingResult.getAllErrors().stream().forEach((error) -> {
+//                LOG.error(error.toString());
+//            });
             mav.addObject("provider", model.getOrDefault("provider", new Provider()));
             mav.addObject("error", true);
         } else {
@@ -93,12 +130,13 @@ public class RegisterController {
 
             } catch (Exception ex) {
                 LOG.error(ex);
-                if (provider.getUser() != null) {
-                    provider.getUser().setPassword(null);
-                }
-                mav.addObject("provider", provider);
-                mav.addObject("error", true);
-                mav.addObject("errortext", ex.getMessage());
+//                if (provider.getUser() != null) {
+//                    provider.getUser().setPassword(null);
+//                }
+//                mav.addObject("provider", provider);
+//                mav.addObject("error", true);
+//                mav.addObject("errortext", ex.getMessage());
+                throw new DataHandlingException(ex);
             }
         }
 

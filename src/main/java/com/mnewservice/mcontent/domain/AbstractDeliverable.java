@@ -1,5 +1,8 @@
 package com.mnewservice.mcontent.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class AbstractDeliverable {
 
     public final DeliverableType type;
@@ -7,10 +10,12 @@ public abstract class AbstractDeliverable {
     protected Long id;
     protected Content content;
     protected DeliverableStatus status;
+    protected List<ContentFile> files;
 
     public AbstractDeliverable(DeliverableType type) {
         this.type = type;
-        content = new Content();
+        this.content = new Content();
+        this.files = new ArrayList<>();
     }
 
     public Long getId() {
@@ -35,6 +40,14 @@ public abstract class AbstractDeliverable {
 
     public void setStatus(DeliverableStatus status) {
         this.status = status;
+    }
+
+    public List<ContentFile> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<ContentFile> files) {
+        this.files = files;
     }
 
 }

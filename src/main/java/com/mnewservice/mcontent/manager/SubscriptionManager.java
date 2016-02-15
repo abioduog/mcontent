@@ -60,6 +60,20 @@ public class SubscriptionManager {
             = "Subscription was not found with keyword=%s, shortCode=%d, "
             + "operator=%s, and phone number=%s";
 
+    @Transactional(readOnly = true)
+    public Collection<Subscription> getAllSubscriptionsByService(Long serviceId) {
+        LOG.info("Getting all services by delivery pipe id = " + serviceId);
+        Collection<SubscriptionEntity> entities = subscriptionMapper.makeCollection(subscriptionRepository.findAllByServiceId(serviceId));
+        return subscriptionMapper.toDomain(entities);
+    }
+
+    @Transactional
+    public void removeSubscription(Subscription subscription) {
+        LOG.debug("Removing subscription=" + subscription.getId());
+        SubscriptionEntity subscriptionEntity = subscriptionMapper.toEntity(subscription);
+        subscriptionRepository.delete(subscriptionEntity.getId());
+    }
+
     @Transactional
     public boolean registerSubscription(Subscription subscription) {
         LOG.debug("registerSubscription() with subscription=" + subscription);

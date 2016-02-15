@@ -1,9 +1,11 @@
 package com.mnewservice.mcontent.repository;
 
-import com.mnewservice.mcontent.repository.entity.AbstractContentEntity;
 import com.mnewservice.mcontent.repository.entity.CustomContentEntity;
+import javax.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -23,4 +25,9 @@ public interface ContentRepository
             "left join d.content cc " +
             "where cc.shortUuid = ?1 and se.subscriber.phone.number = ?2")
     CustomContentEntity findByShortUuidWithValidSubscription(String shortUuid, String subscriberNumber);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select cc from CustomContentEntity cc where cc.id = :id")
+    public CustomContentEntity findOneAndLockIt(@Param("id") Long id);
+
 }

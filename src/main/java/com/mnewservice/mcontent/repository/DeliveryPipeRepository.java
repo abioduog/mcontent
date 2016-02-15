@@ -6,6 +6,9 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import javax.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.repository.query.Param;
 
 /**
  *
@@ -14,16 +17,10 @@ import java.util.Collection;
 @Repository
 public interface DeliveryPipeRepository extends CrudRepository<DeliveryPipeEntity, Long> {
 
-//    @Query("select db from DeliveryPipeEntity db "
-//            + "left join db.providers p "
-//            + "where p.username = ?1")
-//    Collection<DeliveryPipeEntity> findByProvidersUsername(String providerUsername);
-//
-//    @Query("select db from DeliveryPipeEntity db "
-//            + "left join db.providers p "
-//            + "where p.id = ?1")
-//    Collection<DeliveryPipeEntity> findByProviders(Long providerId);
-//
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select db from DeliveryPipeEntity db where db.id = :id")
+    public DeliveryPipeEntity findOneAndLockIt(@Param("id") Long id);
+
     @Query("select db from DeliveryPipeEntity db "
             + "where db.name like ?1")
     Collection<DeliveryPipeEntity> findAll(String nameFilter);

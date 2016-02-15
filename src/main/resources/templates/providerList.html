@@ -14,7 +14,7 @@
         <tbody>
             <tr th:each="provider : ${allProviders}">
                 <td th:text="${provider.name}">NAME</td>
-                <td th:text="${provider.email.address}">EMAIL</td>
+                <td th:text="${provider.email}">EMAIL</td>
                 <td th:text="${provider.user.active} ? #{user.status.active} : #{user.status.inactive}">ACTIVE</td>
                 <td th:text="${provider.pipeCount}">0</td>
                 <td><!-- icon (?) -->

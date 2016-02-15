@@ -16,7 +16,18 @@ public class SubscriptionPeriodMapper extends AbstractMapper<SubscriptionPeriod,
         if (entity == null) {
             return null;
         }
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SubscriptionPeriod domain = new SubscriptionPeriod();
+        domain.setId(entity.getId());
+        domain.setMessage(entity.getMessage());
+        domain.setMessageId(entity.getMessageId());
+        domain.setOperator(entity.getOperator());
+        domain.setOriginalTimeStamp(entity.getOriginalTimestamp());
+        domain.setSender(entity.getSender());
+        domain.setShortCode(entity.getShortCode());
+        domain.setStart(entity.getStart());
+        domain.setEnd(entity.getEnd());
+
+        return domain;
     }
 
     @Override

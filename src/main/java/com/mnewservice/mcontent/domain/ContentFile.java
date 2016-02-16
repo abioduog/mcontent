@@ -36,6 +36,7 @@ public class ContentFile {
     private String errorMessage;
     private boolean accepted;
     private String imageHtmlBlock;
+    private static Integer maxSize = 100; // Max thumb picture size 100x100
 
     public ContentFile() {
         this.errorMessage = "";
@@ -133,7 +134,11 @@ public class ContentFile {
     }
 
     public String getImageUrl() {
-        return Content.createContentImageUrl(generateFilename());
+        try {
+            return Content.createContentImageUrl(URLEncoder.encode(uuid, "UTF-8"));
+        } catch (Exception ex) {
+            return Content.createContentImageUrl(uuid);
+        }
     }
 
     public String generateFilename() {
@@ -149,12 +154,15 @@ public class ContentFile {
     public static byte[] generateThumbImage(byte[] data) throws IOException {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         BufferedImage img = ImageIO.read(in);
-        Integer newHeight, height = img.getHeight();
-        Integer newWidth, width = img.getWidth();
+
+        Integer newHeight = maxSize, height = img.getHeight();
+        Integer newWidth = maxSize, width = img.getWidth();
         float ratio = width.floatValue() / height.floatValue();
-        // max 100x100
-        newHeight = ratio > 1.0 ? new Double(100 / ratio).intValue() : 100;
-        newWidth = ratio > 1.0 ? 100 : new Double(100 * ratio).intValue();
+        if (ratio > 1.0) {
+            newHeight = new Double(maxSize / ratio).intValue();
+        } else {
+            newWidth = new Double(maxSize * ratio).intValue();
+        }
         BufferedImage newImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
         newImg.createGraphics().drawImage(img.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH), 0, 0, null);
         in.close();

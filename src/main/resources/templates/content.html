@@ -146,7 +146,7 @@
                             _result++;
                         }
                     }
-                    if (_result > 1) {  // No duplicates thank you
+                    if (_result > 1) {  // No duplicates, thank you
                         myDropzone.removeFile(file);
                         mContent.notify("Can not add file ("+file.name+")\nFile is allready uploaded", "error");
                     }
@@ -158,7 +158,7 @@
                         var _text =  /*[[#{general.remove}]]*/ "Remove";
                         var newrow = $('#file-table tr:last').after( "<tr><td><img src='data:image/png;base64,"+response.files[0].thumbBase64Png+"' alt='"+file.name+"' /></td><td>"+file.name+
                                 "</td><td>Not saved</td></tr>");
-                        var originalHtml = $(".previewer-content").first().html();
+                        var originalHtml = $(".previewer-content").first().html();  // update previewers
                         $(".previewer-content").html(originalHtml+response.files[0].imageHtmlBlock);
                         addNewFile(response.files[0]);
                     }
@@ -324,9 +324,8 @@
             $(".remove-content-file").click(function (event) {
                 event.preventDefault();
                 addRemovedFile($(this).attr("href"));
-                // etsi poistettu esikatselusta ja poista
-                $(".previewer-content div:has(#"+$(this).attr("href")+")").remove();
-                $(this).parents("tr").remove();
+                $(".previewer-content div:has(#"+$(this).attr("href")+")").remove();  //poista esikatselusta
+                $(this).parents("tr").remove(); // poista taulukosta
             });
 
             $(".content-submit").click(function() {
@@ -336,10 +335,10 @@
 
             $(".content-cancel").click(function() {
                 var _i;
-                for (_i = 0; _i < newFiles.length; _i++) {  // remove newly added files
+                for (_i = 0; _i < newFiles.length; _i++) {  // remove newly added files from server
                     removeFile(newFiles[_i]);
                 }
-                $('#content-editor').html( "" );  // remove/clear content form
+                $('#content-editor').html( "" );  // clear content form
             });
 
         });

@@ -45,9 +45,6 @@ public class DeliveryManager {
     private static final String OPERATOR_FILTER_SEPARATOR = ",";
     private static final Logger LOG = Logger.getLogger(DeliveryManager.class);
 
-    @Value("${application.delivery.contentUrl}")
-    private String contentUrl;
-
     @Value("${application.delivery.fetch.pageSize}")
     private Integer pageSize;
 

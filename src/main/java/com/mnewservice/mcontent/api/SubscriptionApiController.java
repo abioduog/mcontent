@@ -55,7 +55,7 @@ public class SubscriptionApiController extends AbstractApiController {
             @RequestParam(value = PARAM_MESSAGE) String message,
             @RequestParam(value = PARAM_SHORTCODE) int shortCode,
             @RequestParam(value = PARAM_SENDER) String sender,
-            @RequestParam(value = PARAM_MESSAGEID) Long messageId,
+            @RequestParam(value = PARAM_MESSAGEID) String messageId,
             @RequestParam(value = PARAM_OPERATOR) String operator,
             @RequestParam(value = PARAM_TIMESTAMP) String timestamp) {
 
@@ -95,7 +95,7 @@ public class SubscriptionApiController extends AbstractApiController {
     }
 
     private void validateRequestParams(String message, int shortCode,
-            String sender, Long messageId, String operator,
+            String sender, String messageId, String operator,
             String timestamp) throws IllegalArgumentException {
         LOG.debug(PARAM_MESSAGE + "=" + message);
         ValidationUtils.validateNotNullOrEmpty(PARAM_MESSAGE, message);
@@ -106,21 +106,27 @@ public class SubscriptionApiController extends AbstractApiController {
         LOG.debug(PARAM_SENDER + "=" + sender);
         ValidationUtils.validateNumeric(PARAM_SENDER, sender);
 
-        LOG.debug(PARAM_MESSAGEID + "=" + messageId);
-        ValidationUtils.validateId(PARAM_MESSAGEID, messageId);
+        //We don't need to validate something that can be anything
+//        LOG.debug(PARAM_MESSAGEID + "=" + messageId);
+//        ValidationUtils.validateId(PARAM_MESSAGEID, messageId);
 
         LOG.debug(PARAM_OPERATOR + "=" + operator);
         ValidationUtils.validateNotNullOrEmpty(PARAM_OPERATOR, operator);
+/*
+        In reality there are multiple timestamp formats, but since we just store it as string and never use, we don't need to validate them
+        EMTS, Airtel, Glo: 2016-02-05 15:21:50
+        MTN: 2016-02-05_3:43:18
 
         LOG.debug(PARAM_TIMESTAMP + "=" + timestamp);
         ValidationUtils.validateTimestamp(
                 ValidationUtils.FORMAT_MMDDYYYY_HHMM_AA,
                 PARAM_TIMESTAMP,
                 timestamp);
+                */
     }
 
     private Subscription createSubscription(Service service, String message,
-            int shortCode, String sender, Long messageId, String operator,
+            int shortCode, String sender, String messageId, String operator,
             String timestamp) {
         Subscription subscription = new Subscription();
         subscription.setSubscriber(createSubscriber(sender));
@@ -181,7 +187,7 @@ public class SubscriptionApiController extends AbstractApiController {
 
     private SubscriptionPeriod createSubscriptionPeriod(
             Service service, String message, int shortCode, String operator,
-            String timestamp, Long messageId, String sender) {
+            String timestamp, String messageId, String sender) {
         SubscriptionPeriod period = new SubscriptionPeriod();
         period.setStart(getDeliveryStartDate(service.getDeliveryTime()));
         period.setEnd(

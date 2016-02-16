@@ -87,6 +87,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .and()
                     .authorizeRequests().antMatchers("/lib/**").permitAll()
                     .and()
+                    .authorizeRequests().antMatchers("/images/**").permitAll()
+                    .and()
                     .authorizeRequests().antMatchers("/theme/**").permitAll()
                     .and()
                     .authorizeRequests().anyRequest().hasAnyAuthority("ADMIN", "PROVIDER")

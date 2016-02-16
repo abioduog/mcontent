@@ -68,6 +68,10 @@ public class FileManager {
         return getSmbFile(smbPath + filename);
     }
 
+    public SmbFile getSmbFileByPath(String path) {
+        return getSmbFile(path);
+    }
+
     @Transactional(readOnly = true)
     public ContentFile getFile(long id) {
         LOG.info("Getting file with id=" + id);

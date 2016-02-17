@@ -46,8 +46,8 @@
         </div>
         <br/>
         <div class="form-actions">
-            <a class="view-subscriptions pure-button" sec:authorize="hasAnyRole('ADMIN')"
-               th:href="@{|/subscriber/${subscriber.id}|}"
+            <a class="view-subscriptions pure-button" 
+               th:href="@{|${reloadRef}|}"
                th:text="#{general.reload}">Reload</a>
             <a class="cancel pure-button" href="#" th:text="#{general.cancel}">Cancel</a>
         </div>

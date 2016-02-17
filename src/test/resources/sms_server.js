@@ -1,12 +1,12 @@
 //add timestamps in front of log messages
-require('console-stamp')(console, 'HH:MM:ss.l');
+//require('console-stamp')(console, 'HH:MM:ss.l');
 
 const PORT=13013; 
 const PATH="/cgi-bin/sendsms";
 
 var http = require('http');
 var url = require('url');
-var dispatcher = require('httpdispatcher');
+var dispatcher = require('./httpdispatcher');
 
 dispatcher.onGet(PATH, function(req, res) {
     res.writeHead(200, {'Content-Type': 'text/plain'});

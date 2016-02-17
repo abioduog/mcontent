@@ -125,6 +125,7 @@ public class SubscriberController {
         ModelAndView mav = new ModelAndView("subscriberDetail");
         mav.addObject("subscriber", subscriberManager.getSubscriberWithSubscriptions(id, showAll));
         mav.addObject("showAll", showAll);
+        mav.addObject("reloadRef", "/subscriber/" + id);
         return mav;
     }
     

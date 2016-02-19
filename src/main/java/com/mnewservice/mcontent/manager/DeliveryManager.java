@@ -18,8 +18,10 @@ import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionPeriodEntity;
 import com.mnewservice.mcontent.util.DateUtils;
 import com.mnewservice.mcontent.util.exception.MessagingException;
+import java.text.DateFormat;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -131,9 +133,18 @@ public class DeliveryManager {
         );
         for (ServiceEntity service : services) {
             LOG.info(String.format("Service in progress, id=%s", service.getId()));
+            // {expirationdate} = %1$s = # of days
+            // {daystoexpire} = %2$s = actual date
+            String expireMsg = service.getExpireMessage();
+            expireMsg.replace("{daystoexpire}", "%1$d");
+            expireMsg.replace("{expirationdate}", "%2$s");
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_YEAR, leadInDays);
+            DateFormat dateFormatter = DateFormat.getDateInstance(DateFormat.SHORT);
             String expiryMessage = String.format(
-                    service.getExpireMessage(),
-                    leadInDays
+                    expireMsg,
+                    leadInDays,
+                    dateFormatter.format(calendar.getTime())
             );
 
             doDeliverExpirationNotification(

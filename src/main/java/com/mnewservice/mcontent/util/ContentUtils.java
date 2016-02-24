@@ -15,7 +15,7 @@ import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 public class ContentUtils {
 
     private static final String contentUrl = "http://3wc4.com/";
-    private static final String imageUrl = "images/";
+    private static final String imageUrl = "/images/";
 //    private static final String contentUrl = "http://127.0.0.1:8084/mContent/show/a/";
 
     public static String createImageUrl(String imagePath) {

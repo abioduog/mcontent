@@ -205,8 +205,8 @@
                 onImageUploadError: function(err){
                     alert('Upload error : '+err);
                 },
-                onChange: function (e) {
-                    $(".previewer-content").html($("textarea[name='content.content']").val());
+                onChange: function (contents) {
+                    $(".previewer-content").html(contents);
                 }
             }
         });

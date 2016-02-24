@@ -15,6 +15,7 @@ import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,14 +49,21 @@ public class FileManager {
         }
     }
 
-    private static String smbPath = "smb://127.0.0.1/mContent/";
+    @Value("${application.filestorage.address}")
+    private String smbPath;
+    @Value("${application.filestorage.userDomain}")
+    private String smbDomain;
+    @Value("${application.filestorage.user}")
+    private String smbUser;
+    @Value("${application.filestorage.pass}")
+    private String smbPass;
 
     private static final Logger LOG = Logger.getLogger(FileManager.class);
 
     private SmbFile getSmbFile(String path) {
         SmbFile retval = null;
         try {
-            NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication("NOLWLAP005", "mContent", "juttu1234homma");
+            NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(smbDomain, smbUser, smbPass);
             //NtlmPasswordAuthentication auth = NtlmPasswordAuthentication.ANONYMOUS;
             retval = new SmbFile(path, auth);
         } catch (Exception ex) {

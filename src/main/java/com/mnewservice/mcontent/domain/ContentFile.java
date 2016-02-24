@@ -9,10 +9,7 @@ package com.mnewservice.mcontent.domain;
 import com.mnewservice.mcontent.util.ContentUtils;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.UUID;
 import javax.imageio.ImageIO;
@@ -153,6 +150,7 @@ public class ContentFile {
 
     public static byte[] generateThumbImage(byte[] data) throws IOException {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
+        ImageIO.setUseCache(false);
         BufferedImage img = ImageIO.read(in);
 
         Integer newHeight = maxSize, height = img.getHeight();

@@ -57,12 +57,15 @@ public class ImageLoadController {
                 LOG.error("Error on reading SMB file", ex);
                 throw new RuntimeException("IOError on reading SMB file");
             }
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType(fileToShow.getMimeType()));
+            String filename = fileToShow.getOriginalFilename();
+            headers.setContentDispositionFormData(filename, filename);
+            return new ResponseEntity<>(response, headers, HttpStatus.OK);
+        } else {
+            LOG.error("Error file not found from the DB");
+            throw new RuntimeException("Now such image in the system.");
         }
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(fileToShow.getMimeType()));
-        String filename = fileToShow.getOriginalFilename();
-        headers.setContentDispositionFormData(filename, filename);
-        return new ResponseEntity<>(response, headers, HttpStatus.OK);
     }
 
 }

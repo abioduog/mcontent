@@ -275,6 +275,14 @@
         }
 
         function handleFiles() {
+            if (/*[[${deliverable.id == null}]]*/ ) {  // Creation, no files
+                console.log('No File(s) to handle ');
+                newFiles = new Array();
+                removedFiles = new Array();
+                formSubmit();
+                return;
+            }
+
             data = new FormData();
             var _i;
             for ( _i = 0; _i < newFiles.length; _i++) {

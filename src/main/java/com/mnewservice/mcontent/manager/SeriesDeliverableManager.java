@@ -75,7 +75,7 @@ public class SeriesDeliverableManager {
             while (contentRepository.findByShortUuid(shortUuid = ShortUrlUtils.getRandomShortIdentifier()) != null);
             entity.getContent().setShortUuid(shortUuid);
         }
-        if (entity.getId() != 0 && entity.getId() != null) {
+        if (entity.getId() != null && entity.getId() != 0) {
             entity.setFiles(new ArrayList(deliverableManager.getDeliverablesFileEntities(entity.getId())));
         }
         // TODO: for the providers: allow save if and only if status == PENDING_APPROVAL

@@ -19,10 +19,10 @@
     <body>
         <div id="header" class="pure-menu pure-menu-horizontal">
             <ul id="menu" class="pure-menu-list">
-                <li sec:authorize="hasAnyRole('ADMIN','PROVIDER')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/content/list}">Content management</a></li>
-                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/provider/list}">Provider management</a></li>
-                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/service/list}">Service management</a></li>
-                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/subscriber/list}">Subscriber management</a></li>
+                <li sec:authorize="hasAnyRole('ADMIN','PROVIDER')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/content/list}" onclick="return false;">Content management</a></li>
+                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/provider/list}" onclick="return false;">Provider management</a></li>
+                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/service/list}" onclick="return false;">Service management</a></li>
+                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/subscriber/list}" onclick="return false;">Subscriber management</a></li>
             </ul>
             <div id="session-control" class="pure-menu">
                 <ul class="pure-menu-list">

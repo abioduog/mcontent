@@ -52,6 +52,13 @@ public class SubscriberManager {
         return mapper.toDomainWithSubscriptions(entity, showAll);
     }
 
+    @Transactional(readOnly = true)
+    public Subscriber getSubscriberWithSubscriptions(String phone, boolean showAll) {
+        LOG.info("Getting subscriber with phone=" + phone);
+        SubscriberEntity entity = repository.findByPhoneNumber(phone);
+        return mapper.toDomainWithSubscriptions(entity, showAll);
+    }
+
     @Transactional
     public void removeSubscriber(long id) {
         LOG.info("Removing subscriber with id=" + id);

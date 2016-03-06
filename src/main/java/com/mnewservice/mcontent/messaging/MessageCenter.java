@@ -3,12 +3,19 @@ package com.mnewservice.mcontent.messaging;
 import com.mnewservice.mcontent.domain.EmailMessage;
 import com.mnewservice.mcontent.domain.PhoneNumber;
 import com.mnewservice.mcontent.domain.SmsMessage;
+import com.mnewservice.mcontent.domain.mapper.SmsMessageMapper;
+import com.mnewservice.mcontent.repository.ServiceRepository;
+import com.mnewservice.mcontent.repository.SmsMessageRepository;
+import com.mnewservice.mcontent.repository.entity.SmsMessageEntity;
 import com.mnewservice.mcontent.util.StreamUtils;
 import com.mnewservice.mcontent.util.exception.MessagingException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.Date;
+import java.util.Queue;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -33,6 +40,8 @@ public class MessageCenter {
 
     private static final Logger LOG = Logger.getLogger(MessageCenter.class);
 
+    private static final int SMS_MAX_TRIES = 5;
+
     private static final String SMS_PROTOCOL = "http";
     private static final String SMS_PARAMETER_USERNAME = "username";
     private static final String SMS_PARAMETER_PASSWORD = "password";
@@ -52,7 +61,13 @@ public class MessageCenter {
             = "Could not get response";
     private static final String ERROR_INVALID_STATUS
             = "Invalid status: %d (reason: %s)";
-    private static final String ERROR_COMMUNICATION = "Communication error";
+    private static final String ERROR_COMMUNICATION = "Communication error: %s";
+
+    @Autowired
+    private SmsMessageMapper smsMessageMapper;
+
+    @Autowired
+    private SmsMessageRepository smsMessageRepository;
 
     @Autowired
     private JavaMailSender javaMailSender;
@@ -73,7 +88,7 @@ public class MessageCenter {
     @Value("${application.sms.gateway.maxRecipients}")
     private int maxRecipients;
 
-    public void sendMessage(EmailMessage message) throws MessagingException {
+    public void queueMessage(EmailMessage message) throws MessagingException {
         try {
             // TODO: record sent messages somewhere?
             doSendEmailMessage(
@@ -108,30 +123,43 @@ public class MessageCenter {
         }
     }
 
-    public void sendMessage(SmsMessage message, int fromNumber)
-            throws MessagingException {
-        String receiverNumbers = buildReceiverNumbers(message);
+    public void queueMessage(SmsMessage message) {
+        smsMessageRepository.save(smsMessageMapper.toEntity(message));
+    }
+
+    private void sendSmsMessage(SmsMessageEntity message) {
+        String receiverNumbers = buildReceiverNumbers(message.getReceivers());
 
         try {
-            // TODO: record sent messages somewhere?
+            message.incrementTries();
             doSendSmsMessage(
                     message.getMessage(),
                     receiverNumbers,
-                    Integer.toString(fromNumber)
+                    message.getFromNumber()
             );
+            message.setSent(new Date());
+            message.log("Sent successfully");
         } catch (URISyntaxException ex) {
             String msg = String.format(ERROR_URI_SYNTAX, ex.getMessage());
             LOG.error(msg);
-            throw new MessagingException(msg, ex);
+            message.log(msg);
         } catch (IllegalArgumentException ex) {
             String msg = ex.getMessage();
             LOG.error(msg);
-            throw new MessagingException(msg, ex);
+            message.log(msg);
+        } catch (MessagingException ex) {
+            String msg = ex.getMessage();
+            LOG.error(msg);
+            message.log(msg);
         }
+        smsMessageRepository.save(message);
     }
 
-    private String buildReceiverNumbers(SmsMessage smsMessage) {
-        Collection<PhoneNumber> receivers = smsMessage.getReceivers();
+    public void sendSmsMessages() {
+        smsMessageRepository.findBySentIsNullAndTriesLessThan(SMS_MAX_TRIES).forEach(message -> sendSmsMessage(message));
+    }
+
+    private String buildReceiverNumbers(Collection<PhoneNumber> receivers) {
         if ((receivers == null || receivers.size() < 1)
                 || receivers.size() > maxRecipients) {
             String message = String.format(
@@ -192,8 +220,11 @@ public class MessageCenter {
                 throw new MessagingException(msg);
             }
         } catch (IOException ioe) {
-            LOG.error(ERROR_COMMUNICATION);
-            throw new MessagingException(ERROR_COMMUNICATION, ioe);
+            String msg = String.format(
+                    ERROR_COMMUNICATION, ioe.getMessage()
+            );
+            LOG.error(msg);
+            throw new MessagingException(msg, ioe);
         } finally {
             LOG.debug(MESSAGE_END_SENDING);
         }

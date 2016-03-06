@@ -289,16 +289,16 @@ public class DeliveryManager {
                 continue;
             }
 
-            SmsMessage message = createMessage(messagesMap, deliverable, subscription);
+            SmsMessage message = createMessage(shortCode, messagesMap, deliverable, subscription);
 
             if (message.getReceivers().size() >= sendSize) {
-                sendMessage(message, shortCode);
+                sendMessage(message);
                 messagesMap.remove(deliverable);
             }
         }
         // send possible "leftover messages"
         for (Map.Entry<AbstractDeliverableEntity, AbstractMessage> entry : messagesMap.entrySet()) {
-            sendMessage((SmsMessage) entry.getValue(), shortCode);
+            sendMessage((SmsMessage) entry.getValue());
         }
         LOG.info("Processing subscriptions, end");
     }
@@ -308,17 +308,18 @@ public class DeliveryManager {
             String expiryMessage, Integer sendSize) {
         LOG.info("Processing expiring subscriptions, start");
         SmsMessage message = createExpiryMessage(expiryMessage);
+        message.setFromNumber(service.getShortCode().toString());
         for (SubscriptionEntity subscription : subscriptions) {
             addPhoneNumberToMessage(subscription, message);
 
             if (message.getReceivers().size() >= sendSize) {
-                sendMessage(message, service.getShortCode());
+                sendMessage(message);
                 message = createExpiryMessage(expiryMessage);
             }
         }
         // send possible "leftover message"
         if (((SmsMessage) message).getReceivers().size() > 0) {
-            sendMessage(message, service.getShortCode());
+            sendMessage(message);
         }
 
         LOG.info("Processing expiring subscriptions, end");
@@ -339,6 +340,7 @@ public class DeliveryManager {
     }
 
     private SmsMessage createMessage(
+            Integer shortCode,
             Map<AbstractDeliverableEntity, AbstractMessage> messagesMap,
             AbstractDeliverableEntity deliverable,
             SubscriptionEntity subscription) throws UnsupportedOperationException {
@@ -348,22 +350,18 @@ public class DeliveryManager {
             message.setMessage(contentMapper.toDomain(deliverable.getContent()).getSmsMessageContent());
             messagesMap.put(deliverable, message);
         }
+        ((SmsMessage) message).setFromNumber(shortCode.toString());
         addPhoneNumberToMessage(subscription, message);
         return (SmsMessage) message;
     }
 
-    private void sendMessage(SmsMessage message, Integer shortCode) {
+    private void sendMessage(SmsMessage message) {
         LOG.info(String.format(
                 "Sending message, start (%d receivers)",
                 message.getReceivers().size())
         );
-        try {
-            messageCenter.sendMessage(message, shortCode);
-        } catch (MessagingException ex) {
-            LOG.error("Sending message failed: " + ex.getMessage());
-        } finally {
-            LOG.info("Sending message, end");
-        }
+        messageCenter.queueMessage(message);
+        LOG.info("Sending message, end");
     }
 
     private AbstractDeliverableEntity getDeliverable(

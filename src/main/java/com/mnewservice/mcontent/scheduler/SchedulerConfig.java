@@ -3,6 +3,8 @@ package com.mnewservice.mcontent.scheduler;
 import com.mnewservice.mcontent.domain.DeliveryTime;
 import com.mnewservice.mcontent.job.DeliveryJob;
 import static com.mnewservice.mcontent.job.DeliveryJob.DELIVERY_TIME_PARAM;
+
+import com.mnewservice.mcontent.messaging.MessageCenter;
 import com.mnewservice.mcontent.util.CronUtils;
 import com.mnewservice.mcontent.util.DeliveryTimeUtils;
 import java.io.IOException;
@@ -14,6 +16,7 @@ import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Trigger;
 import org.quartz.spi.JobFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,6 +24,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -31,9 +36,12 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
  */
 @Configuration
 @ConditionalOnProperty(name = "quartz.enabled")
+@EnableScheduling
 public class SchedulerConfig {
 
     private static final String GROUP_MESSAGE_DELIVERY = "messageDelivery";
+
+    private static final Logger LOG = Logger.getLogger(SchedulerConfig.class);
 
     @Bean
     public JobFactory jobFactory(ApplicationContext applicationContext) {
@@ -212,5 +220,18 @@ public class SchedulerConfig {
         jobDataMap.put(DELIVERY_TIME_PARAM, deliveryTime);
 
         return factoryBean;
+    }
+
+    @Autowired
+    private MessageCenter messageCenter;
+
+    @Scheduled(fixedDelay = 30000)
+    public void sendSmsMessages() {
+        LOG.debug("Scheduled SMS sending task");
+        try {
+            messageCenter.sendSmsMessages();
+        } catch (Exception ex) {
+            LOG.info("Critical failure on sending SMS messages: " + ex.getMessage());
+        }
     }
 }

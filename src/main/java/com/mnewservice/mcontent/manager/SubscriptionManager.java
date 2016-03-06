@@ -175,6 +175,7 @@ public class SubscriptionManager {
 
     private void sendWelcomeMessage(SubscriptionEntity savedEntity) {
         SmsMessage message = createSmsMessage(
+                savedEntity.getService().getShortCode(),
                 String.format(
                         savedEntity.getService().getWelcomeMessage(),
                         savedEntity.getService().getSubscriptionPeriod()
@@ -182,11 +183,12 @@ public class SubscriptionManager {
                 phoneNumberMapper.toDomain(savedEntity.getSubscriber().getPhone())
         );
 
-        sendMessage(message, savedEntity.getService().getShortCode());
+        sendMessage(message);
     }
 
     private void sendRenewMessage(SubscriptionEntity savedEntity) {
         SmsMessage message = createSmsMessage(
+                savedEntity.getService().getShortCode(),
                 String.format(
                         savedEntity.getService().getRenewMessage(),
                         savedEntity.getService().getSubscriptionPeriod()
@@ -194,7 +196,7 @@ public class SubscriptionManager {
                 phoneNumberMapper.toDomain(savedEntity.getSubscriber().getPhone())
         );
 
-        sendMessage(message, savedEntity.getService().getShortCode());
+        sendMessage(message);
     }
 
     @Transactional
@@ -256,6 +258,7 @@ public class SubscriptionManager {
 
     private void sendUnsubscribeMessage(SubscriptionEntity savedEntity) {
         SmsMessage message = createSmsMessage(
+                savedEntity.getService().getShortCode(),
                 String.format(
                         savedEntity.getService().getUnsubscribeMessage(),
                         savedEntity.getService().getSubscriptionPeriod()
@@ -263,22 +266,18 @@ public class SubscriptionManager {
                 phoneNumberMapper.toDomain(savedEntity.getSubscriber().getPhone())
         );
 
-        sendMessage(message, savedEntity.getService().getShortCode());
+        sendMessage(message);
     }
 
-    private SmsMessage createSmsMessage(String content, PhoneNumber receiver) {
+    private SmsMessage createSmsMessage(Integer shortCode, String content, PhoneNumber receiver) {
         SmsMessage message = new SmsMessage();
+        message.setFromNumber(shortCode.toString());
         message.setMessage(content);
         message.getReceivers().add(receiver);
         return message;
     }
 
-    private void sendMessage(SmsMessage message, int shortCode) {
-        try {
-            messageCenter.sendMessage(message, shortCode);
-        } catch (MessagingException ex) {
-            LOG.error("Sending message failed: " + ex.getMessage());
-            throw new RuntimeException(ex);
-        }
+    private void sendMessage(SmsMessage message) {
+        messageCenter.queueMessage(message);
     }
 }

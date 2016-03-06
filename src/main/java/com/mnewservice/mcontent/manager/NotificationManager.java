@@ -114,7 +114,7 @@ public class NotificationManager {
                 message.getReceivers().size())
         );
         try {
-            messageCenter.sendMessage(message);
+            messageCenter.queueMessage(message);
         } catch (MessagingException ex) {
             LOG.error("Sending notification failed: " + ex.getMessage());
             return false;

@@ -227,7 +227,6 @@ public class SchedulerConfig {
 
     @Scheduled(fixedDelay = 30000)
     public void sendSmsMessages() {
-        LOG.debug("Scheduled SMS sending task");
         try {
             messageCenter.sendSmsMessages();
         } catch (Exception ex) {

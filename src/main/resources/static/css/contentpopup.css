@@ -1,0 +1,14 @@
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.message-preview textarea {
+    background: transparent;
+    resize: none;
+    width: 100%;
+    height: 8em;
+}

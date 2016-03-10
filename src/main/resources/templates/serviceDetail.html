@@ -68,11 +68,11 @@
         event.preventDefault();
         mContent.popup.submit($(this).parents("form"),
                 function(data) {
-                    mContent.notify("Save successful", "info");
+                    mContent.alert.success("Save successful");
                     mContent.loaders.workArea(serviceListUrl);
                 },
                 function(error) {
-                    mContent.notify("Saving service changes failed", "error");
+                    mContent.alert.success("Saving service changes failed", error);
                 }
         );
         return false;

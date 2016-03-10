@@ -1,24 +1,16 @@
-<div class="content" th:unless="${#lists.isEmpty(deliverable)}">
-
-
-    <script th:src="@{|/lib/dropzone/dropzone.min.js|}" th:if="${autoGenerateContent and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"></script>
-    <formfield>
-        <legend>Basic info</legend>
-        <div th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.SeriesDeliverable)}" th:text="@{|Delivery position: ${deliverable.deliveryDaysAfterSubscription}|}"></div>
-        <div th:if="${deliverable instanceof T(com.mnewservice.mcontent.domain.ScheduledDeliverable)}" th:text="@{|Delivery date: ${deliverable.getDeliveryDateString()}|}"></div>
-        <a th:href="${deliverable.content.getContentUrl()}" target='_blank'>Link</a>
-    </formfield>
-    <formfield>
-        <legend>Content</legend>
+<div class="content">
+    <ul class="nav nav-tabs">
+        <li class="active"><a onclick="navClick('edit');">Edit</a></li>
+        <li><a onclick="navClick('preview');">Preview</a></li>
+    </ul>
+    <formfield class="tab-content tab-content-edit active">
+        <legend>Edit</legend>
         <form th:id="${deliverable.id?: '0'} + '-content-form'" name="content-form" class="pure-form pure-form-stacked" action="#"
-              th:action="@{/deliverypipe/} + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id?: '0'}"
+              th:action="@{/deliverypipe/} + ${deliveryPipe.id} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id?: '0'}"
               method="post" enctype="multipart/form-data" >
             <div class="form-fields">
                 <div th:if="${error}" class="alert alert-error" th:text="#{deliverable.error}">
                     Error in content data.
-                </div>
-                <div th:if="${saved}" class="alert alert-success" th:text="#{deliverable.saved}">
-                    Content saved.
                 </div>
                 <input type="hidden" name="id" th:value="${deliverable.id}"/>
 
@@ -28,23 +20,16 @@
                 <input type="hidden" th:name="fileUpload" th:value="${fileUpload}"/>
 
                 <label for="content.title" th:text="#{content.title}">Title</label>
-                <input type="text"
-                       th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                       required="true" name="content.title" th:value="${deliverable.content.title}"/>
-                <input type="text"
-                       th:if="${deliverable.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                       required="false" readonly="true" name="content.title" th:value="${deliverable.content.title}"/>
+                <input type="text" required="true" name="content.title" th:value="${deliverable.content.title}"/>
 
-                <label for="content.message" th:text="#{content.message}">Title</label>
-                <textarea required="true"
-                          th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                          name="content.message" th:text="${deliverable.content.message}" maxlength="140" cols="30" row="6"/>
-                <textarea required="false" readonly="true" 
-                          th:if="${deliverable.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                          name="content.message" th:text="${deliverable.content.message}" maxlength="140" cols="30" row="6"/>
+                <label for="content.message" th:text="#{content.message}">Message</label>
+                <div class="message-preview">
+                    <textarea required="true" name="content.message" th:text="${deliverable.content.message}" maxlength="140" cols="30" row="6"/>
+                    <a class="url" th:href="${deliverable.content.getContentUrl()}" target='_blank' th:text="${deliverable.content.getContentUrl()}"></a>
+                </div>
 
                 <!--    File Upload option -->
-                <div id="my-dropzone" th:if="${autoGenerateContent and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
+                <div id="my-dropzone" th:if="${autoGenerateContent and deliverable.id != null}">
                     <label th:text="#{contentfiles.files}">Files</label>
                     <table id="file-table" class="pure-table">
                         <tr style="display: none" > <!-- 1st row as header for later addition of rows to table from JavaScript -->
@@ -75,20 +60,9 @@
                     </div>
                 </div>
 
-                <span class="message-preview">
-                    <span class="message" th:text="@{|${deliverable.content.message}|}"></span>
-                    <br/>
-                    <span class="url" th:text="${deliverable.content.getContentUrl()}"></span>
-                </span>
-
                 <div th:if="${!autoGenerateContent and deliverable.id != null}" >
                     <label for="content.content" th:text="#{content.content}">Content</label>
-                    <textarea required="true"
-                              th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                              name="content.content" th:text="${deliverable.content.content}"/>
-                    <textarea required="false" readonly="true"
-                              th:if="${deliverable.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                              name="content.content" th:text="${deliverable.content.content}"/>
+                    <textarea required="true" name="content.content" th:text="${deliverable.content.content}"/>
                 </div>
                 <div th:if="${autoGenerateContent or deliverable.id == null}" >
                     <textarea required="false" style ="display: none;"
@@ -102,23 +76,32 @@
             </div>
             <br/>
             <div class="form-actions">
-                <a class="content-submit pure-button"
-                   th:if="${deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                   th:text="#{general.save}">Save</a>
+                <a class="content-submit pure-button" th:text="#{general.save}">Save</a>
                 <a class="content-cancel pure-button" th:text="#{general.cancel}">Cancel</a>
             </div>
         </form>
     </formfield>
-    <div id="previewers">
+    <formfield id="previewers" class="tab-content tab-content-preview">
+        <legend>Preview</legend>
         <div class="iphone-previewer">
             <div class="previewer-content" th:utext="${deliverable.content.content}"></div>
         </div>
         <div class="ipad-previewer">
             <div class="previewer-content" th:utext="${deliverable.content.content}"></div>
         </div>
-    </div>
-
-    <script th:inline="javascript" th:if="${autoGenerateContent and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
+    </formfield>
+    <script>
+        function navClick(navId) {
+            event.preventDefault();
+            $(".nav-tabs li").removeClass("active");
+            $(event.target).parent().addClass("active")
+            $(".tab-content").removeClass("active");
+            $(".tab-content-" + navId).addClass("active");
+            return false;
+        }
+    </script>
+    <script th:src="@{|/lib/dropzone/dropzone.min.js|}" th:if="${autoGenerateContent and deliverable.id != null}"></script>
+    <script th:inline="javascript" th:if="${autoGenerateContent and deliverable.id != null}">
         /*<![CDATA[*/
 
         var fileDropzone = new Dropzone("div#my-dropzone", {
@@ -148,7 +131,7 @@
                     }
                     if (_result > 1) {  // No duplicates, thank you
                         myDropzone.removeFile(file);
-                        mContent.notify("Can not add file ("+file.name+")\nFile is allready uploaded", "error");
+                        mContent.alert.error("Error uploading file", "File '" + file.name + "' is already uploaded");
                     }
                 });
 
@@ -166,7 +149,7 @@
 
                 this.on("error", function (file, response, xhr) {
                     var _filename = file.name;
-                    mContent.notify("Error on uploading file "+_filename+"\nResponse message: "+response.message ,"error");
+                    mContent.alert.error("Error uploading file", response.message);
                     var removeButton = Dropzone.createElement("<button>Clear</button>");
                     var _this = this;
                     removeButton.addEventListener("click", function (e) {
@@ -187,7 +170,7 @@
         /*]]>*/
     </script>
 
-    <script th:inline="javascript" th:if="${!autoGenerateContent and deliverable.id != null and deliverable.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}">
+    <script th:inline="javascript" th:if="${!autoGenerateContent and deliverable.id != null}">
         /*<![CDATA[*/
 
         $("textarea[name='content.content']").summernote({
@@ -203,7 +186,7 @@
                     }
                 },
                 onImageUploadError: function(err){
-                    alert('Upload error : '+err);
+                    mContent.alert.error('Upload error', err);
                 },
                 onChange: function (contents) {
                     $(".previewer-content").html(contents);
@@ -247,7 +230,7 @@
         }
 
         $("input[name='content.title']").change(function() {
-            if(!$("textarea[name='content.message']").val()) {
+            if($("textarea[name='content.message']").val() === "") {
                 $("textarea[name='content.message']").val($(this).val() + "\n\nClick for more");
             }
         });
@@ -296,7 +279,7 @@
                 data: data,
                 type: "POST",
                 /*[+
-                url: [[@{'/deliverypipe/' + ${deliveryPipeId} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/files'}]] ,
+                url: [[@{'/deliverypipe/' + ${deliveryPipe.id} + '/' + ${deliverable.type.name().toLowerCase()} + '/' + ${deliverable.id} + '/files'}]] ,
                 +]*/
                 cache: false,
                 contentType: false,
@@ -310,19 +293,20 @@
                 },
                 error: function(error) {
                     console.log('File(s) handling failed - ', error);
-                    mContent.notify("Failed to save the changes", "error");
+                    mContent.alert.error("Failed to save the changes", error);
                 }
             });
         }
 
         function formSubmit() {
-            var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipeId}/content/list|}]]*/ "";
+            var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipe.id}/content/list|}]]*/ "";
             mContent.ajax.submit(thisForm,
                 function(data) {
-                    mContent.notify("Changes stored", "info");
+                    mContent.alert.success("Changes was saved successfully");
                     mContent.loaders.workArea(deliveryPipeContentListUrl);
+                    mContent.popup.close(thisForm);
                 }, function(error) {
-                    mContent.notify("Failed to save the changes", "error");
+                    mContent.alert.error("Failed to save the changes", error);
                 }
             );
         }
@@ -346,7 +330,7 @@
                 for (_i = 0; _i < newFiles.length; _i++) {  // remove newly added files from server
                     removeFile(newFiles[_i]);
                 }
-                $('#content-editor').html( "" );  // clear content form
+                mContent.popup.close(this);
             });
 
         });

@@ -32,11 +32,11 @@
                     event.preventDefault();
             mContent.popup.submit($(this).parents("form"),
                     function (data) {
-                        mContent.notify("Remove successful", "info");
+                        mContent.alert.success("Remove successful");
                         mContent.loaders.workArea(providerListUrl);
                     },
                     function (error) {
-                        mContent.notify("Remove of provider failed", "error");
+                        mContent.alert.error("Remove of provider failed", error);
                     }
             );
             return false;

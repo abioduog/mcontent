@@ -1,0 +1,38 @@
+<div class="content">
+    <ul class="nav nav-tabs">
+        <li class="active"><a onclick="navClick('view');">View</a></li>
+        <li><a onclick="navClick('preview');">Preview</a></li>
+    </ul>
+    <formfield class="tab-content tab-content-view active">
+        <legend>View</legend>
+        <div>
+            <label for="content.title" th:text="#{content.title}">Title</label>
+            <span name="content.title" th:text="${deliverable.content.title}"></span>
+
+            <label for="content.message" th:text="#{content.message}">Message</label>
+            <div class="message-preview">
+                <span class="message" th:text="@{|${deliverable.content.message}|}"></span>
+                <a class="url" th:href="${deliverable.content.getContentUrl()}" target='_blank' th:text="${deliverable.content.getContentUrl()}"></a>
+            </div>
+        </div>
+    </formfield>
+    <formfield id="previewers" class="tab-content tab-content-preview">
+        <legend>Preview</legend>
+        <div class="iphone-previewer">
+            <div class="previewer-content" th:utext="${deliverable.content.content}"></div>
+        </div>
+        <div class="ipad-previewer">
+            <div class="previewer-content" th:utext="${deliverable.content.content}"></div>
+        </div>
+    </formfield>
+    <script>
+        function navClick(navId) {
+            event.preventDefault();
+            $(".nav-tabs li").removeClass("active");
+            $(event.target).parent().addClass("active")
+            $(".tab-content").removeClass("active");
+            $(".tab-content-" + navId).addClass("active");
+            return false;
+        }
+    </script>
+</div>

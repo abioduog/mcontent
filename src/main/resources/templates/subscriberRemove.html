@@ -30,11 +30,11 @@
             event.preventDefault();
             mContent.popup.submit($(this).parents("form"),
                     function(data) {
-                        mContent.notify("Remove successful", "info");
+                        mContent.alert.success("Remove successful");
                         mContent.loaders.workArea(subscriberListUrl);
                     },
                     function(error) {
-                        mContent.notify("Remove of subscriber failed", "error");
+                        mContent.alert.error("Remove of subscriber failed", error);
                     }
             );
             return false;

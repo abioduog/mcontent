@@ -27,24 +27,11 @@
 
 
 
-
-
 .content-menu {
     clear: left;
     float: left;
     padding-right: 20px;
-    border-right: 1px solid darkgray;
 }
-
-#content-editor {
-    float: left;
-    margin-left: 20px;
-}
-
-
-
-
-
 
 form[name='content-form']{
     float: left;
@@ -95,4 +82,48 @@ form[name='content-form']{
 .note-editor {
     min-height: 300px;
     width: 808px;
+}
+
+.message-preview {
+    width: 27em;
+    background: #E9E8E8;
+    word-wrap: break-word;
+    padding: 20px;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 1em;
+}
+
+.alert {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    padding: 30px;
+    font-size: 1.5em;
+    pointer-events: none;
+    z-index: 999;
+}
+
+.alert-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 998;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.fade {
+    opacity: 0;
+    -webkit-transition: opacity 1.25s linear;
+    -moz-transition: opacity 1.25s linear;
+    -ms-transition: opacity 1.25s linear;
+    -o-transition: opacity 1.25s linear;
+    transition: opacity 1.25s linear;
 }

@@ -51,11 +51,11 @@
             event.preventDefault();
             mContent.popup.submit($(this).parents("form"),
                 function(data) {
-                    mContent.notify("Save successful", "info");
+                    mContent.alert.success("Save successful");
                     mContent.loaders.workArea(deliveryPipeListUrl);
                 },
                 function(error) {
-                    mContent.notify("Saving delivery pipe changes failed", "error");
+                    mContent.alert.error("Saving delivery pipe changes failed", error);
                 }
             );
             return false;

@@ -14,20 +14,24 @@
                 <td th:text="${content.content.title}">Title</td>
                 <td th:text="${content.status}">Status</td>
                 <td sec:authorize="hasRole('ADMIN')"><!-- icon (?) -->
-                    <a class="approve pure-button" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/approve|}"
+                    <a class="approve pure-button" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
+                       th:href="${content.id}"
                        th:text="#{deliverable.status.approve}">Approve</a>
-                    <a class="disapprove pure-button" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).PENDING_APPROVAL}" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}/disapprove|}"
+                    <a class="disapprove pure-button" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).PENDING_APPROVAL}"
+                       th:href="${content.id}"
                        th:text="#{deliverable.status.disapprove}">Disapprove</a>
                 </td>
                 <td sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
                     <a class="edit-content pure-button" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                       th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}|}"
+                       th:href="${content.id}"
+                       th:data-index="${content.deliveryDaysAfterSubscription}"
                        th:text="#{general.edit}">Edit</a>
                     <a class="view-content pure-button" th:if="${content.status == T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
-                       th:href="@{|/deliverypipe/${deliveryPipe.id}/series/${content.id}|}"
+                       th:href="${content.id}"
+                       th:data-index="${content.deliveryDaysAfterSubscription}"
                        th:text="#{general.view}">View</a>
                     <a class="del-content pure-button" sec:authorize="hasRole('ADMIN')"
-                       th:href="@{|/deliverypipe/${deliveryPipe.id}/series/remove/${content.id}|}"
+                       th:href="${content.id}"
                        th:text="#{general.remove}">Delete</a>
                 </td>
 
@@ -35,22 +39,21 @@
         </tbody>
     </table>
     <br/>
-    <a class="create-content pure-button" sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:href="@{|/deliverypipe/${deliveryPipe.id}/series/create|}"
-       th:text="#{general.add}">Add new</a>
+    <a class="create-content pure-button" sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:text="#{general.add}">Add new</a>
 </div>
-<div id="content-editor"></div>
 <script sec:authorize="hasRole('ADMIN')" th:inline="javascript">
 
     var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipe.id}/content/list|}]]*/;
+    var contentUrlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/series/|}]]*/;
 
     $(".approve").click(function (event) {
         event.preventDefault();
-        mContent.ajax.get($(this).attr('href'), function (data) {
-            mContent.notify("Content approved.", "info");
+        mContent.ajax.get(contentUrlBase + $(this).attr('href') + '/approve', function (data) {
+            mContent.alert.success("Content approved.");
             mContent.loaders.workArea(deliveryPipeContentListUrl);
         }, function (error) {
             console.log(error);
-            mContent.notify("Failed to approve content.", "warning");
+            mContent.alert.error("Failed to approve content.", error);
             mContent.loaders.workArea(deliveryPipeContentListUrl);
         });
         return false;
@@ -58,32 +61,37 @@
 
     $(".disapprove").click(function (event) {
         event.preventDefault();
-        mContent.ajax.get($(this).attr('href'), function (data) {
-            mContent.notify("Content disapproved.", "info");
+        mContent.ajax.get(contentUrlBase + $(this).attr('href') + '/disapprove', function (data) {
+            mContent.alert.success("Content disapproved.");
             mContent.loaders.workArea(deliveryPipeContentListUrl);
         }, function (error) {
             console.log(error);
-            mContent.notify("Failed to disapprove content.", "warning");
+            mContent.alert.error("Failed to disapprove content.", error);
             mContent.loaders.workArea(deliveryPipeContentListUrl);
         });
         return false;
     });
 </script>
 
-<script sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
+<script sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:inline="javascript">
+    var contentUrlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/series/|}]]*/;
+    var deliveryPipeName = /*[[${deliveryPipe.name}]]*/;
 
-    $(".create-content, .edit-content, .view-content").click(function (event) {
+    $(".create-content").click(function (event) {
         event.preventDefault();
-        mContent.loaders.contentEditor($(this).attr('href'));
+        mContent.popup.load(deliveryPipeName + ' (#' + 'new' + ')', contentUrlBase + "create");
         return false;
     });
-</script>
 
-<script sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
+    $(".edit-content, .view-content").click(function (event) {
+        event.preventDefault();
+        mContent.popup.load(deliveryPipeName + ' (#' + $(this).attr('data-index') + ')', contentUrlBase + $(this).attr('href'));
+        return false;
+    });
 
     $(".del-content").click(function (event) {
         event.preventDefault();
-        mContent.popup.load('Remove series content', $(this).attr("href"));
+        mContent.popup.load('Remove series content', contentUrlBase + 'remove/' + $(this).attr("href"));
         return false;
     });
 </script>

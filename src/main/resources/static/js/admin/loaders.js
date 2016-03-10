@@ -1,3 +1,18 @@
+/* global mContent */
+mContent.loaders.workArea = function(url) {
+    $.get(url, function (data) {
+        $('#workarea').html(data);
+    });
+    return false;
+}
+
+mContent.loaders.contentEditor  = function(url) {
+    $.get( url, function( data ) {
+        $('#content-editor').html( data );
+    });
+    return false;
+}
+
 function loadToWorkAreaVieaUrl(url) {
     $.get(url, function (data) {
         $('#workarea').html(data);

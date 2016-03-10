@@ -32,11 +32,11 @@
                     event.preventDefault();
             mContent.popup.submit($(this).parents("form"),
                     function (data) {
-                        mContent.notify("Remove successful", "info");
+                        mContent.alert.success("Remove successful");
                         mContent.loaders.workArea(deliveryPipeListUrl);
                     },
                     function (error) {
-                        mContent.notify("Remove of delivery pipe failed", "error");
+                        mContent.alert.error("Remove of delivery pipe failed", error);
                     }
             );
             return false;

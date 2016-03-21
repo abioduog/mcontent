@@ -374,22 +374,13 @@ public class DeliveryManager {
         }
 
         // ..or one or more seriesDeliverables
-        for (SubscriptionPeriodEntity period : subscription.getPeriods()) {
-            int days = DateUtils.calculateDifferenceInDays(
-                    DateUtils.getCurrentDate(),
-                    period.getStart());
-
-            if (days < 0 || days > MAXIMUM_LENGTH_FOR_SERIES) {
-                // omit, since there cannot be series information for these ones
-                // TODO: log error/warning ?
-                continue;
-            }
-
-            SeriesDeliverableEntity deliverable
-                    = seriesDeliverableOrdered[days];
-            if (deliverable != null) {
-                return deliverable;
-            }
+        int activeDayNumber = subscription.getActiveDaysOverall();
+        LOG.debug(subscription.getSubscriber().getPhone().getNumber() +
+                    "'s subscription to " + subscription.getService().getKeyword() +
+                    "(" + subscription.getService().getOperator()
+                    + ") has been active for " + activeDayNumber);
+        if (activeDayNumber > 0 && activeDayNumber <= seriesDeliverableOrdered.length) {
+           return seriesDeliverableOrdered[activeDayNumber-1];
         }
 
         return null;

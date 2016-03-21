@@ -17,7 +17,7 @@
                     <a class="approve pure-button" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).APPROVED}"
                        th:href="${content.id}"
                        th:text="#{deliverable.status.approve}">Approve</a>
-                    <a class="disapprove pure-button" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).PENDING_APPROVAL}"
+                    <a class="disapprove pure-button" th:if="${content.status != T(com.mnewservice.mcontent.domain.DeliverableStatus).DISAPPROVED}"
                        th:href="${content.id}"
                        th:text="#{deliverable.status.disapprove}">Disapprove</a>
                 </td>
@@ -85,7 +85,7 @@
 
     $(".edit-content, .view-content").click(function (event) {
         event.preventDefault();
-        mContent.popup.load(deliveryPipeName + ' (#' + $(this).attr('data-index') + ')', contentUrlBase + $(this).attr('href'));
+        mContent.popup.loadWide(deliveryPipeName + ' (#' + $(this).attr('data-index') + ')', contentUrlBase + $(this).attr('href'));
         return false;
     });
 

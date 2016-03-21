@@ -8,7 +8,12 @@ mContent.ajax.get = function (url, success, error) {
     });
 }
 
-mContent.ajax.submit = function (form, success, error) {
+mContent.ajax.submit_instant = function (form, success, error) {
+    mContent.ajax.submit_prepare(form, success, error);
+    form.submit();
+}
+
+mContent.ajax.submit_prepare = function (form, success, error) {
     form.submit(function (event) {
         event.preventDefault();
         $.ajax({
@@ -20,5 +25,4 @@ mContent.ajax.submit = function (form, success, error) {
         });
         return false;
     });
-    form.submit();
 }

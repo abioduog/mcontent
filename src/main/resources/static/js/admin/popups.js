@@ -47,7 +47,7 @@ mContent.popup.close = function (src, event) {
 }
 
 mContent.popup.submit = function(form, success, error) {
-    mContent.ajax.submit(form,
+    mContent.ajax.submit_instant(form,
         function (data) {
             mContent.popup.close(form);
             if(success) {

@@ -15,7 +15,7 @@
 
         function editContent(event) {
             event.preventDefault();
-            mContent.popup.load(deliveryPipeName + ' (' + $.lastClickedScheduledDay.events[0].date + ')', contentUrlBase + $.lastClickedScheduledDay.events[0].id);
+            mContent.popup.loadWide(deliveryPipeName + ' (' + $.lastClickedScheduledDay.events[0].date + ')', contentUrlBase + $.lastClickedScheduledDay.events[0].id);
             return false;
         };
 

@@ -1,15 +1,7 @@
 package com.mnewservice.mcontent.web;
 
 import com.mnewservice.mcontent.domain.*;
-import com.mnewservice.mcontent.manager.AbstractDeliverableManager;
-import com.mnewservice.mcontent.manager.DeliveryPipeManager;
-import com.mnewservice.mcontent.manager.FileManager;
-import com.mnewservice.mcontent.manager.NotificationManager;
-import com.mnewservice.mcontent.manager.ProviderManager;
-import com.mnewservice.mcontent.manager.ScheduledDeliverableManager;
-import com.mnewservice.mcontent.manager.SeriesDeliverableManager;
-import com.mnewservice.mcontent.manager.ServiceManager;
-import com.mnewservice.mcontent.manager.UserManager;
+import com.mnewservice.mcontent.manager.*;
 import com.mnewservice.mcontent.repository.entity.AbstractDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.CustomContentEntity;
 import com.mnewservice.mcontent.repository.entity.FileEntity;
@@ -191,10 +183,14 @@ public class ContentController {
         return mav;
     }
 
+    @Autowired
+    private DeliveryManager deliveryManager;
+
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/{pipeId}"})
     public ModelAndView viewDeliveryPipe(@PathVariable("pipeId") long id) {
         LOG.info("/deliverypipe/" + id);
+        deliveryManager.deliverContent(DeliveryTime.T0800);
         ModelAndView mav = new ModelAndView("deliveryPipeDetail");
         mav.addObject("deliveryPipe", deliveryPipeManager.getDeliveryPipe(id));
         return mav;
@@ -796,8 +792,9 @@ public class ContentController {
             }
         } catch (Exception e) {
             LOG.error("File upload failed", e);
-            response.setMessage("Error on handling request");
+            response.setMessage("File upload failed");
             response.setError(response.getMessage());
+            response.getFiles().clear();
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -806,10 +803,11 @@ public class ContentController {
                 return false;
             }
             LOG.error("Request completed with errors. " + x.getErrorMessage());
-            response.setMessage("Request completed with errors");
-            response.setError(x.getErrorMessage());
+            response.setMessage("File upload failed");
+            response.setError(response.getMessage());
             return true;
         })) {
+            response.getFiles().clear();
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 

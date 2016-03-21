@@ -1,13 +1,15 @@
+body {min-width: 1004px;}
+
 #header {
-    position: fixed;
+    position: relative;
     top: 0;
-    border-bottom: 2px solid darkgray;
-    background-color: white;
+    width: 100vw;
+    height: 106px;
+    background-color: darkgrey;
     z-index: 2;
 }
 #menu {
     float: left;
-    clear: left;
 }
 
 #session-control {
@@ -22,10 +24,7 @@
 #workarea {
     clear: both;
     padding: 10px;
-    margin-top: 37px;
 }
-
-
 
 .content-menu {
     clear: left;
@@ -126,4 +125,57 @@ form[name='content-form']{
     -ms-transition: opacity 1.25s linear;
     -o-transition: opacity 1.25s linear;
     transition: opacity 1.25s linear;
+}
+
+.logo {
+    background-image: url("../img/3wc_logo_white.svg");
+    width: 100px;
+    height: 88px;
+    background-position: center;
+    background-repeat: no-repeat;
+    float: left;
+}
+
+.logo:hover {
+    background-image: url("../img/3wc_logo.svg");
+}
+
+span.appname {
+    position: absolute;
+    left: 9px;
+    top: 74px;
+    font-size: 1.3em;
+    color: white;
+}
+
+a.pure-menu-link {
+    line-height: 90px;
+}
+
+li.pure-menu-item {
+    border-right: solid 1px white;
+    margin-left: -4px;
+}
+
+li.pure-menu-item {}
+li.pure-menu-item:last-child {
+    border-right: none;
+}
+
+ul.pure-menu-children .pure-menu-link {
+    line-height: 25px;
+    background: lightgray;
+}
+
+span.form-error {
+    color: red;
+    font-size: 1.2em;
+    float: left;
+    padding: 10px 0;
+}
+
+span.form-warning {
+    float: left;
+    font-size: 1.2em;
+    padding: 10px 0;
 }

@@ -39,6 +39,7 @@ public class ImageLoadController {
             @PathVariable("fileUuid") String fileUuid,
             HttpServletResponse request
     ) {
+        fileUuid = fileUuid;
         LOG.info("Showing image file by UUID=" + fileUuid);
         byte[] response = {};
         FileEntity fileToShow = fileManager.getFileByUuid(fileUuid);

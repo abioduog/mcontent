@@ -11,6 +11,7 @@
             <tr>
                 <th th:text="#{deliverypipe.name}">Name</th>
                 <th th:text="#{deliverypipe.type}">Type</th>
+                <th th:text="#{deliverypipe.theme}">Theme</th>
                 <th th:text="#{deliverypipe.providerCount}">Providers</th>
                 <th th:text="#{deliverypipe.contentCount}">Contents</th>
                 <th>&nbsp;</th>
@@ -20,6 +21,7 @@
             <tr th:each="deliveryPipe : (${filteredDeliveryPipes}? ${filteredDeliveryPipes} : ${allDeliveryPipes})">
                 <td th:text="${deliveryPipe.name}">NAME</td>
                 <td th:text="${deliveryPipe.deliverableType}">TYPE</td>
+                <td th:text="${deliveryPipe.theme}">THEME</td>
                 <td th:text="${deliveryPipe.providerCount}">0</td>
                 <td th:text="${deliveryPipe.contentCount}">0</td>
                 <td><!-- icon (?) -->

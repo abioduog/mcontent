@@ -63,8 +63,13 @@ public class FileManager {
     private SmbFile getSmbFile(String path) {
         SmbFile retval = null;
         try {
-            NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(smbDomain, smbUser, smbPass);
-            //NtlmPasswordAuthentication auth = NtlmPasswordAuthentication.ANONYMOUS;
+            NtlmPasswordAuthentication auth;
+            if(!smbUser.isEmpty()) {
+                LOG.debug("Authenticating as " + smbUser);
+                auth = new NtlmPasswordAuthentication(smbDomain, smbUser, smbPass);
+            } else {
+                auth = NtlmPasswordAuthentication.ANONYMOUS;
+            }
             retval = new SmbFile(path, auth);
         } catch (Exception ex) {
             LOG.error(ex);
@@ -72,12 +77,8 @@ public class FileManager {
         return retval;
     }
 
-    public SmbFile getSmbFileByName(String filename) {
-        return getSmbFile(smbPath + filename);
-    }
-
-    public SmbFile getSmbFileByPath(String path) {
-        return getSmbFile(path);
+    public SmbFile getSmbFileByPath(String filePath) {
+        return getSmbFile(smbPath + filePath);
     }
 
     @Transactional(readOnly = true)
@@ -120,12 +121,12 @@ public class FileManager {
     public ContentFile saveFile(ContentFile contentFile, byte[] bytes) {
         LOG.info("Saving contentFile (" + contentFile.getOriginalFilename() + ") " + bytes.length + " bytes");
 
-        contentFile.setPath(smbPath + contentFile.generateFilename());
+        contentFile.setPath(contentFile.generateFilepath());
 
         SmbFile smbFile = null;
         try {
             // Create final smb file name
-            smbFile = getSmbFile(contentFile.getPath());
+            smbFile = getSmbFileByPath(contentFile.getPath());
             if (smbFile == null) {
                 contentFile.setErrorMessage("Could not access SMB file! path=" + contentFile.getPath());
                 LOG.error("Could not access SMB file! path=" + contentFile.getPath());

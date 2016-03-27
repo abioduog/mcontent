@@ -132,13 +132,13 @@ public class ContentFile {
 
     public String getImageUrl() {
         try {
-            return Content.createContentImageUrl(URLEncoder.encode(uuid, "UTF-8"));
+            return Content.createContentImageUrl(URLEncoder.encode(path, "UTF-8"));
         } catch (Exception ex) {
-            return Content.createContentImageUrl(uuid);
+            return Content.createContentImageUrl(path);
         }
     }
 
-    public String generateFilename() {
+    public String generateFilepath() {
         String[] parts = this.getOriginalFilename().split("\\.");
         String name = uuid + "." + parts[parts.length - 1];
         try {

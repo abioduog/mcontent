@@ -6,11 +6,47 @@
     background-repeat: no-repeat;
 }
 
+.ad-panel.ad-panel-footer {
+    bottom: 4vh;
+    position: absolute;
+}
+
 body > span {
     width: 100%;
-    position: fixed;
+    height: 3vh;
+    position: absolute;
     text-align: center;
-    font-size: 13px;
+    font-size: 2vh;
     bottom: 0;
     background: white;
+}
+
+form[name='show-login-form'] {
+    position: absolute;
+    width: 90vw;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: -4vh;
+}
+
+form[name='show-login-form'] input[type="text"] {
+    width: 100%;
+    padding: 15px 20px;
+    border-radius: 30px;
+}
+
+form[name='show-login-form'] button.btn {
+    width:100%;
+    padding: 10px;
+    border-radius: 30px;
+    background-color: transparent;
+    margin-top:30px;
+}
+
+@media screen and (orientation:landscape) {
+    body {
+        min-height: 100vw;
+        position: relative;
+    }
 }

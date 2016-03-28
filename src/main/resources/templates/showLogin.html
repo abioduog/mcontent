@@ -11,23 +11,19 @@
         <div class="ad-panel ad-panel-header"></div>
         <div tiles:fragment="show-login-content">
             <form name="show-login-form" class="pure-form" th:action="@{/show/login}" method="post">
-                <fieldset>
-                    <legend th:text="#{loginShow.prompt}">Access verification</legend>
-                    <div th:if="${param.error}" class="alert alert-error" th:text="#{loginShow.invalidPhoneNumber}">
-                        Invalid phone number.
-                    </div>
-                    <div th:if="${param.logout}" class="alert alert-success" th:text="#{loginShow.loggedOut}">
-                        You have been logged out.
-                    </div>
-                    <label for="username" th:text="#{loginShow.phoneNumber}">Phone number</label>
-                    <input type="text" name="username" placeholder="e.g. 23480********, 080********" pattern="(234|0)[0-9]{10}"/>
-                    <input type="hidden" name="password" value=" "/>
-                    <input type="hidden" name="remember-me" value="true"/>
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <div class="form-actions">
-                        <button type="submit" class="btn" th:text="#{loginShow.button}">Log in</button>
-                    </div>
-                </fieldset>
+                <div th:if="${param.error}" class="alert alert-error" th:text="#{loginShow.invalidPhoneNumber}">
+                    Invalid phone number.
+                </div>
+                <div th:if="${param.logout}" class="alert alert-success" th:text="#{loginShow.loggedOut}">
+                    You have been logged out.
+                </div>
+                <input type="text" name="username" th:placeholder="#{loginShow.phoneNumber}" pattern="(234|0)[0-9]{10}"/>
+                <input type="hidden" name="password" value=" "/>
+                <input type="hidden" name="remember-me" value="true"/>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <div class="form-actions">
+                    <button type="submit" class="btn" th:text="#{loginShow.button}">Log in</button>
+                </div>
             </form>
         </div>
         <div class="ad-panel ad-panel-footer"></div>

@@ -1,5 +1,4 @@
 body {
-    max-width: 800px;
     margin: 0 auto;
 }
 
@@ -10,7 +9,14 @@ body {
 
 #user-menu a {
     padding: 0px 1.2vw;
-    font-size: 13px;
+    font-size: 4vw;
     color: inherit;
     text-decoration: inherit;
+}
+
+@media screen and (orientation:landscape) {
+    #user-menu a {
+        padding: 0px 1.2vw;
+        font-size: 4vh;
+    }
 }

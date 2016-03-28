@@ -26,17 +26,8 @@
         </div>
         <script th:src="@{|/lib/jquery/jquery.min.js|}"></script>
         <script th:src="@{|/lib/jquery/jquery-ui.min.js|}"></script>
-        <script th:src="@{|/js/show.js|}"></script>
-        <script th:src="@{|/js/setup.js|}"></script>
+        <script th:src="@{|/js/config.js|}"></script>
+        <script th:src="@{|/js/show/show.js|}"></script>
         <script th:src="@{|/theme/js/${theme}.js|}"></script>
-        <script th:inline="javascript">
-
-            $(".view-subscriber").click(function() {
-                event.preventDefault();
-                mContent.popup.loadWide('Subscriptions', $(this).attr("href"));
-                return false;
-            });
-
-        </script>
     </body>
 </html>

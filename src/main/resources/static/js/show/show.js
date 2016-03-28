@@ -63,6 +63,6 @@ $.fn.protectImage = function() {
             return;
         }
         $(this).css("background-image", "url(" + $(this).attr("src") +")");
-        $(this).removeAttr("src");
+        $(this).attr("src", "/img/000000-0.png");
     })
 };

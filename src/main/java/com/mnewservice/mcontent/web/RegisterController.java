@@ -9,6 +9,8 @@ import com.mnewservice.mcontent.manager.ProviderManager;
 import com.mnewservice.mcontent.manager.UserManager;
 import com.mnewservice.mcontent.security.PasswordEncrypter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -129,7 +131,11 @@ public class RegisterController {
                 registrationNotification(savedProvider);
 
             } catch (Exception ex) {
-                LOG.error(ex);
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                ex.printStackTrace(pw);
+                
+                LOG.error(sw.toString());
 //                if (provider.getUser() != null) {
 //                    provider.getUser().setPassword(null);
 //                }
@@ -159,6 +165,11 @@ public class RegisterController {
             MultipartFile[] correspondenceFiles) throws IllegalArgumentException {
         Collection<BinaryContent> correspondences = new ArrayList<>();
         for (MultipartFile correspondenceFile : correspondenceFiles) {
+            // array should not contain any files when no files are uploaded
+            // during registration, but some combination of html multipart multiple-file upload
+            // causes one empty array element in this list
+            if (correspondenceFile.isEmpty()) continue;
+            
             try {
                 checkCorrespondenceFile(correspondenceFile);
                 BinaryContent correspondence = new BinaryContent();

@@ -1,6 +1,7 @@
 package com.mnewservice.mcontent.domain;
 
 import com.mnewservice.mcontent.util.ContentUtils;
+import javax.servlet.ServletContext;
 
 public class Content {
 
@@ -14,8 +15,8 @@ public class Content {
         return ContentUtils.getContentUrl() + uuid;
     }
 
-    public static String createContentImageUrl(String imagePath) {
-        return ContentUtils.createImageUrl(imagePath);
+    public static String createContentImageUrl(ServletContext sc, String imagePath) {
+        return ContentUtils.createImageUrl(sc, imagePath);
     }
 
     public String getSmsMessageContent() {

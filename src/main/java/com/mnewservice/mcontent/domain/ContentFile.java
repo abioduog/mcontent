@@ -13,6 +13,7 @@ import java.io.*;
 import java.net.URLEncoder;
 import java.util.UUID;
 import javax.imageio.ImageIO;
+import javax.servlet.ServletContext;
 import org.apache.commons.codec.binary.Base64;
 
 /**
@@ -125,16 +126,16 @@ public class ContentFile {
         }
     }
 
-    public String createAndSetImageHtmlBlock() {
-        this.imageHtmlBlock = ContentUtils.getImageHtmlBlock(getImageUrl(), getUuid().toString(), getOriginalFilename());
+    public String createAndSetImageHtmlBlock(ServletContext sc) {
+        this.imageHtmlBlock = ContentUtils.getImageHtmlBlock(getImageUrl(sc), getUuid().toString(), getOriginalFilename());
         return this.imageHtmlBlock;
     }
 
-    public String getImageUrl() {
+    public String getImageUrl(ServletContext sc) {
         try {
-            return Content.createContentImageUrl(URLEncoder.encode(path, "UTF-8"));
+            return Content.createContentImageUrl(sc, URLEncoder.encode(path, "UTF-8"));
         } catch (Exception ex) {
-            return Content.createContentImageUrl(path);
+            return Content.createContentImageUrl(sc, path);
         }
     }
 

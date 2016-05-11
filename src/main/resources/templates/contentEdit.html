@@ -24,7 +24,7 @@
 
                 <label for="content.message" th:text="#{content.message}">Message</label>
                 <div class="message-preview">
-                    <textarea required="true" name="content.message" th:text="${deliverable.content.message}" maxlength="140" cols="30" row="6"/>
+                    <textarea required="true" name="content.message" th:text="${deliverable.content.message}" maxlength="124" cols="30" row="6"/>
                     <a class="url" th:href="${deliverable.content.getContentUrl()}" target='_blank' th:text="${deliverable.content.getContentUrl()}"></a>
                 </div>
 

@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+
+<html xmlns:tiles="http://www.thymeleaf.org">
+    <head lang="en">
+        <title tiles:fragment="title">Login | mContent</title>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" th:href="@{|/css/login.css|}"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+    <body>
+        <div id="login-container" tiles:fragment="login-content">
+            <div class="logo"></div>
+            <span class="title">mContent</span>
+            <span class="subtitle">- publishing your dreams -</span>
+            <form name="login-form" method="post" action="/mContent/login/resetpw">
+                <fieldset>
+                     <legend th:text="#{login.resetpasswordprompt}">Login</legend>
+                    <div th:if="${found} != null">
+                    <p th:unless="${found}" th:text="'Email ' + ${emailaddress} + ' ' + #{login.emailNotFound}"></p>
+                    <p th:if="${found}" th:text="'Reset link send to ' + ${emailaddress}"></p>
+                    </div>
+                    <div th:if="${oldlink} != null">
+                    <p th:if="${oldlink}" th:text="#{resetpw.linkTooOld}"></p>
+                    </div>
+                    
+                    <input type="text" name="emailaddress" autocorrect="off" autocapitalize="none" placeholder="Email" />
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Send reset request</button>
+                    </div>
+                    <div id="textbox">
+                        <p><a href="/mContent/login" class="alignright">Back to login page</a></p>
+                        <div style="clear: both;"></div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <script>
+            /*if (!window.location.pathname.endsWith("login")) {
+                window.location.href = window.location.hostname;
+            }*/
+        </script>
+    </body>
+</html>

@@ -18,13 +18,23 @@
                         Invalid username and password.
                     </div>
                     <div th:if="${param.logout}" class="alert alert-success" th:text="#{login.loggedOut}">
-                        You have been logged out.
+                        You have been logged out (page).
                     </div>
+                    <div th:if="${passwordchanged} != null" class="alert alert-success">
+                        <p th:text="#{login.passwordChanged}"></p>
+                    </div>
+
+                    
                     <input type="text" name="username" th:placeholder="#{login.username}" autocorrect="off" autocapitalize="none"/>
                     <input type="password" name="password" th:placeholder="#{login.password}" autocorrect="off" autocapitalize="none"/>
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <div class="form-actions">
                         <button type="submit" class="btn" th:text="#{login.button}">Log in</button>
+                    </div>
+                    <div id="links">
+                        <p class="alignleft" >&nbsp;</p>
+                        <p><a href="/mContent/login/resetpw" class="alignright" th:text="#{login.forgotPassword}"></a></p>
+                        <div style="clear: both;"></div>
                     </div>
                 </fieldset>
             </form>

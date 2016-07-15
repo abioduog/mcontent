@@ -245,6 +245,9 @@
     font-size: 16px; }
 .dropzone .dz-preview .dz-details .dz-filename {
     white-space: nowrap; }
+.dropzone .dz-preview .dz-details .dz-removebutton.dz-clickable {
+    margin-bottom: 1em;
+    font-size: 16px; }
 .dropzone .dz-preview .dz-details .dz-filename:hover span {
     border: 1px solid rgba(200, 200, 200, 0.8);
     background-color: rgba(255, 255, 255, 0.8); }
@@ -253,7 +256,17 @@
     text-overflow: ellipsis; }
 .dropzone .dz-preview .dz-details .dz-filename:not(:hover) span {
     border: 1px solid transparent; }
-.dropzone .dz-preview .dz-details .dz-filename span, .dropzone .dz-preview .dz-details .dz-size span {
+
+.dropzone .dz-preview .dz-details .dz-removebutton:hover span {
+    border: 1px solid rgba(200, 200, 200, 0.8);
+    background-color: rgba(255, 255, 255, 0.8); }
+.dropzone .dz-preview .dz-details .dz-removebutton:not(:hover) {
+    overflow: hidden;
+    text-overflow: ellipsis; }
+.dropzone .dz-preview .dz-details .dz-removebutton:not(:hover) span {
+    border: 1px solid transparent; }
+
+.dropzone .dz-preview .dz-details .dz-filename span, .dropzone .dz-preview .dz-details .dz-size span, .dropzone .dz-preview .dz-details .dz-removebutton span {
     background-color: rgba(255, 255, 255, 0.4);
     padding: 0 0.4em;
     border-radius: 3px; }

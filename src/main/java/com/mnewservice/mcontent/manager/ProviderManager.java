@@ -67,6 +67,12 @@ public class ProviderManager {
         LOG.info("Finding provider with userId=" + userId);
         return mapper.toDomain(repository.findByUserId(userId));
     }
+    
+    @Transactional(readOnly = true)
+    public Provider findByEmail(String email) {
+        LOG.info("Finding provider with email=" + email);
+        return mapper.toDomain(repository.findByEmail(email));
+    }
 
     @Transactional
     public void removeProvider(Long id) {

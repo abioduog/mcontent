@@ -41,6 +41,6 @@ public class ContentUtils {
 
     public static String getImageHtmlBlock(String url, String id, String filename) {
         String escFilename = escapeHtml4(filename);
-        return "<div class='content-image'><img id='" + id + "' src='" + url + "' alt='" + escFilename + "' /></div>";
+        return "<div class='content-image'><img id='" + id + "' src='" + url + "' alt='" + escFilename + "'/></div>";
     }
 }

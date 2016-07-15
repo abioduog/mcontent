@@ -14,5 +14,8 @@ public interface ProviderRepository extends CrudRepository<ProviderEntity, Long>
     ProviderEntity findByCorrespondencesId(Long correspondencesId);
 
     ProviderEntity findByUserId(Long userId);
+    
+    ProviderEntity findByEmail(String email);
+    
 
 }

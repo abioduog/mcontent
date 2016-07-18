@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tiles="http://www.thymeleaf.org">
+    <head lang="en">
+        <title tiles:fragment="title">Registration | mContent</title>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" th:href="@{pure-0.6.0.min.css}"/>
+        <link rel="stylesheet" th:href="@{/css/register.css}"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+    
+    <body>
+        <div tiles:fragment="register-content">
+            <form name="registration-form" class="pure-form-stacked "
+                th:action="@{/registration}" method="post"
+                  enctype="multipart/form-data">
+                
+                <div class="form-fields">
+
+                    <div th:if="${error}" class="alert alert-error">
+                        <strong>
+                            <div th:text="#{register.error}">
+                                Errors in form
+                            </div>
+                        </strong>
+                        <div th:if="${errortext}" th:text="${errortext}">
+                        </div>
+                    </div>
+
+                        <strong>
+                            <div>
+                                Sign Up
+                            </div>
+                            <hr></hr>
+                        </strong>
+
+                    <fieldset>
+                        <legend th:text="#{registration.contentProviderDetails}">Content Provider Details</legend>
+
+                       
+
+<div>
+
+                            <input type="text" required="false" name="providername" placeholder="Provider Name" th:title="#{provider.state.tooltip}" th:value="${providerName}"/>
+
+
+
+                            <input type="text" required="false" name="address" placeholder="Address" th:title="#{provider.country.tooltip}" th:value="#{registration.streetAddress}"/>
+</div>
+                    
+
+
+                       
+<div>
+
+                            <input type="text" required="false" name="state" placeholder="State" th:title="#{provider.state.tooltip}" th:value="#{registration.state}"/>
+
+
+   
+
+                            <select name="country">
+                                <option value="null" th:text="#{registration.selectCountry}"></option>
+                                <option value="NGA">Nigeria</option>
+                            </select>
+</div>
+
+<div>
+
+                            <input type="text" required="false" name="companyname" placeholder="Company Name" th:title="#{provider.country.tooltip}" th:value="#{registration.companyName}"/>
+</div>
+			
+                </fieldset>
+        </div>
+
+
+                    <fieldset>
+
+                        <legend th:text="#{registration.loginDetails}">Login Details</legend>
+<div>
+                        <input type="text" autocomplete="off" required="false" name="username" placeholder="Username" th:title="#{provider.username.tooltip}" th:value="#{register.username}"/>
+
+
+                        <input id="password01" class="inputfix" name="password" type="password" autocorrect="off" autocapitalize="none" th:placeholder="#{general.password}"  onKeyUp="check()"/>
+</div>
+                        <div>
+                        <input id="password02" class="inputfix" name="passwordcnf" type="password" autocorrect="off" autocapitalize="none" th:placeholder="#{general.confirmPassword}"   onKeyUp="check()"/>
+
+
+</div>
+                      
+       </fieldset>  
+                <fieldset>
+
+
+                        <legend th:text="#{registration.contactDetails}">Contact Details</legend>
+<p th:text="#{registration.contactDetailsInfo}">Please provide detais for one member of staff who will be 3wc's dedicated contact for all communications regarding this application and any resulting subscription.</p>
+<div>
+                        <input type="text" required="false" name="nameOfContactPerson" placeholder="Contact Name" th:title="#{provider.contactperson.tooltip}" th:value="#{registration.contactName}"/>
+
+                       <input type="text" required="false" name="positionOfContactPerson" placeholder="Position" th:title="#{provider.position.tooltip}" th:value="#{registration.position}"/>
+</div>
+
+
+<div>
+                        <input type="text" required="false" name="mobilenumber" placeholder="Mobile Number" th:title="#{provider.contactperson.tooltip}" th:value="#{registration.mobileNumber}"/>
+
+                       <input type="text" required="false" name="faxnumber" placeholder="Fax Number" th:title="#{provider.position.tooltip}" th:value="#{registration.faxNumber}"/>
+</div>
+<div>
+                        <input type="text" required="false" name="contactemail" placeholder="Email" th:title="#{provider.contactperson.tooltip}" th:value="#{registration.contactEmail}"/>
+
+                       <input type="text" required="false" name="contentdescription" placeholder="Content Description" th:title="#{provider.position.tooltip}" th:value="#{registration.contentDescription}"/>
+
+
+</div>
+<div>
+                        <input type="file" id="choose-file" multiple="multiple" class="correspondence-files" name="correspondenceFiles" text="#{general.upload}"/>
+</div>
+    
+               </fieldset>
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                
+                        
+                <div class="form-actions">
+                    <button type="submit" class="btn" th:text="#{general.submit}">Submit</button>
+		    <button type="reset" class="btn" th:text="#{general.cancel}">Cancel</button>
+                </div>
+                        
+            </form>
+        </div>
+  <!--                      
+                    <fieldset>
+                        <label for="phoneOfContactPerson" th:text="#{provider.phoneOfContactPerson}">Mobile number of contact person</label>
+                        <input type="tel" required="false" name="phoneOfContactPerson" placeholder="+123 4567 890" th:title="#{provider.contactphone.tooltip}" th:value="#{registration.mobileNumber}"/>
+
+                        <label for="emailOfContactPerson" th:text="#{provider.emailOfContactPerson}">Email of contact person</label>
+                        <input type="email" required="false" name="emailOfContactPerson" placeholder="contact.person@mail" th:title="#{provider.contactmail.tooltip}" th:value="#{registration.contactEmail}"/>
+     
+                        <legend th:text="#{provider.serviceInfo}">Service Info</legend>
+
+                        <label for="contentName" th:text="#{provider.contentName}">Content name</label>
+                        <input type="text" required="false" name="contentName" placeholder="Name for content" th:title="#{provider.contentname.tooltip}" th:value="${provider.contentName}"/>
+
+                        <label for="contentDescription" th:text="#{provider.contentDescription}">Content description</label>
+                        <input type="text" required="false" name="contentDescription" placeholder="Description" th:title="#{provider.contentdescription.tooltip}" th:value="${provider.contentDescription}"/>
+
+     </fieldset>               
+-->
+
+    </body>
+    <script th:src="@{|/js/resetpw.js|}"></script>
+<script>
+$('#choose-file').inputFileText({
+    text: 'Select File'
+});
+</script>
+</html>

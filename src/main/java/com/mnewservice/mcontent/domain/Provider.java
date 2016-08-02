@@ -2,6 +2,7 @@ package com.mnewservice.mcontent.domain;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -10,11 +11,17 @@ import java.util.Collection;
 public class Provider {
 
     private Long id;
+    @Size(min=2, max=60)
     private String name;
+    private String address;
+    private String zipcode;
+    private String city;
     private String state;
     private String country;
     private String phone;
     private String email;
+    private String fax;
+    private String companyname;
     private User user;
     private String nameOfContactPerson;
     private String positionOfContactPerson;
@@ -48,6 +55,31 @@ public class Provider {
     public void setName(String name) {
         this.name = name;
     }
+    
+    
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getZipcode() {
+        return zipcode;
+    }
+
+    public void setZipcode(String zipcode) {
+        this.zipcode = zipcode;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
 
     public String getState() {
         return state;
@@ -71,6 +103,22 @@ public class Provider {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+    
+    public String getFax() {
+        return fax;
+    }
+
+    public void setFax(String fax) {
+        this.fax = fax;
+    }
+    
+    public String getCompanyname() {
+        return companyname;
+    }
+
+    public void setCompanyname(String companyname) {
+        this.companyname = companyname;
     }
 
     public String getEmail() {

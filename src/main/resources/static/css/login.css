@@ -82,6 +82,7 @@
     float: left;
     font-size: 1.3em;
     color: silver;
+        text-decoration:none;
 }
 #login-container .alignright{
     float: right;

@@ -21,7 +21,16 @@
 
                 <fieldset>
                     <legend th:text="#{provider.address}">Provider address</legend>
+                    
+                    <label for="address" th:text="#{provider.streetaddress}">Street address</label>
+                    <input type="text" disabled="disabled" required="true" name="address" th:value="${provider.address}"/>
 
+                    <label for="zipcode" th:text="#{provider.zipcode}">Zip-code</label>
+                    <input type="text" disabled="disabled" required="true" name="zipcode" th:value="${provider.zipcode}"/>
+
+                    <label for="city" th:text="#{provider.city}">City</label>
+                    <input type="text" disabled="disabled" required="true" name="city" th:value="${provider.city}"/>
+                    
                     <label for="state" th:text="#{provider.state}">State</label>
                     <input type="text" disabled="disabled" required="true" name="state" th:value="${provider.state}"/>
 
@@ -31,6 +40,9 @@
 
                 <label for="phone" th:text="#{provider.phone}">Telephone</label>
                 <input type="text" disabled="disabled" required="true" name="phone" th:value="${provider.phone}"/>
+                
+                <label for="fax" th:text="#{provider.fax}">Fax</label>
+                <input type="text" disabled="disabled" required="true" name="fax" th:value="${provider.fax}"/>
 
                 <label for="email" th:text="#{provider.email}">Email address</label>
                 <input type="text" disabled="disabled" required="true" name="email" th:value="${provider.email}"/>

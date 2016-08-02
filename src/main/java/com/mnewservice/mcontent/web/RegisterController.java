@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import javax.validation.Valid;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -93,13 +94,102 @@ public class RegisterController {
     }
 
 //</editor-fold>
+
+    
+    @RequestMapping(value = {"/register/providerSignUp"}, method = RequestMethod.GET)
+    public ModelAndView registerProviderSignUpGet() {
+        ModelAndView mav = new ModelAndView("providerSignUp");
+        mav.addObject("provider", new Provider());
+        return mav;
+    }
+    
+    @RequestMapping(value = {"/register/providerSignUp"}, method = RequestMethod.POST)
+    public ModelAndView registerProviderSignUpPost(
+             //@Valid final Provider provider, // poistettu Providerin validointi
+            @Valid final Provider provider,
+            final BindingResult bindingResult,
+            @RequestParam("username") String username,
+            @RequestParam("password") String password,
+            @RequestParam("passwordcnf") String passwordcnf,
+            @RequestParam("correspondenceFiles") MultipartFile[] correspondenceFiles,
+            final ModelMap model) {
+        
+            //System.out.println(password + ", " +passwordcnf);
+            ModelAndView mav = new ModelAndView("providerSignUp");
+            User user = userManager.getUserByUsername(username);
+
+            // Handling errors from form
+            // 1) User exists
+            // 2) Passwords doesn't match
+            // 2) Passwords doesn't match
+            if(!password.equals(passwordcnf)){
+                bindingResult.rejectValue("user.password", "password", "Password and confirmation didn't match.");
+            }
+
+            if (bindingResult.hasErrors() || user != null) {
+                mav = mavAddNLogErrorText(mav, bindingResult.getAllErrors());
+    //            bindingResult.getAllErrors().stream().forEach((error) -> {
+    //                LOG.error(error.toString());
+    //            });
+    
+             // 1) User exists
+            if(user != null){
+                bindingResult.rejectValue("user.username", "username", "Username already in use.");
+            }
+            
+
+
+           
+            /*
+            //TEST
+            // Puts error to form field "name". It is in form provider.name(?)
+            bindingResult.rejectValue("name", "name", "An account already exists for this username.");
+            bindingResult.rejectValue("address", "address", "Address is too complicated.");
+            */
+            
+           
+            
+            mav.addObject("provider", model.getOrDefault("provider", new Provider()));
+            mav.addObject("error", true);
+        } else {
+            try {
+                provider.setUser(createUser(username, password));
+                provider.setCorrespondences(createCorrespondences(correspondenceFiles));
+
+                // persist the object "provider"
+                Provider savedProvider = providerManager.saveProvider(provider);
+
+                mav = new ModelAndView("providerRegistered");
+                mav.addObject("provider", savedProvider);
+
+                registrationNotification(savedProvider);
+
+            } catch (Exception ex) {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                ex.printStackTrace(pw);
+                
+                LOG.error(sw.toString());
+//                if (provider.getUser() != null) {
+//                    provider.getUser().setPassword(null);
+//                }
+//                mav.addObject("provider", provider);
+//                mav.addObject("error", true);
+//                mav.addObject("errortext", ex.getMessage());
+                throw new DataHandlingException(ex);
+            }
+        }
+
+        return mav;
+    }
+
     @RequestMapping(value = {"/register/provider"}, method = RequestMethod.GET)
     public ModelAndView registerProvider() {
         ModelAndView mav = new ModelAndView("providerRegister");
         mav.addObject("provider", new Provider());
         return mav;
     }
-
+    
     @RequestMapping(value = {"/register/provider"}, method = RequestMethod.POST)
     public ModelAndView registerProvider(
             final Provider provider,

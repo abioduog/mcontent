@@ -49,6 +49,14 @@ public class UserManager {
         UserEntity entity = repository.findOne(id);
         return mapper.toDomain(entity);
     }
+    
+    @Transactional(readOnly = true)
+    public User getUserByUsername(String username) {
+        LOG.info("Getting user with username=" + username);
+        UserEntity entity = repository.findByUsername(username);
+        return mapper.toDomain(entity);
+    }
+
 
     @Transactional(readOnly = true)
     public Collection<User> getAllUsersByRoleName(String roleName) {

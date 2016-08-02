@@ -17,8 +17,10 @@ public class ProviderEntity extends AbstractEntity {
 
     // ** basic info **
     private String name;
-
-    // address
+    
+    private String address;
+    private String zipcode;
+    private String city;
     private String state;
     private String country;
 
@@ -28,6 +30,10 @@ public class ProviderEntity extends AbstractEntity {
 //    private EmailEntity email;
     private String phone;
     private String email;
+
+
+    private String fax;
+    private String companyname;
 
     // ** login info **
     @OneToOne(cascade = CascadeType.ALL)
@@ -58,6 +64,31 @@ public class ProviderEntity extends AbstractEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getZipcode() {
+        return zipcode;
+    }
+
+    public void setZipcode(String zipcode) {
+        this.zipcode = zipcode;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    // address
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public String getState() {
@@ -90,6 +121,22 @@ public class ProviderEntity extends AbstractEntity {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+    
+        public String getFax() {
+        return fax;
+    }
+
+    public void setFax(String fax) {
+        this.fax = fax;
+    }
+    
+    public String getCompanyname() {
+        return companyname;
+    }
+
+    public void setCompanyname(String companyname) {
+        this.companyname = companyname;
     }
 
     public UserEntity getUser() {
@@ -155,6 +202,7 @@ public class ProviderEntity extends AbstractEntity {
     public void setCorrespondences(Set<BinaryContentEntity> correspondences) {
         this.correspondences = correspondences;
     }
+
 // </editor-fold>
 
 }

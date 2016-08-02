@@ -2,6 +2,9 @@ package com.mnewservice.mcontent.domain;
 
 import java.util.Collection;
 import java.util.Objects;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -12,6 +15,10 @@ public class User {
     private Long id;
 
     private String username;
+    @Size.List ({
+        @Size(min=8, message="The field must be at least {min} characters"),
+        @Size(max=60, message="The field must be less than {max} characters")
+    })
     private String password;
     private boolean active;
 

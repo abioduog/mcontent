@@ -4,28 +4,32 @@
  * and open the template in the editor.
  */
 function check() {
-    if(document.getElementById('password01').value === document.getElementById('password02').value) {
- document.getElementById('password02').style.backgroundColor = "#90EE90";
+    if(document.getElementById('password01').value.length < 8){
+        document.getElementById('password01').style.backgroundColor = "#E8ADAA";
+    } else {
+        document.getElementById('password01').style.backgroundColor = "#90EE90";
+    }
+    if(document.getElementById('password01').value === document.getElementById('password02').value && document.getElementById('password01').value.length > 7) {
+        document.getElementById('password01').style.backgroundColor = "#90EE90";
+        document.getElementById('password02').style.backgroundColor = "#90EE90";
 
     } else {
- document.getElementById('password02').style.backgroundColor = "#E8ADAA";
+        document.getElementById('password02').style.backgroundColor = "#E8ADAA";
     }
 }
 
 function checkPassword() {
 
-
-if(document.getElementById('password01').value.length < 8 || document.getElementById('password01').value.length > 16 ){
-         mContent.alert.error("Password length must be between 8 and 16 characters");
-return false;
-}
+    if(document.getElementById('password01').value.length < 8 || document.getElementById('password01').value.length > 16 ){
+             mContent.alert.error("Password length must be between 8 and 16 characters");
+    return false;
+    }
 
     if(document.getElementById('password01').value !== document.getElementById('password02').value) {
          mContent.alert.error("Passwords doesn\'t match");
-return false;
-
-}
-return true;
+        return false;
+    }
+    return true;
 }
 
 

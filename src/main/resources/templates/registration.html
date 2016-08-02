@@ -40,11 +40,10 @@
 
 <div>
 
-                            <input type="text" required="false" name="providername" placeholder="Provider Name" th:title="#{provider.state.tooltip}" th:value="${providerName}"/>
+                            <input type="text" required="true" name="providername" placeholder="Provider Name" th:title="#{provider.name.tooltip}" th:placeholder="#{registration.providerName}"/>
 
 
-
-                            <input type="text" required="false" name="address" placeholder="Address" th:title="#{provider.country.tooltip}" th:value="#{registration.streetAddress}"/>
+                            <input type="text" required="true" name="address" placeholder="Address" th:title="#{provider.address.tooltip}" th:placeholder="#{registration.streetAddress}"/>
 </div>
                     
 
@@ -52,20 +51,20 @@
                        
 <div>
 
-                            <input type="text" required="false" name="state" placeholder="State" th:title="#{provider.state.tooltip}" th:value="#{registration.state}"/>
+                            <input type="text" required="true" name="state" placeholder="State" th:title="#{provider.state.tooltip}" th:placeholder="#{registration.state}"/>
 
 
    
 
-                            <select name="country">
+                            <select name="country" required="true">
                                 <option value="null" th:text="#{registration.selectCountry}"></option>
-                                <option value="NGA">Nigeria</option>
+                                <option value="Niger">Niger</option>
                             </select>
 </div>
 
 <div>
 
-                            <input type="text" required="false" name="companyname" placeholder="Company Name" th:title="#{provider.country.tooltip}" th:value="#{registration.companyName}"/>
+                            <input type="text" name="companyname" placeholder="Company Name" th:title="#{registration.companyName.tooltip}" th:placeholder="#{registration.companyName}"/>
 </div>
 			
                 </fieldset>
@@ -76,13 +75,13 @@
 
                         <legend th:text="#{registration.loginDetails}">Login Details</legend>
 <div>
-                        <input type="text" autocomplete="off" required="false" name="username" placeholder="Username" th:title="#{provider.username.tooltip}" th:value="#{register.username}"/>
+                        <input type="text" autocomplete="off" required="true" name="username" placeholder="Username" th:title="#{provider.username.tooltip}" th:placeholder="#{register.username}"/>
 
 
-                        <input id="password01" class="inputfix" name="password" type="password" autocorrect="off" autocapitalize="none" th:placeholder="#{general.password}"  onKeyUp="check()"/>
+                        <input id="password01" class="inputfix" required="true" name="password" type="password" autocorrect="off" autocapitalize="none" th:title="#{general.password}" th:placeholder="#{general.password}"  onKeyUp="check()"/>
 </div>
                         <div>
-                        <input id="password02" class="inputfix" name="passwordcnf" type="password" autocorrect="off" autocapitalize="none" th:placeholder="#{general.confirmPassword}"   onKeyUp="check()"/>
+                        <input id="password02" class="inputfix" name="passwordcnf" type="password" autocorrect="off" autocapitalize="none" th:title="#{general.confirmPassword}" th:placeholder="#{general.confirmPassword}"   onKeyUp="check()"/>
 
 
 </div>
@@ -94,21 +93,29 @@
                         <legend th:text="#{registration.contactDetails}">Contact Details</legend>
 <p th:text="#{registration.contactDetailsInfo}">Please provide detais for one member of staff who will be 3wc's dedicated contact for all communications regarding this application and any resulting subscription.</p>
 <div>
-                        <input type="text" required="false" name="nameOfContactPerson" placeholder="Contact Name" th:title="#{provider.contactperson.tooltip}" th:value="#{registration.contactName}"/>
+                        <input type="text" required="true" name="nameOfContactPerson" placeholder="Contact Name" th:title="#{provider.contactperson.tooltip}" th:placeholder="#{registration.contactName}"/>
 
-                       <input type="text" required="false" name="positionOfContactPerson" placeholder="Position" th:title="#{provider.position.tooltip}" th:value="#{registration.position}"/>
+                       <input type="text" name="positionOfContactPerson" placeholder="Position" th:title="#{provider.position.tooltip}" th:placeholder="#{registration.position}"/>
 </div>
 
 
 <div>
-                        <input type="text" required="false" name="mobilenumber" placeholder="Mobile Number" th:title="#{provider.contactperson.tooltip}" th:value="#{registration.mobileNumber}"/>
+                        <input type="text" required="true" name="mobilenumber" placeholder="Mobile Number" th:title="#{registration.mobileNumber.tooltip}" th:placeholder="#{registration.mobileNumber}"/>
 
-                       <input type="text" required="false" name="faxnumber" placeholder="Fax Number" th:title="#{provider.position.tooltip}" th:value="#{registration.faxNumber}"/>
+                       <input type="text" name="faxnumber" placeholder="Fax Number" th:title="#{registration.faxNumber.tooltip}" th:placeholder="#{registration.faxNumber}"/>
 </div>
 <div>
-                        <input type="text" required="false" name="contactemail" placeholder="Email" th:title="#{provider.contactperson.tooltip}" th:value="#{registration.contactEmail}"/>
+                        <input type="text" required="true" name="contactemail" placeholder="Email" th:title="#{registration.contactEmail.tooltip}" th:placeholder="#{registration.contactEmail}"/>
+</div>
+               </fieldset>
+               <fieldset>
 
-                       <input type="text" required="false" name="contentdescription" placeholder="Content Description" th:title="#{provider.position.tooltip}" th:value="#{registration.contentDescription}"/>
+    <legend th:text="#{registration.contentDetails}">Content Details</legend>
+<div>                        
+    
+                       <input type="text" required="true" name="contentname" placeholder="Content Name" th:title="#{registration.contentName.tooltip}" th:placeholder="#{registration.contentName}"/>
+
+                       <input type="text" required="true" name="contentdescription" placeholder="Content Description" th:title="#{registration.contentDescription.tooltip}" th:placeholder="#{registration.contentDescription}"/>
 
 
 </div>

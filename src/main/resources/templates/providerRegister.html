@@ -32,6 +32,15 @@
 
                         <fieldset>
                             <legend th:text="#{provider.address}">Provider address</legend>
+                            
+                            <label for="address" th:text="#{provider.streetaddress}">Street address</label>
+                            <input type="text" required="true" name="address" placeholder="Address" th:title="#{provider.streetaddress.tooltip}" th:value="${provider.address}"/>
+
+                            <label for="zipcode" th:text="#{provider.zipcode}">Zip-code</label>
+                            <input type="text" required="true" name="zipcode" placeholder="Zip-code" th:title="#{provider.zipcode.tooltip}" th:value="${provider.zipcode}"/>
+                            
+                            <label for="city" th:text="#{provider.city}">City</label>
+                            <input type="text" required="true" name="city" placeholder="City" th:title="#{provider.city.tooltip}" th:value="${provider.city}"/>
 
                             <label for="state" th:text="#{provider.state}">State</label>
                             <input type="text" required="true" name="state" placeholder="State" th:title="#{provider.state.tooltip}" th:value="${provider.state}"/>
@@ -42,7 +51,10 @@
 
                         <label for="phone" th:text="#{provider.phone}">Telephone</label>
                         <input type="tel" required="true" name="phone" placeholder="+123 4567 890" th:title="#{provider.phone.tooltip}" th:value="${provider.phone}"/>
-
+                        
+                        <label for="phone" th:text="#{provider.fax}">Fax</label>
+                        <input type="tel" required="true" name="fax" placeholder="+123 4567 891" th:title="#{provider.fax.tooltip}" th:value="${provider.fax}"/>
+                        
                         <label for="email" th:text="#{provider.email}">Email address</label>
                         <input type="email" required="true" name="email" placeholder="provider@mail" th:title="#{provider.email.tooltip}" th:value="${provider.email}"/>
                     </fieldset>
@@ -54,7 +66,7 @@
                         <input type="text" autocomplete="off" required="true" name="username" placeholder="username" th:title="#{provider.username.tooltip}" th:value="${provider.user.username}"/>
 
                         <label for="password" th:text="#{user.password}">Password</label>
-                        <input type="password" autocomplete="off" required="true" name="password" th:title="#{provider.password.tooltip}" th:value="${provider.user.password}"/>
+                        <input type="password" autocomplete="off" required="true" minlength="8" name="password" th:title="#{provider.password.tooltip}" th:value="${provider.user.password}"/>
                     </fieldset>
                     <fieldset>
                         <legend th:text="#{provider.contactInfo}">Contact Info</legend>

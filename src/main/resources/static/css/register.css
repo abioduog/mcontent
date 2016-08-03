@@ -3,14 +3,92 @@
     Author     : Marko Tuononen <marko.tuononen at nolwenture.com>
     Edited     : Pasi Saukkonen <pasi.saukkonen at nolwenture.com>
 */
-fieldset fieldset {
-    /* TODO */
+body {
+    padding: 10px;
 }
-hr {
-    display: block;
-    height: 1px;
-    border: 0;
-    border-top: 1px solid #ccc;
-    margin: 1em 0;
-    padding: 0; 
+
+form#savelogin {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+form#savelogin > .form-fields > fieldset {
+    border-top: 3px solid #40d3f7;
+    margin-top: 30px;
+    position: relative;
+}
+
+form#savelogin > .form-fields > fieldset > legend {
+    font-size: 17px;
+    position: absolute;
+    margin-top: -30px;
+}
+
+
+form#savelogin fieldset {
+    border: none;
+    margin: .5em 0;
+    padding-left: 0;
+}
+
+form#savelogin fieldset > legend {
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: bold;
+    color: #626262;
+}
+
+form#savelogin fieldset > div {
+    display: inline-block;
+    float: left;
+    width: 40%;
+    min-height: 30px;
+    margin: 0 4%;
+}
+
+form#savelogin fieldset > div > input,
+form#savelogin fieldset > div > select {
+    width: 100%;
+    font-size: 13px;
+}
+
+form#savelogin fieldset > div > ul {
+    margin: 0;
+}
+
+form#savelogin fieldset > div > input[type='file'] {
+    background-color: black;
+    position: absolute;
+    width: 116px;
+    height: 33px;
+    opacity: 0;
+}
+
+form#savelogin fieldset p {
+    font-size: 12px;
+    color: #626262;
+}
+
+
+
+label.file-button-label,
+form#savelogin button {
+    background-color: #40d3f7;
+    border: none;
+    color: white;
+    padding: 8px 23px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    float: left;
+    font-size: 14px;
+    margin: 4px 15px 0 0;
+    cursor: pointer;
+}
+
+@media screen and (max-width: 480px) {
+    form#savelogin fieldset > div {
+        width: 100%;
+        margin: 0;
+    }
 }

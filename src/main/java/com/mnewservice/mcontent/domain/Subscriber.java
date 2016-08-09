@@ -1,5 +1,6 @@
 package com.mnewservice.mcontent.domain;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -15,7 +16,17 @@ public class Subscriber {
 
     // One-way, no mapping back to entity
     private Set<Subscription> subscriptions;
+    /*private List<Subscription> subscriptionsList;
 
+    public List<Subscription> getSubscriptionsList() {
+        return subscriptionsList;
+    }
+
+    public void setSubscriptionsList(List<Subscription> subscriptionsList) {
+        this.subscriptionsList = subscriptionsList;
+    }
+
+*/
     public Long getId() {
         return id;
     }

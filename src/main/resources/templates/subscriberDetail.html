@@ -26,6 +26,10 @@
                         <td>
                             <table class="pure-table">
                                  <tbody>
+                                    <tr>
+                                      <th>Start</th>
+                                      <th>End</th>
+                                    </tr>
                                     <tr th:each="subscriptionPeriod : ${subscription.periods}">
                                         <td th:text="${#dates.format(subscriptionPeriod.start, 'yyyy-MM-dd')}">Start</td>
                                         <td th:text="${#dates.format(subscriptionPeriod.end, 'yyyy-MM-dd')}">End</td>

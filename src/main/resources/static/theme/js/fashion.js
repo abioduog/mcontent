@@ -1,3 +1,3 @@
 $( document ).ready(function() {
-    $("img").protectImage();
+    $(".themed-content img").protectImage();
 });

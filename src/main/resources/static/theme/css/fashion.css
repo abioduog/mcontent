@@ -3,7 +3,11 @@
     src: url(../fonts/Ardeco-webfont.ttf);
 }
 
-#ad-panel {
+.themed-content {
+    background-color: #EFDEEF;
+}
+
+.themed-content .ad-panel {
     width: 100%;
     height: 38vw;
     background-image: url("../ad/topmen.png");
@@ -11,7 +15,7 @@
     background-repeat: no-repeat;
 }
 
-#workarea {
+.themed-content .workarea {
     width: 90vw;
     overflow-x: hidden;
     padding: 5vw;
@@ -20,41 +24,37 @@
 }
 
 
-#workarea h1 {
+.themed-content .workarea h1 {
     font-family: Ardeco;
     color: #721872;
 }
 
-#workarea .content-image img {
+.themed-content .workarea .content-image img {
     background-size:contain;
     box-shadow: 0px 0px 10px #721872;
 }
 
-#user-menu {
+.themed-content .user-menu {
     width: 100%;
     height: 30px;
     color: black;
     border-top: 1px solid black;
 }
-#user-menu .user-menu-content {
+.themed-content .user-menu .user-menu-content {
     margin-bottom: 10px;
 }
 
-#user-menu::after {
+.themed-content .user-menu::after {
     content: "mContent Platform. All rights Reserved";
     font-size: 13px;
 }
 
-img {
+.themed-content img {
     width: 50%;
 }
 
 @media(max-width: 320px) {
-    img {
+    .themed-content img {
         width: 100% !important;
     }
-}
-
-body {
-    background-color: #EFDEEF;
 }

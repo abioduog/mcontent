@@ -42,7 +42,7 @@
                                 <img class="content-thumb-image" th:src="|data:image/png;base64,${contentFile.thumbBase64Png}|" />
                             </td>
                             <td th:text="${contentFile.originalFilename}">NAME</td>
-                            <td sec:authorize="hasRole('ADMIN')">
+                            <td sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
                                 <div>
                                     <a class="remove-content-file pure-button" 
                                        th:href="${contentFile.uuid}"
@@ -145,7 +145,7 @@
                 });
 
                 this.on("success", function (file, response) {
-                    if (/*[[${#authorization.expression('hasRole(''ADMIN'')')}]]*/ == true ){
+                    if (/*[[${#authorization.expression('hasAnyRole(''ADMIN'',''PROVIDER'')')}]]*/ == true ){
                         var _href = file.uuid;
                         var _text =  /*[[#{general.remove}]]*/ "Remove";
                         var newrow = $('#file-table tr:last').after( "<tr id=\""+file.name+"\"><td><img src='data:image/png;base64,"+response.files[0].thumbBase64Png+"' alt='"+file.name+"' /></td><td>"+file.name+

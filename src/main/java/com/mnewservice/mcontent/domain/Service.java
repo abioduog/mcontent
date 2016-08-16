@@ -18,7 +18,8 @@ public class Service {
     private String renewMessage;
     private String expireMessage;
     private String unsubscribeMessage;
-
+    private String serviceDescription;
+    
     private DeliveryPipe deliveryPipe;
     private DeliveryTime deliveryTime;
 
@@ -98,6 +99,14 @@ public class Service {
     public String getUnsubscribeMessage() {
         return unsubscribeMessage;
     }
+    
+    public String getServiceDescription() {
+        return serviceDescription;
+    }
+
+    public void setServiceDescription(String serviceDescription) {
+        this.serviceDescription = serviceDescription;
+    }
 
     public void setUnsubscribeMessage(String unsubscribeMessage) {
         this.unsubscribeMessage = unsubscribeMessage;
@@ -118,6 +127,7 @@ public class Service {
     public void setDeliveryTime(DeliveryTime deliveryTime) {
         this.deliveryTime = deliveryTime;
     }
+    
     // </editor-fold>
 
 }

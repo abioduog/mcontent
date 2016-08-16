@@ -789,7 +789,7 @@ public class ContentController {
                 contentFile.setThumbImage(ContentFile.generateThumbImage(file.getBytes()));
 
                 // SMB and DB save
-                contentFile = fileManager.saveFile(contentFile, file.getBytes());
+                contentFile = fileManager.saveFile(contentFile, file.getBytes());;
                 contentFile.createAndSetImageHtmlBlock(servletContext);
                 response.getFiles().add(contentFile);
 

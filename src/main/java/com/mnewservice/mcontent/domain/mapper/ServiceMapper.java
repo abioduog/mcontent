@@ -34,6 +34,7 @@ public class ServiceMapper extends AbstractMapper<Service, ServiceEntity> {
         domain.setRenewMessage(entity.getRenewMessage());
         domain.setExpireMessage(entity.getExpireMessage());
         domain.setUnsubscribeMessage(entity.getUnsubscribeMessage());
+        domain.setServiceDescription(entity.getServiceDescription());
         domain.setDeliveryPipe(deliveryPipeMapper.toDomain(entity.getDeliveryPipe()));
         domain.setDeliveryTime(deliveryTimeMapper.toDomain(entity.getDeliveryTime()));
 
@@ -57,6 +58,7 @@ public class ServiceMapper extends AbstractMapper<Service, ServiceEntity> {
         entity.setRenewMessage(domain.getRenewMessage());
         entity.setExpireMessage(domain.getExpireMessage());
         entity.setUnsubscribeMessage(domain.getUnsubscribeMessage());
+        entity.setServiceDescription(domain.getServiceDescription());
         entity.setDeliveryPipe(deliveryPipeMapper.toEntity(domain.getDeliveryPipe()));
         entity.setDeliveryTime(deliveryTimeMapper.toEntity(domain.getDeliveryTime()));
 

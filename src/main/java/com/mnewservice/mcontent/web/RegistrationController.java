@@ -88,7 +88,7 @@ public class RegistrationController {
      */
     @RequestMapping(value = "/registration", method = RequestMethod.GET)
     public String registrationForm(Model model) {
-        System.out.println("Registration/GET");
+        //System.out.println("Registration/GET");
        // model.addAttribute("providerName", "getthisfromfile");
         return "registration";
     }
@@ -110,6 +110,7 @@ public class RegistrationController {
             @RequestParam("contentname") String contentname,
             @RequestParam("contentdescription") String contentdescription,
             Model model) {
+        /*
         System.out.println("Registration/POST");
         System.out.println("Arvot: "
                 + providername
@@ -127,7 +128,7 @@ public class RegistrationController {
                 + ", " + contentname
                 + ", " + contentdescription
         );
-
+*/
                 Provider provider = new Provider();
                 provider.setAddress(address);
                 provider.setState(state);

@@ -61,7 +61,12 @@ public class ServiceEntity extends AbstractEntity {
 
     @Column(length = 160)
     private String unsubscribeMessage;
+    
+    @Column(length = 160)
+    private String serviceDescription;
 
+
+    
     @ManyToOne
     private DeliveryPipeEntity deliveryPipe;
 
@@ -140,7 +145,15 @@ public class ServiceEntity extends AbstractEntity {
     public void setUnsubscribeMessage(String unsubscribeMessage) {
         this.unsubscribeMessage = unsubscribeMessage;
     }
+    
+    public String getServiceDescription() {
+        return serviceDescription;
+    }
 
+    public void setServiceDescription(String serviceDescription) {
+        this.serviceDescription = serviceDescription;
+    }
+    
     public DeliveryPipeEntity getDeliveryPipe() {
         return deliveryPipe;
     }

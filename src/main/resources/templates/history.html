@@ -75,7 +75,7 @@
                 <form id="logout" th:action="@{/show/logout}" method="post">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 </form>
-                <a class="view-subscriber" th:href="@{|/show/subscriber/${subscriberhistory}|(uuid=${short_uuid})}">Subscription history</a> | <a href="#">Discover</a> | <a onclick="$('#logout').submit();">Logout</a>
+                <a class="view-subscriber" th:href="@{|/show/subscriber/${subscriberhistory}/history|(uuid=${short_uuid})}">Subscription history</a> | <a th:href="@{|/show/discover|(uuid=${short_uuid}, phone=${subscriberhistory})}">Discover</a> | <a onclick="$('#logout').submit();">Logout</a>
             </div>
         </div>
         <script th:src="@{|/lib/jquery/jquery.min.js|}"></script>

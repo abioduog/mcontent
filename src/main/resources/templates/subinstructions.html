@@ -1,0 +1,25 @@
+
+<div class="service-detail">
+    <form name="detail-form" class="pure-form pure-form-stacked" action="#" th:action="@{/service/} "
+          method="post">
+        <div class="form-fields">
+            <div th:if="${error}" class="alert alert-error" th:text="#{service.error}">
+                Error in service data.
+            </div>
+            <div th:if="${error} and ${errortext}" class="alert alert-error" th:text="${errortext}">
+                - No message -
+            </div>
+            <div th:if="${saved}" class="alert alert-success" th:text="#{service.saved}">
+                Service saved.
+            </div>
+            <div>
+
+            <p th:text="${subscribeInstructionsDetails}">
+                Lorem ipsum...
+            </p>
+
+            </div>
+        </div>
+    </form>
+</div>
+

@@ -1,13 +1,13 @@
-body {
+.themed-content {
     margin: 0 auto;
 }
 
-#user-menu {
+.themed-content .user-menu {
     text-align: center;
     padding: 10px 0;
 }
 
-#user-menu a {
+.themed-content .user-menu a {
     padding: 0px 1.2vw;
     font-size: 4vw;
     color: inherit;
@@ -15,7 +15,7 @@ body {
 }
 
 @media screen and (orientation:landscape) {
-    #user-menu a {
+    .themed-content .user-menu a {
         padding: 0px 1.2vw;
         font-size: 4vh;
     }

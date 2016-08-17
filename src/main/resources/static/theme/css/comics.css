@@ -1,13 +1,16 @@
-body {
+.themed-content {
     background-color: #646363;
     color: white;
+    width: 100%;
+    height: 100%;
+    position: absolute;
 }
 
-#ad-panel {
+.themed-content .ad-panel {
     display: none;
 }
 
-#workarea {
+.themed-content .workarea {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -15,14 +18,14 @@ body {
     box-sizing: border-box;
 }
 
-#workarea .navigator {
+.themed-content .workarea .navigator {
     position: absolute;
     width: 100%;
     height: 80vh;
 }
 
-#workarea .navigator .previous-page,
-#workarea .navigator .next-page {
+.themed-content .workarea .navigator .previous-page,
+.themed-content .workarea .navigator .next-page {
     position:absolute;
     top: 50%;
     transform: translate(0, -50%);
@@ -30,25 +33,25 @@ body {
     padding: 10px;
     border-radius: 50%;
 }
-#workarea .navigator .previous-page {
+.themed-content .workarea .navigator .previous-page {
     left: 0;
 }
-#workarea .navigator .next-page {
+.themed-content .workarea .navigator .next-page {
     right: 0;
 }
 
-#workarea .navigator *[disabled] {
+.themed-content .workarea .navigator *[disabled] {
     opacity: 0;
 }
 
-#workarea .current-position {
+.themed-content .workarea .current-position {
     position:absolute;
     left: 50%;
     transform: translate(-50%);
     bottom: -5vh;
 }
 
-#workarea::after {
+.themed-content .workarea::after {
     content: "mContent Platform. All rights Reserved";
     font-size: 13px;
     position:absolute;
@@ -57,7 +60,7 @@ body {
     text-align: center;
 }
 
-#workarea img {
+.themed-content .workarea img {
     height: 100%;
     width: 100% !important;
     background-repeat: no-repeat;
@@ -65,21 +68,24 @@ body {
     background-position: center;
 }
 
-#workarea img[hidden] {
+.themed-content .workarea img[hidden] {
     display: none;
 }
 
-#user-menu {
+.themed-content .user-menu {
     position: fixed;
     top: 0;
     width: 100%;
     height: 10vh;
 }
 
-.content-image {
+.themed-content .content-image {
     width: 90vw;
     height: 80vh;
     position: absolute;
     left: 50%;
     transform: translate(-50%);
 }
+
+
+.themed-content .user-menu .user-menu-content {display: inline;}

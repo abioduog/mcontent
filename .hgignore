@@ -19,3 +19,8 @@ nbproject
 #IntelliJ IDEA
 .idea/
 *.iml
+\.orig\..*$
+\.orig$
+\.chg\..*$
+\.rej$
+\.conflict\~$

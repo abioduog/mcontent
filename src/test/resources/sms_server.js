@@ -1,8 +1,11 @@
 //add timestamps in front of log messages
 //require('console-stamp')(console, 'HH:MM:ss.l');
 
-const PORT=13013; 
-const PATH="/cgi-bin/sendsms";
+//const PORT=13013; 
+//const PATH="/cgi-bin/sendsms";
+
+var PORT=13013; 
+var PATH="/cgi-bin/sendsms";
 
 var http = require('http');
 var url = require('url');

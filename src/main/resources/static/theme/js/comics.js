@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-    $(".themed-content .workarea").append("<div class='navigator'><a class='previous-page'> << </a><span class='current-position'></span><a class='next-page'> >> </a></div>");
+    $(".themed-content .workarea").append("<div class='navigator'><a class='previous-page'></a><span class='current-position'></span><a class='next-page'></a></div>");
     $(".themed-content img").protectImage();
 
     $(".workarea .navigator .previous-page").click(function(event) {

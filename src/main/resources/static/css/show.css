@@ -1,22 +1,82 @@
-.themed-content {
-    margin: 0 auto;
+@font-face {
+    font-family: Ardeco;
+    src: url(../fonts/Ardeco-webfont.ttf);
+}
+
+html, body {
+    min-height: 100%;
+}
+
+h1, h2, h3 {
+    font-weight: normal;
+}
+
+h1 {
+    font-size: 1.6rem;
+}
+
+h2 {
+    font-size: 1.2rem;
+}
+
+h3 {
+    font-size: 1.1rem;
+}
+
+body {
+    background: linear-gradient(to bottom, #5d5d5d 0%, #292929 100%);
+}
+
+.themed-content .ad-panel {
+    height: 90px;
+    width: 728px;
+}
+
+@media screen and (max-width: 728px) {
+    .themed-content .ad-panel {
+        height: 12.8vw;
+        width: 100vw;
+    }
+}
+
+.ad-panel {
+    position: relative;
+}
+
+.ad-panel:empty {
+    background-color: #e4e4e4;
+}
+
+.ad-panel::after {
+    content: 'AD PANEL';
+    font-size: 1.4rem;
+    color: white;
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
 }
 
 .themed-content .user-menu {
     text-align: center;
     padding: 10px 0;
+    color: white;
 }
 
 .themed-content .user-menu a {
-    padding: 0px 1.2vw;
-    font-size: 4vw;
-    color: inherit;
+    padding: 0px .2rem;
+    font-size: .8rem;
+    color: white;
     text-decoration: inherit;
+    cursor: pointer;
 }
 
-@media screen and (orientation:landscape) {
-    .themed-content .user-menu a {
-        padding: 0px 1.2vw;
-        font-size: 4vh;
-    }
+.themed-content .user-menu a:hover {
+    text-decoration: underline;
 }
+
+.themed-content .user-menu .copy {
+    font-size: .7rem;
+    color: #aaa;
+}
+

@@ -62,7 +62,7 @@ $.fn.protectImage = function() {
             console.log("Trying to protect non img");
             return;
         }
-        $(this).css("background", "url(" + $(this).attr("src") +") no-repeat");
+        $(this).css("background-image", "url(" + $(this).attr("src") +")");
         $(this).attr("src", "../../img/000000-0.png"); //original url was "/img/000000-0.png"
     })
 };

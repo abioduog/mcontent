@@ -14,6 +14,7 @@ var dispatcher = require('./httpdispatcher');
 dispatcher.onGet(PATH, function(req, res) {
     res.writeHead(200, {'Content-Type': 'text/plain'});
 	url_parts = url.parse(req.url, true);
+        res.end('Wantamos diamia babebimbo');
     res.end('');
 	console.log(url_parts.query);
 });    
@@ -29,5 +30,5 @@ function handleRequest(request, response){
 //create and start our server
 var server = http.createServer(handleRequest);
 server.listen(PORT, function(){
-    console.log("Server listening on: http://localhost:%s", PORT);
+    console.log("Server listening on: http://localhost:%s%s", PORT, PATH);
 });

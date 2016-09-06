@@ -40,6 +40,7 @@
     </table>
     <br/>
     <a class="create-content pure-button" sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:text="#{general.add}">Add new</a>
+    <!-- a class="upload-content pure-button" sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:text="#{general.upload}">Upload file</a -->
 </div>
 <script sec:authorize="hasRole('ADMIN')" th:inline="javascript">
 
@@ -76,16 +77,23 @@
 <script sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:inline="javascript">
     var contentUrlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/series/|}]]*/;
     var deliveryPipeName = /*[[${deliveryPipe.name}]]*/;
-
+   
     $(".create-content").click(function (event) {
         event.preventDefault();
         mContent.popup.load(deliveryPipeName + ' (#' + 'new' + ')', contentUrlBase + "create");
         return false;
     });
 
+    $(".upload-content").click(function (event) {
+        event.preventDefault();
+        mContent.popup.load(deliveryPipeName + ' (#' + 'new' + ')', contentUrlBase + "upload");
+        return false;
+    });
+
     $(".edit-content, .view-content").click(function (event) {
         event.preventDefault();
-        mContent.popup.loadWide(deliveryPipeName + ' (#' + $(this).attr('data-index') + ')', contentUrlBase + $(this).attr('href'));
+        //mContent.popup.loadWide(deliveryPipeName + ' (#' + $(this).attr('data-index') + ')', contentUrlBase + $(this).attr('href'));
+        mContent.popup.loadWide(deliveryPipeName + ' (#' + $(this).attr('href')+ ')', contentUrlBase + $(this).attr('href'));
         return false;
     });
 

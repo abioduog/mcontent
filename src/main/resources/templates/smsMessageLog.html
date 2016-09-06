@@ -14,6 +14,7 @@
         </tr>
         </thead>
         <tbody>
+           
         <tr th:each="message : ${messages}">
             <td th:text="${message.fromNumber}">FROM</td>
             <td><p th:each="receiver : ${message.receivers}" th:text="${receiver.number}">RECIEVER</p></td>
@@ -24,6 +25,7 @@
             <td><p th:each="log : ${message.log.split('\n')}" th:text="${log}">LOG</p></td>
             <td></td>
         </tr>
+           
         </tbody>
     </table>
 </div>

@@ -153,6 +153,7 @@ public class RegisterController {
             mav.addObject("error", true);
         } else {
             try {
+                LOG.info("Liitetiedostoja: " + correspondenceFiles.length);
                 provider.setUser(createUser(username, password));
                 provider.setCorrespondences(createCorrespondences(correspondenceFiles));
 
@@ -295,7 +296,7 @@ public class RegisterController {
         if (username == null || username.length() < 6) {
             throw new IllegalArgumentException(ERROR_USERNAME_TOO_SHORT);
         }
-        if (password == null || password.length() < 6) {
+        if (password == null || password.length() < 8) {
             throw new IllegalArgumentException(ERROR_PASSWORD_TOO_SHORT);
         }
         user.setUsername(username);

@@ -38,7 +38,7 @@ public class ServiceManager {
     @Transactional(readOnly = true)
     public Service getUnsubscribeService(String unsubscribeKeyword,
             int shortCode, String operator) {
-        LOG.info("Looking service with unsubscribeKeyword=" + unsubscribeKeyword
+        LOG.info("Looking unsubscribe service with keyword=" + unsubscribeKeyword
                 + ", shortCode=" + shortCode
                 + ", and operator=" + operator);
         ServiceEntity entity = repository

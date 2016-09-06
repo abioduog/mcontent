@@ -67,7 +67,7 @@
                         <legend th:text="#{registration.loginDetails}">Login Details</legend>
 
                         <div>
-                            <input type="text" required="true" name="username" placeholder="username" th:title="#{provider.username.tooltip}" th:value="${provider.user.username}"/>                       
+                            <input type="text" required="true" minlength="6" name="username" placeholder="username" th:title="#{provider.username.tooltip}" th:value="${provider.user.username}"/>                       
                             <ul>
                                 <li th:each="err : ${#fields.errors('provider.user.username')}" th:text="${err}" />
                             </ul>
@@ -108,9 +108,9 @@
                         <input type="email" required="true" name="emailOfContactPerson" th:placeholder="#{provider.emailOfContactPerson}" th:title="#{provider.contactmail.tooltip}" th:value="${provider.emailOfContactPerson}"/>
                         </div>
 
-                        <div>
+                        <!-- div>
                         <input type="fax" required="true" name="fax" placeholder="Fax number" th:title="#{provider.fax}" th:value="${provider.fax}"/>
-                        </div>
+                        </div -->
                     </fieldset>
 
                     <fieldset>
@@ -129,25 +129,36 @@
 
                     <fieldset>
                         <legend th:text="#{provider.correspondence}">Correspondence</legend>
+                        <!-- correspondenceFiles -->
                         <div>
                             <label class="file-button-label" th:text="#{general.upload}">Upload</label>
-                            <input type="file" multiple="multiple" class="correspondence-files" name="correspondenceFiles"/>
+                            <input id="uploadfiles" type="file" multiple="multiple" class="correspondence-files" name="correspondenceFiles"/>
                         </div>
+                        	
+                        <p>
+                         <div id="selectedFiles">
+
+                        </div>
+
+                        </p>
+
                     </fieldset>
                     
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 
                 <div class="form-actions">
                     <button id="submitok" type="submit" class="btn" th:text="#{general.submit}">Submit</button>
-		    <button type="reset" class="btn" th:text="#{general.cancel}">Cancel</button>
+		    <button id="resetall" type="reset" class="btn" th:text="#{general.cancel}">Cancel</button>
                 </div>
             </fieldset>
                     </div>
             </form>
 
         </div>
-    </body>
+
+
     <script th:src="@{|/js/resetpw.js|}"></script>
+
     <script>
 
 
@@ -166,5 +177,44 @@
                 document.getElementById('password01').style.backgroundColor = "#E8ADAA";
         }      
         }
-        </script>
+</script>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+    var selDiv = "";
+        
+    document.addEventListener('DOMContentLoaded', init, false);
+    
+    function init() {
+
+        document.querySelector('#uploadfiles').addEventListener('change', handleFileSelect, false);
+        selDiv = document.querySelector('#selectedFiles');
+        document.querySelector('#resetall').addEventListener('click', removeSelectedFiles, false);
+
+    }
+        
+    function handleFileSelect(e) {
+
+        if(!e.target.files) return;
+        
+        selDiv.innerHTML = "";
+        
+        var files = e.target.files;
+        
+        for(var i = 0; i < files.length; i++) {
+            var f = files[i];
+            
+            selDiv.innerHTML += f.name + '<br/>';
+
+        }
+        
+    }
+        function removeSelectedFiles(e) {
+
+        selDiv.innerHTML = "";
+        
+        }
+     /*]]>*/
+    </script>
+        </body>
 </html>

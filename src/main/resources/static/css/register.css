@@ -68,7 +68,10 @@ form#savelogin fieldset p {
     font-size: 12px;
     color: #626262;
 }
-
+div#selectedFiles {
+    font-size: 12px;
+    color: #626262;
+}
 
 
 label.file-button-label,

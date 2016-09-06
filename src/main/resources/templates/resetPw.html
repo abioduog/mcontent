@@ -13,7 +13,7 @@
             <div class="logo"></div>
             <span class="title">mContent</span>
             <span class="subtitle">- publishing your dreams -</span>
-            <form name="login-form" method="post" action="/mContent/login/resetpw">
+            <form name="login-form" method="post" th:action="@{/login/resetpw}">
                 <fieldset>
                      <legend th:text="#{login.resetpasswordprompt}">Login</legend>
                     <div th:if="${found} != null">
@@ -30,7 +30,7 @@
                         <button type="submit" class="btn">Send reset request</button>
                     </div>
                     <div id="textbox">
-                        <p><a href="/mContent/login" class="alignright">Back to login page</a></p>
+                        <p><a th:href="@{/login}" class="alignright">Back to login page</a></p>
                         <div style="clear: both;"></div>
                     </div>
                 </fieldset>

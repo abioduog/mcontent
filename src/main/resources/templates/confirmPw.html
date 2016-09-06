@@ -34,7 +34,7 @@
             <div class="logo"></div>
             <span class="title">mContent</span>
             <span class="subtitle">- publishing your dreams -</span>
-            <form name="login-form" method="post" action="/mContent/login/confirmpw" onSubmit="return checkPassword()">
+            <form name="login-form" method="post" th:action="@{/login/confirmpw}" onSubmit="return checkPassword()">
                 <fieldset>
                     <legend th:text="#{login.resetpasswordprompt}">Login</legend>
                                         
@@ -49,7 +49,7 @@
                     </div>
                     <div id="textbox">
                         <p class="alignleft"></p>
-                        <p><a href="/mContent/login" class="alignright">Back to login page</a></p>
+                        <p><a th:href="@{/login}" class="alignright">Back to login page</a></p>
                         <div style="clear: both;"></div>
                     </div>
                 </fieldset>

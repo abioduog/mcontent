@@ -213,6 +213,8 @@ public class MessageCenter {
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_ACCEPTED) {
                 String reason = response.getStatusLine().getReasonPhrase();
+                String content = entity.getContent().toString();
+                LOG.info("Content: " + content);
                 String msg = String.format(
                         ERROR_INVALID_STATUS, statusCode, reason
                 );

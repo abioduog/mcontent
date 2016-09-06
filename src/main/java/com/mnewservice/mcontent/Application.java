@@ -62,9 +62,7 @@ public class Application extends SpringBootServletInitializer {
       
       Properties props = new Properties();
        
-      props.put("spring.config.location", "file:"+System.getProperty("catalina.base") + File.separator +"conf" + File.separator );
-      
-      //System.out.println(props.toString());
+      props.put("spring.config.location", "file:" + System.getProperty("catalina.base") + File.separator +"conf" + File.separator);
       
       return props;
    }

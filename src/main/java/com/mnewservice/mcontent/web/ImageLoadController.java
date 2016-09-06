@@ -50,7 +50,6 @@ public class ImageLoadController {
         if (fileToShow != null) {
             String filename = fileToShow.getOriginalFilename();
             LOG.info("Found: " + fileToShow.getPath() + "(" + fileToShow.getMimeType() + ") - " + fileToShow.getOriginalFilename());
-            System.out.println("Found: " + fileToShow.getPath() + "(" + fileToShow.getMimeType() + ") - " + fileToShow.getOriginalFilename());
             InputStream imageinputstream = null;
             try {
 

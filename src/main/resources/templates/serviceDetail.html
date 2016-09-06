@@ -41,7 +41,8 @@
             <input type="text" required="true" name="unsubscribeMessage" th:value="${service.unsubscribeMessage}"/>
 
             <label for="deliveryPipe" th:text="#{service.deliveryPipe}">Delivery pipe</label>
-            <select name="deliveryPipe" th:field="${service.deliveryPipe.id}">
+            <select required="true" name="deliveryPipe" th:field="${service.deliveryPipe.id}">
+                <option value="" th:text="#{general.select}">Select</option>
                 <option th:each="deliveryPipe : ${allDeliveryPipes}" th:value="${deliveryPipe.id}" th:text="${deliveryPipe.name}">Delivery pipe name</option>
             </select>
 

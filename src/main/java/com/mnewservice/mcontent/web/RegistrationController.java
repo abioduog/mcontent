@@ -137,6 +137,7 @@ public class RegistrationController {
                 provider.setNameOfContactPerson(nameOfContactPerson);
                 provider.setPositionOfContactPerson(positionOfContactPerson);
                 provider.setPhoneOfContactPerson(mobilenumber);
+                provider.setEmail(contactemail);
                 provider.setEmailOfContactPerson(contactemail);
                 provider.setContentName(contentname);
                 provider.setContentDescription(contentdescription);

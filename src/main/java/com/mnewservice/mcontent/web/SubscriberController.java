@@ -4,8 +4,10 @@ import com.mnewservice.mcontent.domain.Subscriber;
 import com.mnewservice.mcontent.manager.SubscriberManager;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.support.PagedListHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -25,6 +27,8 @@ public class SubscriberController {
     private static final Logger LOG
             = Logger.getLogger(SubscriberController.class);
 
+    private int LIST_PAGE_SIZE = 25;
+        
     @Autowired
     private SubscriberManager subscriberManager;
 
@@ -66,13 +70,55 @@ public class SubscriberController {
         return subscriberManager.getAllSubscribers()
                 .stream().collect(Collectors.toList());
     }
-
+/*
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/subscriber/list"})
     public String listSubscribers() {
         return "subscriberList";
     }
+    */
+        @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping({"/subscriber/list"})
+    public String listSubscribersPaged(HttpServletRequest request) {
+        request.getSession().setAttribute("subscribersList", null);
+        return "redirect:/status/subscriberpaged/page/1";
+    }
 
+      @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value={"/status/subscriberpaged/page/{pagenumber}"})
+    public ModelAndView viewSubscribersPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber) {
+        String baseUrl = "/status/subscriberpaged/page";
+        PagedListHolder<?> pagedListHolder = (PagedListHolder<?>) request.getSession().getAttribute("subscribersList"); 
+        if(pagedListHolder == null){
+            pagedListHolder = new PagedListHolder(subscriberManager.getAllSubscribersOrderByPhoneNumberAsc()
+                .stream().collect(Collectors.toList()));
+            pagedListHolder.setPageSize(LIST_PAGE_SIZE);
+        }else{
+            final int goToPage = pagenumber - 1;
+            if(goToPage <= pagedListHolder.getPageCount() && goToPage >= 0){
+                pagedListHolder.setPage(goToPage);
+            }
+        }
+        pagedListHolder.getPageList();
+        request.getSession().setAttribute("subscribersList", pagedListHolder);
+        int current = pagedListHolder.getPage() + 1;
+        int begin = Math.max(1, current-LIST_PAGE_SIZE);
+        int end = Math.min(begin+5, pagedListHolder.getPageCount());
+        int totalPageCount = pagedListHolder.getPageCount();
+
+
+        ModelAndView mav = new ModelAndView("subscriberListPaged");
+        mav.addObject("allSubscribers", pagedListHolder.getPageList());
+        mav.addObject("beginIndex", begin);
+        mav.addObject("endIndex", end);
+        mav.addObject("currentIndex", current);
+        mav.addObject("totalPageCount", totalPageCount);
+        mav.addObject("baseUrl", baseUrl);
+        mav.addObject("pagedListHolder", pagedListHolder);
+        
+        return mav;
+    }
+    
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/subscriber/remove/{id}"})
     public ModelAndView viewRemovableSubscriber(@PathVariable("id") long id) {

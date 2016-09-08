@@ -1,0 +1,89 @@
+<h1 th:inline="text">SMS log</h1>
+<div class="content-menu">
+
+<div>
+    <div class="pagination">
+        <ul class="pagination">
+            <li th:class="${currentIndex == 1}? 'disabled' : '' ">
+                <span th:if='${currentIndex == 1}'>First</span>                
+                <a class="linktopage" th:if='${currentIndex != 1}'
+                   th:href="@{|${baseUrl}/1|}" 
+                   title='Go to first page'>First</a>
+            </li>
+            
+            <li th:class="${currentIndex == 1}? '' : 'disabled' ">
+                <span th:if='${currentIndex == 1}'>&lt;&lt;</span>
+                <a class="linktopage" th:if='${currentIndex != 1}'
+                   th:href="@{|${baseUrl}/${currentIndex - 1}|}"
+                   title='Go to previous page'>&lt;&lt;</a>
+            </li>
+
+            <li th:each="item : ${#numbers.sequence(beginIndex, endIndex)}"
+                th:class="${item == currentIndex ? 'active' : ''}">
+                <span 
+                    th:if='${item == currentIndex}' th:text='${item}'>1</span>
+                    <a class="linktopage" th:if='${item != currentIndex}'
+                       
+                      th:href="@{|${baseUrl}/${item}|}">
+                    <span th:text='${item}'>1</span>
+                    </a>
+            </li>
+
+            <li th:class="${currentIndex != totalPageCount}? '' : 'disabled' ">
+                <span th:if='${currentIndex == totalPageCount}'>&gt;&gt;</span>                
+                <a class="linktopage" th:if='${currentIndex != totalPageCount}'
+                   th:href="@{|${baseUrl}/${currentIndex + 1}|}"
+                   title='Go to next page'>&gt;&gt;</a>
+            </li>
+
+            <li th:class="${currentIndex == totalPageCount}? 'disabled' : '' ">
+                <span th:if='${currentIndex == totalPageCount}'>Last</span>                
+                <a class="linktopage" th:if='${currentIndex != totalPageCount}'
+                   th:href="@{|${baseUrl}/${totalPageCount}|}"
+                   title='Go to last page'>Last</a>
+            </li>
+            
+        </ul>
+    </div>
+    
+</div>
+<div class="sms-log" th:unless="${#lists.isEmpty(messages)}">
+    <table class="pure-table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th th:text="#{smsmessage.from}">From</th>
+            <th th:text="#{smsmessage.to}">To</th>
+            <th th:text="#{smsmessage.message}">Message</th>
+            <th th:text="#{smsmessage.created}">Created</th>
+            <th th:text="#{smsmessage.sent}">Sent</th>
+            <th th:text="#{smsmessage.tries}">Tries</th>
+            <th th:text="#{smsmessage.log}">Log</th>
+        </tr>
+        </thead>
+        <tbody>
+           
+        <tr th:each="message : ${messages}">
+            <td th:text="${message.fromNumber}">FROM</td>
+            <td><p th:each="receiver : ${message.receivers}" th:text="${receiver.number}">RECIEVER</p></td>
+            <td th:text="${message.message}">MESSAGE</td>
+            <td th:text="${message.created}">CREATED</td>
+            <td th:text="${message.sent}">SENT</td>
+            <td th:text="${message.tries}">TRIES</td>
+            <td><p th:each="log : ${message.log.split('\n')}" th:text="${log}">LOG</p></td>
+
+        </tr>
+           
+        </tbody>
+    </table>
+  
+</div>
+</div>
+
+<script sec:authorize="hasAnyRole('ADMIN')">
+
+        $(".linktopage").click(function(event) {
+        event.preventDefault();
+        mContent.loaders.workArea($(this).attr("href"));
+        return false;
+    });
+</script> 

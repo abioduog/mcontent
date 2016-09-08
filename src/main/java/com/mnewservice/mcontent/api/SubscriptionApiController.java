@@ -58,18 +58,27 @@ public class SubscriptionApiController extends AbstractApiController {
             @RequestParam(value = PARAM_MESSAGEID) String messageId,
             @RequestParam(value = PARAM_OPERATOR) String operator,
             @RequestParam(value = PARAM_TIMESTAMP) String timestamp) {
-
+        Service service = null;
+                Subscription subscription = null;
+                        boolean returnValue;
+try{
         validateRequestParams(
                 message, shortCode, sender, messageId, operator, timestamp);
 
-        Service service = getService(message, shortCode, operator);
-        Subscription subscription
+         service = getService(message, shortCode, operator);
+
+         subscription
                 = createSubscription(
                         service, message, shortCode, sender,
                         messageId, operator, timestamp
                 );
+}catch(IllegalArgumentException msg){
+        System.out.println(msg + ", " + sender);
+    subscriptionManager.sendServiceNotFoundMessage(shortCode, msg.getMessage(), sender);
+    return RETURN_VALUE_UNSUCCESSFUL;
+}
 
-        boolean returnValue;
+        
         if (isRegisteringNewOne(service, message)) {
             returnValue = subscriptionManager.registerSubscription(subscription);
         } else {

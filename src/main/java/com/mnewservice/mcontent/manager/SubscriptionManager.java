@@ -60,13 +60,16 @@ public class SubscriptionManager {
     private static final String ERROR_SUBSCRIPTION_WAS_NOT_FOUND
             = "Subscription was not found with keyword=%s, shortCode=%d, "
             + "operator=%s, and phone number=%s";
-    
        
     private static final String ERROR_UNSUBSCRIPTION_WAS_NOT_FOUND
             = "Unsubscription was not found with keyword=%s, shortCode=%d, "
             + "operator=%s";
     
+        private static final String ERROR_SERVICE_WAS_NOT_FOUND
+            = "Service was not found with keyword=%s, shortCode=%d, "
+            + "operator=%s";
 
+        
     @Transactional(readOnly = true)
     public Collection<Subscription> getAllSubscriptionsByService(Long serviceId) {
         LOG.info("Getting all services by delivery pipe id = " + serviceId);
@@ -289,9 +292,21 @@ public class SubscriptionManager {
                     subscription.getService().getOperator()
             );
             
-            LOG.info("msg = " + msg);
+           // LOG.info("msg = " + msg);
             
             SmsMessage message = createSmsMessage(subscription.getService().getShortCode(), msg, subscription.getSubscriber().getPhone());
+            //sendMessage()
+            sendMessage(message);
+    }
+    
+        public void sendServiceNotFoundMessage(Integer shortcode, String msg1, String phonenumber) {
+
+            PhoneNumber pn = new PhoneNumber();
+
+            pn.setNumber(phonenumber);
+           // LOG.info("msg = " + msg);
+            
+            SmsMessage message = createSmsMessage(shortcode, msg1, pn);
             //sendMessage()
             sendMessage(message);
     }

@@ -1,0 +1,91 @@
+<h1 th:inline="text">Subscribers list</h1>
+    <div class="pagination">
+        <ul class="pagination">
+            <li th:class="${currentIndex == 1}? 'disabled' : '' ">
+                <span th:if='${currentIndex == 1}'>First</span>                
+                <a class="linktopage" th:if='${currentIndex != 1}'
+                   th:href="@{|${baseUrl}/1|}" 
+                   title='Go to first page'>First</a>
+            </li>
+            
+            <li th:class="${currentIndex == 1}? '' : 'disabled' ">
+                <span th:if='${currentIndex == 1}'>&lt;&lt;</span>
+                <a class="linktopage" th:if='${currentIndex != 1}'
+                   th:href="@{|${baseUrl}/${currentIndex - 1}|}"
+                   title='Go to previous page'>&lt;&lt;</a>
+            </li>
+
+            <li th:each="item : ${#numbers.sequence(beginIndex, endIndex)}"
+                th:class="${item == currentIndex ? 'active' : ''}">
+                <span 
+                    th:if='${item == currentIndex}' th:text='${item}'>1</span>
+                    <a class="linktopage" th:if='${item != currentIndex}'
+                       
+                      th:href="@{|${baseUrl}/${item}|}">
+                    <span th:text='${item}'>1</span>
+                    </a>
+            </li>
+
+            <li th:class="${currentIndex != totalPageCount}? '' : 'disabled' ">
+                <span th:if='${currentIndex == totalPageCount}'>&gt;&gt;</span>                
+                <a class="linktopage" th:if='${currentIndex != totalPageCount}'
+                   th:href="@{|${baseUrl}/${currentIndex + 1}|}"
+                   title='Go to next page'>&gt;&gt;</a>
+            </li>
+
+            <li th:class="${currentIndex == totalPageCount}? 'disabled' : '' ">
+                <span th:if='${currentIndex == totalPageCount}'>Last</span>                
+                <a class="linktopage" th:if='${currentIndex != totalPageCount}'
+                   th:href="@{|${baseUrl}/${totalPageCount}|}"
+                   title='Go to last page'>Last</a>
+            </li>
+            
+        </ul>
+    </div>
+<div class="subscriber-list" th:unless="${#lists.isEmpty(allSubscribers)}">
+    <table class="pure-table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th th:text="#{subscriber.phone}">Phone</th>
+                <th th:text="#{subscriber.activesubscriptioncount}">Active subscriptions</th>
+                <th th:text="#{subscriber.inactivesubscriptioncount}">Inactive subscriptions</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="subscriber : ${allSubscribers}">
+                <td th:text="${subscriber.phone.number}">PHONE</td>
+                <td th:text="${subscriber.activeSubscriptionCount}">ACTIVE SUBSCRIPTION COUNT</td>
+                <td th:text="${subscriber.inactiveSubscriptionCount}">ACTIVE SUBSCRIPTION COUNT</td>
+                <td><!-- icon (?) -->
+                    <a class="view-subscriber pure-button" sec:authorize="hasAnyRole('ADMIN')"
+                       th:href="@{|/subscriber/${subscriber.id}|}"
+                       th:text="#{subscriber.subscriptions}">Subscriptions</a>
+                    <a class="del-subscriber pure-button" sec:authorize="hasAnyRole('ADMIN')"
+                       th:href="@{|/subscriber/remove/${subscriber.id}|}"
+                       th:text="#{general.remove}">Remove</a>
+                </td>
+            </tr>   
+        </tbody>
+    </table>
+</div>
+<script th:inline="javascript">
+
+    $(".del-subscriber").click(function() {
+        event.preventDefault();
+        mContent.popup.load('Remove subscriber', $(this).attr("href"));
+        return false;
+    });
+    $(".view-subscriber").click(function() {
+        event.preventDefault();
+        mContent.popup.loadWide('Subscriptions', $(this).attr("href"));
+        return false;
+    });
+
+        $(".linktopage").click(function(event) {
+        event.preventDefault();
+        mContent.loaders.workArea($(this).attr("href"));
+        return false;
+    });
+ 
+</script>

@@ -37,6 +37,12 @@ public class SubscriberManager {
         Collection<SubscriberEntity> entities = mapper.makeCollection(repository.findAll());
         return mapper.toDomain(entities);
     }
+    
+        public Collection<Subscriber> getAllSubscribersOrderByPhoneNumberAsc() {
+        LOG.info("Getting all subscribers order by phonenumber asc");
+        Collection<SubscriberEntity> entities = repository.findAllByOrderByPhoneNumberAsc();
+        return mapper.toDomain(entities);
+    }
 
     @Transactional(readOnly = true)
     public Subscriber getSubscriber(long id) {

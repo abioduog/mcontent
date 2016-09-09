@@ -1,6 +1,6 @@
 <h1 th:inline="text">[[${deliveryPipe.name}]] content</h1>
 <div class="content-menu">
-    <table class="pure-table" th:unless="${#lists.isEmpty(contents)}">
+    <table class="pure-table table-striped table-bordered" th:unless="${#lists.isEmpty(contents)}">
         <thead>
             <tr>
                 <th th:text="#{deliverable.title}">Title</th>

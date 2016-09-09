@@ -1,6 +1,6 @@
 <h1 th:inline="text">Service list</h1>
 <div class="service-list" th:unless="${#lists.isEmpty(allServices)}">
-    <table class="pure-table">
+    <table class="pure-table table-striped  table-bordered">
         <thead>
             <tr>
                 <th th:text="#{service.operator}">Operator</th>

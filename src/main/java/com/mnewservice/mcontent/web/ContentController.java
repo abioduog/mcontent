@@ -16,11 +16,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.support.PagedListHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,6 +46,8 @@ public class ContentController {
     private static final Logger LOG
             = Logger.getLogger(ContentController.class);
 
+    private int LIST_PAGE_SIZE = 25;
+    
     @Value("${application.notification.deliverable.created.message.subject}")
     private String deliverableCreatedMessageSubject;
 
@@ -133,6 +137,52 @@ public class ContentController {
     public String listServices() {
         return "deliveryPipeList";
     }
+    
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @RequestMapping({"/content/listPaged"})
+    public String listServicesPaged(HttpServletRequest request) {
+                request.getSession().setAttribute("servicesList", null);
+        return "redirect:/content/servicespaged/page/1";
+    }
+    
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @RequestMapping(value={"/content/servicespaged/page/{pagenumber}"})
+    public ModelAndView viewSmsMessageLogPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber) {
+        String baseUrl = "/content/servicespaged/page";
+        PagedListHolder<?> pagedListHolder = (PagedListHolder<?>) request.getSession().getAttribute("servicesList"); 
+        if(pagedListHolder == null){
+            pagedListHolder = new PagedListHolder(populateServices()); 
+            pagedListHolder.setPageSize(LIST_PAGE_SIZE);
+        }else{
+            final int goToPage = pagenumber - 1;
+            if(goToPage <= pagedListHolder.getPageCount() && goToPage >= 0){
+                pagedListHolder.setPage(goToPage);
+            }
+        }
+        pagedListHolder.getPageList();
+        request.getSession().setAttribute("servicesList", pagedListHolder);
+        int current = pagedListHolder.getPage() + 1;
+        int begin = Math.max(1, current-LIST_PAGE_SIZE);
+        int end = Math.min(begin+5, pagedListHolder.getPageCount());
+        int totalPageCount = pagedListHolder.getPageCount();
+
+        /*
+        System.out.println("Begin, end, current : " + begin + ", " + end + ", " + current);
+        ArrayList<SmsMessage> al = (ArrayList<SmsMessage>) systemStatuseManager.getSmsMessages();
+        ArrayList<SmsMessage> al2 = new ArrayList<SmsMessage>(al.subList((begin - 1), end));
+*/
+        ModelAndView mav = new ModelAndView("deliveryPipeListPaged");
+        //mav.addObject("messages", systemStatuseManager.getSmsMessages());
+        mav.addObject("allDeliveryPipes", pagedListHolder.getPageList());
+        mav.addObject("beginIndex", begin);
+        mav.addObject("endIndex", end);
+        mav.addObject("currentIndex", current);
+        mav.addObject("totalPageCount", totalPageCount);
+        mav.addObject("baseUrl", baseUrl);
+        mav.addObject("pagedListHolder", pagedListHolder);
+        
+        return mav;
+    }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping({"/deliverypipe/list/filtered/"})
@@ -177,7 +227,7 @@ public class ContentController {
 
 //</editor-fold>
     //
-//<editor-fold defaultstate="collapsed" desc="Delivery pipe">
+//<editor-fold defaultstate="collapsed" desc="Create delivery pipe">
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/deliverypipe/create"})
     public ModelAndView viewDeliveryPipe() {

@@ -1,6 +1,7 @@
 package com.mnewservice.mcontent.repository;
 
 import com.mnewservice.mcontent.repository.entity.ProviderEntity;
+import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,6 +17,8 @@ public interface ProviderRepository extends CrudRepository<ProviderEntity, Long>
     ProviderEntity findByUserId(Long userId);
     
     ProviderEntity findByEmail(String email);
+    
+    List<ProviderEntity> findAllByOrderByNameAsc();
     
 
 }

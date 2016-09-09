@@ -52,7 +52,8 @@ public class DeliveryPipeManager {
 
         Collection<DeliveryPipeEntity> entities = Arrays.asList();
         if (roles.contains(RoleEntity.RoleEnum.ADMIN)) {
-            entities = mapper.makeCollection(repository.findAll(filter));
+            //entities = mapper.makeCollection(repository.findAll(filter));
+            entities = mapper.makeCollection(repository.findAllByOrderByName(filter));
         } else if (roles.contains(RoleEntity.RoleEnum.PROVIDER)) {
             entities = mapper.makeCollection(repository.findByProvidersUsername(filter, getCurrentUserUsername()));
         }

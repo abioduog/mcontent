@@ -58,7 +58,8 @@ public class ServiceManager {
     @Transactional(readOnly = true)
     public Collection<Service> getAllServices() {
         LOG.info("Getting all services");
-        Collection<ServiceEntity> entities = mapper.makeCollection(repository.findAll());
+       // Collection<ServiceEntity> entities = mapper.makeCollection(repository.findAll());
+        Collection<ServiceEntity> entities = repository.findAllByOrderByOperatorAscShortCodeAscKeywordAsc();
         return mapper.toDomain(entities);
     }
 

@@ -32,8 +32,10 @@ public class ProviderManager {
     @Transactional(readOnly = true)
     public Collection<Provider> getAllProviders() {
         LOG.info("Getting all providers");
-        Collection<ProviderEntity> entities
-                = mapper.makeCollection(repository.findAll());
+       // Collection<ProviderEntity> entities
+       //         = mapper.makeCollection(repository.findAll());
+                Collection<ProviderEntity> entities
+                = repository.findAllByOrderByNameAsc();
         return mapper.toDomain(entities);
     }
 

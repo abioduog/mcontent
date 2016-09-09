@@ -1,6 +1,6 @@
 <h1 th:inline="text">Provider list</h1>
 <div class="provider-list" th:unless="${#lists.isEmpty(allProviders)}">
-    <table class="pure-table">
+    <table class="pure-table table-striped  table-bordered">
         <thead>
             <tr>
                 <th th:text="#{provider.name}">Name</th>

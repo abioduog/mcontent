@@ -24,7 +24,7 @@
             <div class="logo"></div>
             <span class="appname" th:text="#{general.appname}"></span>
             <ul id="menu" class="pure-menu-list">
-                <li sec:authorize="hasAnyRole('ADMIN','PROVIDER')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/content/list}" onclick="return false;">Content management</a></li>
+                <li sec:authorize="hasAnyRole('ADMIN','PROVIDER')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/content/listPaged}" onclick="return false;">Content management</a></li>
                 <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/provider/list}" onclick="return false;">Provider management</a></li>
                 <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/service/list}" onclick="return false;">Service management</a></li>
                 <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/subscriber/list}" onclick="return false;">Subscriber management</a></li>

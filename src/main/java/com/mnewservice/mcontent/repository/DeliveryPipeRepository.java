@@ -24,6 +24,10 @@ public interface DeliveryPipeRepository extends CrudRepository<DeliveryPipeEntit
     @Query("select db from DeliveryPipeEntity db "
             + "where db.name like ?1")
     Collection<DeliveryPipeEntity> findAll(String nameFilter);
+    
+        @Query("select db from DeliveryPipeEntity db "
+            + "where db.name like ?1 order by name asc")
+    Collection<DeliveryPipeEntity> findAllByOrderByName(String nameFilter);
 
     @Query("select db from DeliveryPipeEntity db "
             + "left join db.providers u "

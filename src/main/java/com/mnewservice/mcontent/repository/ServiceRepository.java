@@ -24,7 +24,8 @@ public interface ServiceRepository extends CrudRepository<ServiceEntity, Long> {
     List<ServiceEntity> findByDeliveryTime(DeliveryTime deliveryTime);
 
     List<ServiceEntity> findByOperatorNotIn(List<String> operators);
-
+    List<ServiceEntity> findAllByOrderByOperatorAscShortCodeAscKeywordAsc();
+     
     @Query("select se from ServiceEntity se "
             + "left join se.deliveryPipe dp "
             + "where dp.id = :pipeId")

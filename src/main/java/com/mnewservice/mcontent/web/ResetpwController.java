@@ -17,6 +17,7 @@ import com.mnewservice.mcontent.manager.ProviderManager;
 import com.mnewservice.mcontent.domain.Provider;
 
 import com.mnewservice.mcontent.security.PasswordEncrypter;
+import static com.sun.corba.se.spi.presentation.rmi.StubAdapter.request;
 import java.util.Calendar;
 
 import java.util.List;
@@ -55,6 +56,8 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpRequest;
 /**
  *
  * @author Pasi Saukkonen <pasi.saukkonen at nolwenture.com>
@@ -129,10 +132,11 @@ public class ResetpwController {
     }
     
     @RequestMapping(value="login/resetpw", method=RequestMethod.POST)
-    public String greetingSubmit(@RequestParam("emailaddress") String emailaddress, Model model) {
-
+    public String greetingSubmit(HttpServletRequest request, @RequestParam("emailaddress") String emailaddress, Model model) {
+      String urlforreset = request.getRequestURL().toString().substring(request.getRequestURL().toString().indexOf("/", 7), request.getRequestURL().toString().indexOf("login/resetpw")); // http:// = 7 characters
+      //System.out.println(request.getRequestURL().toString() + "?" + request.getQueryString());
+      //System.out.println("Where to send:" + urlforreset);
       Provider provider = providerManager.findByEmail(emailaddress);
-
 
         //If found...
         // 1) put info to resetpw-table
@@ -149,7 +153,8 @@ public class ResetpwController {
 
                 resetpwlinkmessage.append("\nReset your password from the link below.");
                 resetpwlinkmessage.append("\n");
-                resetpwlinkmessage.append("http://"+applicationHost+":"+applicationHostPort+"/mContent/login/confirmpw?user=" + checksum);
+                //resetpwlinkmessage.append("http://"+applicationHost+":"+applicationHostPort+"/mContent/login/confirmpw?user=" + checksum);
+                resetpwlinkmessage.append("http://" + applicationHost + ":" + applicationHostPort + urlforreset + "login/confirmpw?user=" + checksum);
                 //System.out.println("Url to reset password: " + resetpwlinkmessage.toString());
 
                 SimpleMailMessage mailMessage = new SimpleMailMessage();
@@ -187,19 +192,19 @@ public class ResetpwController {
         
         String DateToFuture = format.format(cal.getTime());
 
-        System.out.println("Now: " + format.format(thismoment));
-        System.out.println("Future " + MINUTESFUTURE + " min: " + DateToFuture);
+        //System.out.println("Now: " + format.format(thismoment));
+        //System.out.println("Future " + MINUTESFUTURE + " min: " + DateToFuture);
                 
         // Always fbdfe5e8ae87a6c827109fee4c142eea
         checksum = getMD5((DateToFuture + email + userid));
-        System.out.println("Dynamic: " + checksum);
+        //System.out.println("Dynamic: " + checksum);
 
            
         Resetpw resetpw = new Resetpw();
         resetpw.setChecksum(checksum);
         resetpw.setExpires(cal.getTime());
         resetpw.setUserid(Integer.decode(userid).intValue());
-        System.out.println("Tallennetaan käyttäjä: " +resetpw.getChecksum() + ", " + resetpw.getExpires() + ", " + resetpw.getUserid());
+        //System.out.println("Tallennetaan käyttäjä: " +resetpw.getChecksum() + ", " + resetpw.getExpires() + ", " + resetpw.getUserid());
         resetpwManager.saveResetpw(resetpw);
 
         return checksum;

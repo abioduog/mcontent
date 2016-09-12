@@ -90,6 +90,7 @@ public class PresentationController {
     ) {
         /*
         System.out.println("Puhnro = " + request.getRemoteUser() + ", " + shortUuid1);
+      
         String shortUuid ="6RLY";
         
         String urli = "/show/subscriber/" + request.getRemoteUser() +"/history";

@@ -133,22 +133,22 @@ public class ContentController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
-    @RequestMapping({"/content/list"})
+    @RequestMapping({"/content/list_alk"})
     public String listServices() {
         return "deliveryPipeList";
     }
     
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
-    @RequestMapping({"/content/listPaged"})
+    @RequestMapping({"/content/list"})
     public String listServicesPaged(HttpServletRequest request) {
                 request.getSession().setAttribute("servicesList", null);
-        return "redirect:/content/servicespaged/page/1";
+        return "redirect:/content/list/page/1";
     }
     
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
-    @RequestMapping(value={"/content/servicespaged/page/{pagenumber}"})
+    @RequestMapping(value={"/content/list/page/{pagenumber}"})
     public ModelAndView viewSmsMessageLogPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber) {
-        String baseUrl = "/content/servicespaged/page";
+        String baseUrl = "/content/list/page";
         PagedListHolder<?> pagedListHolder = (PagedListHolder<?>) request.getSession().getAttribute("servicesList"); 
         if(pagedListHolder == null){
             pagedListHolder = new PagedListHolder(populateServices()); 

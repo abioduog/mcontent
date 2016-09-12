@@ -83,6 +83,30 @@ public class PresentationController {
         mav.addObject("reloadRef", "/show/subscriber/" + phone);
         return mav;
     }
+    @RequestMapping(value = {"/show/a/default"})   
+    public ModelAndView showContentPasi(
+            @RequestParam(value="uuid", required=false) String shortUuid1,
+            HttpServletRequest request
+    ) {
+        /*
+        System.out.println("Puhnro = " + request.getRemoteUser() + ", " + shortUuid1);
+        String shortUuid ="6RLY";
+        
+        String urli = "/show/subscriber/" + request.getRemoteUser() +"/history";
+        System.out.println(urli);
+        */
+        return viewSubscriptionHistory("", request.getRemoteUser(), request);        
+/*
+        ModelAndView mav = new ModelAndView("show");
+        mav.addObject("theme", deliveryPipeManager.getThemeForContentByUuid(shortUuid));
+        mav.addObject("content", deliveryPipeManager.getContentByUuid(shortUuid));
+        mav.addObject("subscriber", request.getRemoteUser());
+        mav.addObject("subscriberhistory", request.getRemoteUser());
+        mav.addObject("short_uuid", shortUuid);
+        return mav;
+        */
+    }
+    
     
     @RequestMapping(value = {"/show/subscriber/{phone}/history"})
     public ModelAndView viewSubscriptionHistory(

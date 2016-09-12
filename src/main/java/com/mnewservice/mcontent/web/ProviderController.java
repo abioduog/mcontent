@@ -4,8 +4,10 @@ import com.mnewservice.mcontent.domain.ProviderInfo;
 import com.mnewservice.mcontent.manager.ProviderManager;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.support.PagedListHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -28,6 +30,8 @@ public class ProviderController {
     private static final Logger LOG
             = Logger.getLogger(ProviderController.class);
 
+    private int LIST_PAGE_SIZE = 25;
+    
     @Autowired
     private ProviderManager providerManager;
 
@@ -74,11 +78,59 @@ public class ProviderController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping({"/provider/list"})
+    @RequestMapping({"/provider/list_alk"})
     public String listProviders() {
         return "providerList";
     }
 
+    
+        @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @RequestMapping({"/provider/list"})
+    public String listProvidersPaged(HttpServletRequest request) {
+                request.getSession().setAttribute("providerList", null);
+        return "redirect:/provider/list/page/1";
+    }
+
+     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @RequestMapping(value={"/provider/list/page/{pagenumber}"})
+    public ModelAndView viewSmsMessageLogPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber) {
+        String baseUrl = "/provider/list/page";
+        PagedListHolder<?> pagedListHolder = (PagedListHolder<?>) request.getSession().getAttribute("allProviders"); 
+        if(pagedListHolder == null){
+            pagedListHolder = new PagedListHolder(populateProviders() ); 
+            pagedListHolder.setPageSize(LIST_PAGE_SIZE);
+        }else{
+            final int goToPage = pagenumber - 1;
+            if(goToPage <= pagedListHolder.getPageCount() && goToPage >= 0){
+                pagedListHolder.setPage(goToPage);
+            }
+        }
+        pagedListHolder.getPageList();
+        request.getSession().setAttribute("allProviders", pagedListHolder);
+        int current = pagedListHolder.getPage() + 1;
+        int begin = Math.max(1, current-LIST_PAGE_SIZE);
+        int end = Math.min(begin+5, pagedListHolder.getPageCount());
+        int totalPageCount = pagedListHolder.getPageCount();
+
+        /*
+        System.out.println("Begin, end, current : " + begin + ", " + end + ", " + current);
+        ArrayList<SmsMessage> al = (ArrayList<SmsMessage>) systemStatuseManager.getSmsMessages();
+        ArrayList<SmsMessage> al2 = new ArrayList<SmsMessage>(al.subList((begin - 1), end));
+*/
+        ModelAndView mav = new ModelAndView("providerListPaged");
+        //mav.addObject("messages", systemStatuseManager.getSmsMessages());
+        mav.addObject("allProviders", pagedListHolder.getPageList());
+        mav.addObject("beginIndex", begin);
+        mav.addObject("endIndex", end);
+        mav.addObject("currentIndex", current);
+        mav.addObject("totalPageCount", totalPageCount);
+        mav.addObject("baseUrl", baseUrl);
+        mav.addObject("pagedListHolder", pagedListHolder);
+        
+        return mav;
+    }
+    
+    
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/provider/{id}"})
     public ModelAndView viewService(@PathVariable("id") long id) {

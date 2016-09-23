@@ -17,7 +17,7 @@ import com.mnewservice.mcontent.manager.ProviderManager;
 import com.mnewservice.mcontent.domain.Provider;
 
 import com.mnewservice.mcontent.security.PasswordEncrypter;
-import static com.sun.corba.se.spi.presentation.rmi.StubAdapter.request;
+
 import java.util.Calendar;
 
 import java.util.List;
@@ -79,13 +79,13 @@ public class ResetpwController {
     
     @Autowired
     private JavaMailSender javaMailSender;
-    
-    @Value("${application.host}")
+    /*
+    @Value("${application.host:Sample}")
     private String applicationHost;
     
     @Value("${application.host.port}")
     private String applicationHostPort;
-    
+    */
     
     private static final String MESSAGE_START_SENDING
             = "START: Sending message '%s' from %s to %s";
@@ -132,8 +132,10 @@ public class ResetpwController {
     }
     
     @RequestMapping(value="login/resetpw", method=RequestMethod.POST)
-    public String greetingSubmit(HttpServletRequest request, @RequestParam("emailaddress") String emailaddress, Model model) {
-      String urlforreset = request.getRequestURL().toString().substring(request.getRequestURL().toString().indexOf("/", 7), request.getRequestURL().toString().indexOf("login/resetpw")); // http:// = 7 characters
+    public String newPasswordLinkSubmit(HttpServletRequest request, @RequestParam("emailaddress") String emailaddress, Model model) {
+      // String urlforreset = request.getRequestURL().toString().substring(request.getRequestURL().toString().indexOf("/", 8), request.getRequestURL().toString().indexOf("login/resetpw")); // https:// = 8 characters
+      String urlforreset = request.getRequestURL().toString().substring(0, request.getRequestURL().toString().indexOf("login/resetpw")); 
+
       //System.out.println(request.getRequestURL().toString() + "?" + request.getQueryString());
       //System.out.println("Where to send:" + urlforreset);
       Provider provider = providerManager.findByEmail(emailaddress);
@@ -154,7 +156,10 @@ public class ResetpwController {
                 resetpwlinkmessage.append("\nReset your password from the link below.");
                 resetpwlinkmessage.append("\n");
                 //resetpwlinkmessage.append("http://"+applicationHost+":"+applicationHostPort+"/mContent/login/confirmpw?user=" + checksum);
-                resetpwlinkmessage.append("http://" + applicationHost + ":" + applicationHostPort + urlforreset + "login/confirmpw?user=" + checksum);
+
+                // System.out.println(urlforreset);
+                resetpwlinkmessage.append(urlforreset + "login/confirmpw?user=" + checksum);
+
                 //System.out.println("Url to reset password: " + resetpwlinkmessage.toString());
 
                 SimpleMailMessage mailMessage = new SimpleMailMessage();

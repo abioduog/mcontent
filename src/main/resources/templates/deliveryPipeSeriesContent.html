@@ -40,7 +40,7 @@
     </table>
     <br/>
     <a class="create-content pure-button" sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:text="#{general.add}">Add new</a>
-    <!-- a class="upload-content pure-button" sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:text="#{general.upload}">Upload file</a -->
+    <a class="upload-content pure-button" sec:authorize="hasAnyRole('ADMIN','PROVIDER')" th:text="#{general.upload}">Upload file</a>
 </div>
 <script sec:authorize="hasRole('ADMIN')" th:inline="javascript">
 

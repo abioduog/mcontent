@@ -12,7 +12,6 @@
                 <div th:if="${error}" class="alert alert-error" th:text="#{deliverable.error}">
                     Error in content data.
                 </div>
-                <!--
                 <input type="hidden" name="id" th:value="${deliverable.id}"/>
 
                 <input type="hidden" th:name="content.id" th:value="${deliverable.content.id}"/>
@@ -30,16 +29,14 @@
                     <textarea required="true" name="content.message" th:text="${deliverable.content.message}" maxlength="124" cols="30" row="6"/>
                     <a class="url" th:href="${deliverable.content.getContentUrl()}" target='_blank' th:text="${deliverable.content.getContentUrl()}"></a>
                 </div>
--->
+
                 <!--    File Upload option -->
                 <div id="my-dropzone">
                     <label th:text="#{contentfiles.files}">Files</label>
-                    
                     <table id="file-table" class="pure-table">
                         <tr style="display: none" > <!-- 1st row as header for later addition of rows to table from JavaScript -->
                             <td>Image</td>
                             <td>File</td>
-                            <td/>
                             <td/>
                         </tr>
                         <tr th:each="contentFile : ${deliverable.files}">
@@ -54,7 +51,6 @@
                                        th:text="#{general.remove}" >Remove</a>
                                 </div>
                             </td>
-                            <td>Fourth</td>
                         </tr>
                     </table>
                     <br/>
@@ -157,7 +153,7 @@
                         var _href = file.uuid;
                         var _text =  /*[[#{general.remove}]]*/ "Remove";
                         var newrow = $('#file-table tr:last').after( "<tr id=\""+file.name+"\"><td><img src='data:image/png;base64,"+response.files[0].thumbBase64Png+"' alt='"+file.name+"' /></td><td>"+file.name+
-                                "</td><td>Not saved</td><input type=\"hidden\" name=\"xlsxfileid\" value=\"" + response.files[0].id + "\"/></tr>");
+                                "</td><td>Not saved</td></tr>");
                         var originalHtml = $(".previewer-content").first().html();  // update previewers
                         $(".previewer-content").html(originalHtml+response.files[0].imageHtmlBlock);
                         addNewFile(response.files[0]);

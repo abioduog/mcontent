@@ -53,9 +53,10 @@ public class DeliveryPipeManager {
         Collection<DeliveryPipeEntity> entities = Arrays.asList();
         if (roles.contains(RoleEntity.RoleEnum.ADMIN)) {
             //entities = mapper.makeCollection(repository.findAll(filter));
-            entities = mapper.makeCollection(repository.findAllByOrderByName(filter));
+            entities = mapper.makeCollection(repository.findAllByOrderByNameAsc(filter));
         } else if (roles.contains(RoleEntity.RoleEnum.PROVIDER)) {
-            entities = mapper.makeCollection(repository.findByProvidersUsername(filter, getCurrentUserUsername()));
+            //entities = mapper.makeCollection(repository.findByProvidersUsername(filter, getCurrentUserUsername()));
+            entities = mapper.makeCollection(repository.findByProvidersUsernameOrderByNameAsc(filter, getCurrentUserUsername()));
         }
         LOG.info("Found " + entities.size() + " entity.");
         return mapper.toDomain(entities);
@@ -110,13 +111,15 @@ public class DeliveryPipeManager {
     @Transactional(readOnly = true)
     public Collection<DeliveryPipe> getDeliveryPipesByProvider(Long id) {
         LOG.info("Getting DeliveryPipes by provider with id=" + id);
-        return mapper.toDomain(repository.findByProviders(id));
+        //return mapper.toDomain(repository.findByProviders(id));
+        return mapper.toDomain(repository.findByProvidersOrderByNameAsc(id));
     }
 
     @Transactional
     public void removeProviderFromDeliveryPipes(Long id, UserEntity user) {
         LOG.info("Removing provider(" + id + ") from delivery pipes.");
-        Collection<DeliveryPipeEntity> pipes = repository.findByProviders(id);
+        //Collection<DeliveryPipeEntity> pipes = repository.findByProviders(id);
+        Collection<DeliveryPipeEntity> pipes = repository.findByProvidersOrderByNameAsc(id);
         pipes.stream().map((pipe) -> {
             pipe.getProviders().remove(user);
             return pipe;

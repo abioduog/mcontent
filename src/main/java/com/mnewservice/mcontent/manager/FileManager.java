@@ -236,7 +236,8 @@ public class FileManager {
                 if (!newFile.exists()) {
                     newFile.createNewFile();
                 }
-                OutputStream outputStream = new FileOutputStream(newFile);
+                FileOutputStream outputStream = new FileOutputStream(newFile);
+                outputStream.getFD().sync();
                 outputStream.write(bytes);
                 outputStream.flush();
                 outputStream.close();

@@ -22,22 +22,22 @@ public interface DeliveryPipeRepository extends CrudRepository<DeliveryPipeEntit
     public DeliveryPipeEntity findOneAndLockIt(@Param("id") Long id);
 
     @Query("select db from DeliveryPipeEntity db "
-            + "where db.name like ?1")
-    Collection<DeliveryPipeEntity> findAll(String nameFilter);
+            + "where db.name like ?1 order by db.name desc")
+    Collection<DeliveryPipeEntity> findAllByOrderByNameDesc(String nameFilter);
     
         @Query("select db from DeliveryPipeEntity db "
-            + "where db.name like ?1 order by name asc")
-    Collection<DeliveryPipeEntity> findAllByOrderByName(String nameFilter);
+            + "where db.name like ?1 order by db.name asc")
+    Collection<DeliveryPipeEntity> findAllByOrderByNameAsc(String nameFilter);
 
     @Query("select db from DeliveryPipeEntity db "
             + "left join db.providers u "
-            + "where db.name like ?1 and u.username = ?2")
-    Collection<DeliveryPipeEntity> findByProvidersUsername(String nameFilter, String providerUsername);
+            + "where db.name like ?1 and u.username = ?2 order by db.name asc")
+    Collection<DeliveryPipeEntity> findByProvidersUsernameOrderByNameAsc(String nameFilter, String providerUsername);
 
     @Query("select db from DeliveryPipeEntity db "
             + "left join db.providers u "
-            + "where u.id = (select p.user.id from ProviderEntity p where p.id = ?1)")
-    Collection<DeliveryPipeEntity> findByProviders(Long providerId);
+            + "where u.id = (select p.user.id from ProviderEntity p where p.id = ?1) order by db.name asc")
+    Collection<DeliveryPipeEntity> findByProvidersOrderByNameAsc(Long providerId);
 
     @Query("select db.theme from DeliveryPipeEntity db "
             + "left join db.deliverables d "

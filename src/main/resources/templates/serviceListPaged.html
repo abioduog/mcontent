@@ -9,7 +9,7 @@
                    title='Go to first page'>First</a>
             </li>
             
-            <li th:class="${currentIndex == 1}? '' : 'disabled' ">
+            <li th:class="${currentIndex != 1}? '' : 'disabled' ">
                 <span th:if='${currentIndex == 1}'>&lt;&lt;</span>
                 <a class="linktopage" th:if='${currentIndex != 1}'
                    th:href="@{|${baseUrl}/${currentIndex - 1}|}"

@@ -21,13 +21,17 @@
 
                 <label for="content.title" th:text="#{content.title}">Title</label>
                 <input type="text" required="true" name="content.title" th:value="${deliverable.content.title}"/>
-
+   
+                <label for="content.message" th:text="#{content.message}">Message</label>
+                <input type="text" required="true" name="content.message" th:value="${deliverable.content.message}"/>
+                
+<!--
                 <label for="content.message" th:text="#{content.message}">Message</label>
                 <div class="message-preview">
                     <textarea required="true" name="content.message" th:text="${deliverable.content.message}" maxlength="124" cols="30" row="6"/>
                     <a class="url" th:href="${deliverable.content.getContentUrl()}" target='_blank' th:text="${deliverable.content.getContentUrl()}"></a>
                 </div>
-
+-->
                 <!--    File Upload option -->
                 <div id="my-dropzone" th:if="${autoGenerateContent and deliverable.id != null}">
                     <label th:text="#{contentfiles.files}">Files</label>

@@ -149,6 +149,7 @@ public class MessageCenter {
             message.log(msg);
         } catch (MessagingException ex) {
             String msg = ex.getMessage();
+            
             LOG.error(msg);
             message.log(msg);
         }
@@ -208,6 +209,11 @@ public class MessageCenter {
             }
 
             HttpEntity entity = response.getEntity();
+            String contentmessagecheck = StreamUtils.convertStreamToString(entity.getContent());
+            String contentmessage = contentmessagecheck;
+            
+            if(contentmessagecheck.length() > 150)
+                contentmessage = contentmessagecheck.substring(0, 150) + "...";
             logHeadersAndContent(response, entity);
 
             int statusCode = response.getStatusLine().getStatusCode();
@@ -219,7 +225,7 @@ public class MessageCenter {
                         ERROR_INVALID_STATUS, statusCode, reason
                 );
                 LOG.error(msg);
-                throw new MessagingException(msg);
+                throw new MessagingException(msg + " " +  contentmessage);
             }
         } catch (IOException ioe) {
             String msg = String.format(
@@ -234,6 +240,7 @@ public class MessageCenter {
 
     private void logHeadersAndContent(final CloseableHttpResponse response,
             HttpEntity entity) throws IOException {
+        
         if (LOG.isDebugEnabled()) {
             if (response.getStatusLine() != null) {
                 LOG.debug(

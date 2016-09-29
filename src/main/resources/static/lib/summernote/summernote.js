@@ -2047,7 +2047,8 @@
         maximumFileSize: 'Maximum file size',
         maximumFileSizeError: 'Maximum file size exceeded.',
         url: 'Image URL',
-        remove: 'Remove Image'
+        remove: 'Remove Image',
+        closePopup: "Close"
       },
       video: {
         video: 'Video',
@@ -4930,6 +4931,7 @@
      * @param {jQuery} $handle
      */
     this.hide = function () {
+        
       context.invoke('editor.clearTarget');
       this.$handle.children().hide();
     };
@@ -5517,7 +5519,8 @@
      * image : [
      *   ['imagesize', ['imageSize100', 'imageSize50', 'imageSize25']],
      *   ['float', ['floatLeft', 'floatRight', 'floatNone' ]],
-     *   ['remove', ['removeMedia']]
+     *   ['remove', ['removeMedia']],
+     *   ['close', ['closePopup']],
      * ],
      */
     this.addImagePopoverButtons = function () {
@@ -5577,6 +5580,7 @@
           click: context.createInvokeHandler('editor.removeMedia')
         }).render();
       });
+      
     };
 
     this.addLinkPopoverButtons = function () {

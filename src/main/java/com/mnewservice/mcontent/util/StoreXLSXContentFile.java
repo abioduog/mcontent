@@ -231,14 +231,14 @@ public class StoreXLSXContentFile {
             e.printStackTrace();
         }
         
-        System.out.println("Total number of sheets: " + workbook.getNumberOfSheets());
+        //System.out.println("Total number of sheets: " + workbook.getNumberOfSheets());
 
         // Go through all workbook sheets
         for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
             Map<Integer, String> worksheetpictures = null;
             Map<String, String> worksheetcontent = null;
             
-            System.out.println("Sheet nr: " + i + ", " + workbook.getSheetName(i) + ", valid = " + checkIfExcelSheetIsValid((XSSFSheet) workbook.getSheetAt(i)));
+            //System.out.println("Sheet nr: " + i + ", " + workbook.getSheetName(i) + ", valid = " + checkIfExcelSheetIsValid((XSSFSheet) workbook.getSheetAt(i)));
             // Check sheet
             if (checkIfExcelSheetIsValid((XSSFSheet) workbook.getSheetAt(i))) {
                 validSheetsList.add(i);
@@ -249,7 +249,8 @@ public class StoreXLSXContentFile {
             }
 
         }
-
+        // All done, remove .xlsx file
+        file2013excel.delete();
     }
 	
     // private Map<Integer, String> savePictures(XSSFSheet sheet)
@@ -309,9 +310,11 @@ public class StoreXLSXContentFile {
         content = new String(sb);
         
         // All ok, we can now create a new content
+        /*
         System.out.println("Title: " + title);
         System.out.println("Message: " + message);
         System.out.println("Content: " + content);
+*/
         sheetcontent.put("Title", title);
         sheetcontent.put("Message", message);
         sheetcontent.put("Content", content);
@@ -320,7 +323,7 @@ public class StoreXLSXContentFile {
 
 private Map<Integer, String> savePictures(XSSFSheet sheet) {
 
-        System.out.println("Handling worksheet pictures...");
+        //System.out.println("Handling worksheet pictures...");
 
         XSSFDrawing dravingPatriarch = sheet.getDrawingPatriarch();
 
@@ -334,7 +337,7 @@ private Map<Integer, String> savePictures(XSSFSheet sheet) {
                 if (shape instanceof XSSFPicture) {
                     XSSFPicture hssfPicture = (XSSFPicture) shape;
                     int picIndex = ((XSSFPicture) shape).getAnchor().getDx1();
-                    String filename = ((XSSFPicture) shape).toString();
+                    //String filename = ((XSSFPicture) shape).toString();
                     int row = hssfPicture.getClientAnchor().getRow1();
                     int col = hssfPicture.getClientAnchor().getCol1();
                     XSSFPictureData xssfPictureData = hssfPicture.getPictureData();

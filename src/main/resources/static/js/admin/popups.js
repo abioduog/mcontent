@@ -7,6 +7,7 @@ mContent.popup.open = function (title, content) {
         width: width40,
         close: function(event, ui) {
             $(this).dialog('destroy').remove();
+            $(".note-image-popover").hide();
         }
     });
 }
@@ -20,6 +21,7 @@ mContent.popup.load = function (title, url) {
             width: width40,
             close: function(event, ui) {
                 $(this).dialog('destroy').remove();
+                $(".note-image-popover").hide();
             }
         });
     });
@@ -34,6 +36,7 @@ mContent.popup.loadWide = function (title, url) {
             width: width75,
             close: function(event, ui) {
                 $(this).dialog('destroy').remove();
+                $(".note-image-popover").hide();
             }
         });
     });

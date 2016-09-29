@@ -28,7 +28,7 @@ public class ContentUtils {
     }
     
     public static String createImageUrl(ServletContext sc, String imagePath) {
-        return ContentUtils.getRootUrl(sc) + imageUrl + imagePath;
+        return (ContentUtils.getRootUrl(sc) + imageUrl + imagePath).replace("//", "/");
     }
 
     public static String getContentUrl() {

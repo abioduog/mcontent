@@ -127,15 +127,21 @@
                 var myDropzone = this;
 
                 this.on("removedfile", function (file) {
-                 
-                    newFiles = new Array();
+                    
+                 console.log("removing file from dropzone...");
+                    //newFiles = new Array();
                     // Remove from table
+                    var _files = myDropzone.files;
+                    console.log("Dropzone files size = " +_files.length);
+                    console.log("Dropzone newFiles size = " + newFiles.length);
+                    console.log("Dropzone newFiles uuid = " + newFiles[0].uuid);
                     var element = document.getElementById(file.name);
                     element.parentNode.removeChild(element);
                     
-                      
+                                        
                 });
                  this.on("addedfile", function (file) {
+                     console.log("Lisataan..." + file.name + ", " + file.uuid);
                     // Check for duplicates
                     var _file, _i, _len, _ref, _result;
                     _ref = myDropzone.files;
@@ -203,6 +209,7 @@
             ],
             callbacks: {
                 onMediaDelete : function(target, editor) {
+                    console.log("onMediaDelete " + target[0].id);
                     addRemovedFile(target[0].id);
                     target.remove();
                 },
@@ -257,10 +264,12 @@
 
         function addNewFile(file) {
             newFiles.push(file.uuid);
+            console.log("addNewFile(file) " + file.uuid);
         }
 
         function addRemovedFile(uuid) {
             removedFiles.push(uuid);
+            console.log("addRemovedFile(uuid) " + file.uuid);
         }
 
         $("input[name='content.title']").change(function() {
@@ -286,12 +295,13 @@
                 contentType: false,
                 processData: false,
                 success: function(response, status, xhr) {
-                    console.log('File '+uuid+'Removed - ', status)
+                    console.log('File '+ uuid +' Removed - ', status)
                 }
             });
         }
 
         function handleFiles() {
+            console.log("handleFiles() starts...");
             if (/*[[${deliverable.id == null}]]*/) {  // Creation, no files
                 console.log('No File(s) to handle ');
                 newFiles = new Array();
@@ -299,7 +309,7 @@
                 formSubmit();
                 return;
             }
-
+            
             data = new FormData();
             var _i;
             for ( _i = 0; _i < newFiles.length; _i++) {
@@ -349,9 +359,11 @@
 
             $(".remove-content-file").click(function (event) {
                 event.preventDefault();
-                addRemovedFile($(this).attr("href"));
+                addRemovedFile($(this).attr("href"));             
                 $(".previewer-content div:has(#"+$(this).attr("href")+")").remove();  //poista esikatselusta
                 $(this).parents("tr").remove(); // poista taulukosta
+                console.log("Poistettu sivulta..." + $(this).attr("href"));
+
             });
 
             $(".content-submit").click(function() {

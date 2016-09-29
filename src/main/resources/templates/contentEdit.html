@@ -103,6 +103,7 @@
             $(".tab-content-" + navId).addClass("active");
             return false;
         }
+        
     </script>
     <script th:src="@{|/lib/dropzone/dropzone.js|}" th:if="${autoGenerateContent and deliverable.id != null}"></script>
     <script th:inline="javascript" th:if="${autoGenerateContent and deliverable.id != null}">
@@ -124,11 +125,10 @@
 
                 this.on("removedfile", function (file) {
                  
-                    newFiles = new Array();
+                    //newFiles = new Array();
                     // Remove from table
                     var element = document.getElementById(file.name);
                     element.parentNode.removeChild(element);
-                    
                       
                 });
                  this.on("addedfile", function (file) {
@@ -282,7 +282,7 @@
                 contentType: false,
                 processData: false,
                 success: function(response, status, xhr) {
-                    console.log('File '+uuid+'Removed - ', status)
+                    console.log('File '+uuid+' Removed - ', status)
                 }
             });
         }
@@ -297,13 +297,13 @@
             }
 
             data = new FormData();
-            var _i;
+            var _i, _j;
             for ( _i = 0; _i < newFiles.length; _i++) {
                 data.append("addFile",newFiles[_i]);
             }
-            for ( _i = 0; _i < removedFiles.length; _i++) {
-                data.append("removeFile",removedFiles[_i]);
-            }
+            //for ( _j = 0; _j < removedFiles.length; _j++) {
+            //    data.append("removeFile",removedFiles[_j]);
+            //}
             data.append("_csrf", /*[[${_csrf.token}]]*/ "");
             $.ajax({
                 data: data,
@@ -342,6 +342,7 @@
         }
 
         $(document).ready(function() {
+   
 
             $(".remove-content-file").click(function (event) {
                 event.preventDefault();
@@ -355,13 +356,25 @@
                 handleFiles();
             });
 
+
             $(".content-cancel").click(function() {
                 var _i;
                 for (_i = 0; _i < newFiles.length; _i++) {  // remove newly added files from server
                     removeFile(newFiles[_i]);
                 }
+                for (_i = 0; _i < removedFiles.length; _i++) {  // remove newly removed files from server
+                    removeFile(removedFiles[_i]);
+                }
+                $("textarea[name='content.content']").summernote('destroy');
                 mContent.popup.close(this);
+                
             });
+                       
+            $(".ui-dialog-titlebar-close").bind("onclick", function() {
+                //event.preventDefault();
+                console.log("Nurkan nappia painettu...");
+            });
+        
 
         });
 

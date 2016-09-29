@@ -340,6 +340,7 @@ public class ContentController {
         LOG.info("/deliverypipe/" + id + "/content/list");
         ModelAndView mav;
         DeliveryPipe pipe = deliveryPipeManager.getDeliveryPipe(id);
+        //System.out.println();
         switch (pipe.getDeliverableType()) {
             case SCHEDULED:
                 mav = new ModelAndView("deliveryPipeScheduledContent");
@@ -416,7 +417,7 @@ public class ContentController {
     public ModelAndView createSeriesContent(
             @PathVariable("deliveryPipeId") long deliveryPipeId) {
         LOG.info("createSeriesContent... /deliverypipe/" + deliveryPipeId + "/series/create");
-        System.out.println("seriesManager" + seriesManager);
+        //System.out.println("seriesManager" + seriesManager);
         ModelAndView mav = new ModelAndView("contentCreate");
         SeriesDeliverable newDeliverable = new SeriesDeliverable();
         newDeliverable.setStatus(DeliverableStatus.PENDING_APPROVAL);
@@ -523,7 +524,7 @@ public class ContentController {
             final ModelMap model) {
         
         LOG.info("saveSeriesContentFromXLSXFile, param=xlsx... /deliverypipe/" + deliveryPipeId + "/series/" + deliverableId + " param=xlsx");
-        System.out.println("Handle the .xlsx file here!");
+        //System.out.println("Handle the .xlsx file here!");
          
         
         if (deliverable.getId() == null) {
@@ -531,11 +532,11 @@ public class ContentController {
             String contenttitle = "TestititleX";
             String contentmessage = "TestimessageX";
 
-            System.out.println("deliveryPipeId: " + deliveryPipeId);
+            //System.out.println("deliveryPipeId: " + deliveryPipeId);
             
             ContentFile file = fileManager.getFile(new Long(xlsxfileid));
             String ladattuxlsx = file.getUuid() + ".xlsx";
-            System.out.println("Check and handle excel-file: " + fileManager.getFilestoragePath() + ladattuxlsx);
+            //System.out.println("Check and handle excel-file: " + fileManager.getFilestoragePath() + ladattuxlsx);
             
             StoreXLSXContentFile sxcf = new StoreXLSXContentFile();
             sxcf.handleUploadedXSLXFile(fileManager.getFilestoragePath() + ladattuxlsx);
@@ -543,8 +544,8 @@ public class ContentController {
             Map<Integer, Map<Integer, String>> allpicnames = sxcf.getAllPicnames();
             Map<Integer, Map<String, String>> allcontent = sxcf.getAllContents();
             
-            System.out.println("allcontent.size() = " +allcontent.size() );
-            System.out.println("allpicnames.size() = " +allpicnames.size() );
+            //System.out.println("allcontent.size() = " +allcontent.size() );
+            //System.out.println("allpicnames.size() = " +allpicnames.size() );
             
             // Now we can handle contents and put 
             // We are sure, that content includes 0 to n pictures, so use allcontent 
@@ -582,14 +583,14 @@ public class ContentController {
                     contentCreationNotification(savedContent, deliveryPipe);
                 }
                 deliverableId = savedContent.getId();
-                System.out.println("savedContent.getId() = " + savedContent.getId());
+                //System.out.println("savedContent.getId() = " + savedContent.getId());
                 SeriesDeliverable createdContent = seriesManager.getSeriesDeliverable(deliverableId);
                 
             
-            System.out.println("Replace content: " + replaceimagetagwithpicturename);
+            //System.out.println("Replace content: " + replaceimagetagwithpicturename);
              //for(int i = 0; i < sheetpicnames.size(); i++){
              for (Map.Entry<Integer, String> picentry : sheetpicnames1.entrySet()) {
-                 System.out.println(entry.getKey() + " = " + picentry.getKey() + ", " + picentry.getValue());
+                 //System.out.println(entry.getKey() + " = " + picentry.getKey() + ", " + picentry.getValue());
 
                  StringBuffer sb = new StringBuffer();
                  String uuid=picentry.getValue().substring(0, picentry.getValue().indexOf("."));
@@ -623,7 +624,7 @@ public class ContentController {
                 throw new DataHandlingException(ex);
             }
              }
-             System.out.println("Replace done: " + replaceimagetagwithpicturename);
+             //System.out.println("Replace done: " + replaceimagetagwithpicturename);
              
             createdContent.getContent().setMessage(contentmessage);
             createdContent.getContent().setTitle(contenttitle);      
@@ -631,35 +632,10 @@ public class ContentController {
             seriesManager.saveSeriesDeliverable(deliveryPipeId, createdContent);
 
                 }
-            /*
-             AbstractDeliverableEntity entity = deliverableManager.findOne(deliverableId);
-                        try {
-                            
-                            FileEntity filee = fileManager.getFileByUuid(testikuva);
-                            
-                            //
-                            
-                            
-                            //
-                    if (filee == null) {
-                        String errMsg = "Can't find file from repository with id=" + testikuva;
-                        LOG.error(errMsg);
-                        throw new Exception("Internal error - " + errMsg);
-                    }
-                    deliverableManager.addFile(entity, filee);
-                    
-                                } catch (Exception ex) {
-                LOG.error(ex);
-                throw new DataHandlingException(ex);
-            }
-*/
-     
-        //
-        
-        //
-    
+
         }
 
+        
         return null;
     }
 
@@ -1018,8 +994,10 @@ public class ContentController {
                 contentFile.setOriginalFilename(file.getOriginalFilename());
                 
                 LOG.info("Creating thumbnail image");
-                // MAGICSTRING
-                File xlsxicon = new File("/home/ubuntu1604/mcontent_files/excel-xlsx-icon.png");
+
+                String context = request.getServletContext().getRealPath("/");               
+                File xlsxicon = new File(context + "/WEB-INF/classes/static/img/excel-xlsx-icon.png");
+
                 byte[] fileContent = Files.readAllBytes(xlsxicon.toPath());
                 contentFile.setThumbImage(ContentFile.generateThumbImage(fileContent));
                 
@@ -1029,7 +1007,7 @@ public class ContentController {
                 contentFile.createAndSetImageHtmlBlock(servletContext);
                 response.getFiles().add(contentFile);
                 
-                System.out.println("Ladattu kantaan: id " + contentFile.getId() + ",  " + contentFile.getUuid());
+                //System.out.println("Ladattu kantaan: id " + contentFile.getId() + ",  " + contentFile.getUuid());
             }
         } catch (Exception e) {
             LOG.error("File upload failed", e);
@@ -1079,7 +1057,7 @@ public class ContentController {
 
                 ContentFile contentFile = new ContentFile();
                 contentFile.setMimeType(file.getContentType());
-                System.out.println("Mime type = " + file.getContentType());
+
                 contentFile.setOriginalFilename(file.getOriginalFilename());
                 LOG.info("Creating thumbnail image");
                 contentFile.setThumbImage(ContentFile.generateThumbImage(file.getBytes()));
@@ -1298,7 +1276,9 @@ public class ContentController {
      private Map<Integer, Map<Integer, String>> saveAllPicturesWithNewName(Map<Integer, Map<Integer, String>> sxcfpicnames) {
 
         Map<Integer, Map<Integer, String>> allpicnames = new TreeMap<Integer, Map<Integer, String>>(sxcfpicnames);
-        Map<Integer, Map<Integer, String>> allnewpicnames = allpicnames;
+        //Map<Integer, Map<Integer, String>> allnewpicnames = allpicnames;
+
+        List <File>removeOriginalPictures = new ArrayList();
 
         for (Map.Entry<Integer, Map<Integer, String>> entry : allpicnames.entrySet()) {
 
@@ -1312,6 +1292,8 @@ public class ContentController {
                 try {
 
                     ContentFile contentFile = new ContentFile();
+                    
+                    // MAGICSTRING
                     File picturefromxslx = new File("/home/ubuntu1604/mcontent_files/" + sheetpicnames.get(picentry.getKey()));
                     byte[] filebytes = Files.readAllBytes(picturefromxslx.toPath());
                     contentFile.setThumbImage(ContentFile.generateThumbImage(filebytes));
@@ -1319,13 +1301,16 @@ public class ContentController {
                     String mime = sheetpicnames.get(picentry.getKey()).substring(sheetpicnames.get(picentry.getKey()).indexOf(".") + 1);
                     contentFile.setMimeType("image/" + mime);
                     contentFile.setOriginalFilename(sheetpicnames.get(picentry.getKey()));
+                    if(!removeOriginalPictures.contains(picturefromxslx))
+                    removeOriginalPictures.add(picturefromxslx);
                     LOG.info("Creating thumbnail image");
                     contentFile.setThumbImage(ContentFile.generateThumbImage(filebytes));
 
                     // SMB and DB save for picture
                     contentFile = fileManager.saveFile(contentFile, filebytes);
-                    System.out.println(picentry.getValue() + ", " + contentFile.getUuid());
+                    //System.out.println(picentry.getValue() + ", " + contentFile.getUuid());
                     picentry.setValue(contentFile.getUuid()+"."+mime);
+                    
                     //picturefromxslx.delete();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -1346,7 +1331,13 @@ public class ContentController {
                  System.out.println(picentry.getKey() + ", " + picentry.getValue());
              }
          }
-*/
+*/      
+         // Ok, all done, remove original files
+         Iterator itr = removeOriginalPictures.iterator();
+
+         while (itr.hasNext()) {
+            ((File) itr.next()).delete();
+         }
           return allpicnames;  
     }
      

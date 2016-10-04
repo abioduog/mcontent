@@ -120,18 +120,43 @@
             filesizeBase: 1024,
             acceptedFiles: 'image/*',
             previewsContainer: '#dropzone-previews',
+            addRemoveLinks: true,
             init: function () {
                 var myDropzone = this;
 
                 this.on("removedfile", function (file) {
+                 //console.log("removed file..." + file.name + ", " + newFiles.length + ", " + removedFiles.length);
                  
                     //newFiles = new Array();
                     // Remove from table
                     var element = document.getElementById(file.name);
                     element.parentNode.removeChild(element);
-                      
+                    
+                    //...and remove from newFiles
+                    
+                    //...and add to removedFiles 
+                    // FAIL removedFiles.push(tiedosto)
+                    var i, j;
+                    for(i = newFiles.length -1; i >= 0; i--){
+                       //console.log("newFiles i = " + i + ", => " + newFiles[i]);
+                                for(j = 0; j < filesInServer.length; j++){
+                                    if(file.name === filesInServer[j].name){
+                                        //console.log("Täsmää! " + file.name + " === " + filesInServer[j].name);
+                                    if(newFiles[i] === filesInServer[j].uuid){
+                                    //removedFiles.push(newFiles[i]);
+                                    removeFile(newFiles[i]);
+                                    newFiles.splice(i, 1);
+                                    break;
+                                }
+                                }
+                            }
+                        
+                    }
+                    //console.log("Poistojen jälkeen: " + newFiles.length + ", " + removedFiles.length);
+                    
                 });
                  this.on("addedfile", function (file) {
+                     //console.log("added file...");
                     // Check for duplicates
                     var _file, _i, _len, _ref, _result;
                     _ref = myDropzone.files;
@@ -149,14 +174,18 @@
                 });
 
                 this.on("success", function (file, response) {
+                    //console.log("success");
                     if (/*[[${#authorization.expression('hasAnyRole(''ADMIN'',''PROVIDER'')')}]]*/ == true ){
-                        var _href = file.uuid;
+                        //var _href = file.uuid;
                         var _text =  /*[[#{general.remove}]]*/ "Remove";
                         var newrow = $('#file-table tr:last').after( "<tr id=\""+file.name+"\"><td><img src='data:image/png;base64,"+response.files[0].thumbBase64Png+"' alt='"+file.name+"' /></td><td>"+file.name+
                                 "</td><td>Not saved</td></tr>");
                         var originalHtml = $(".previewer-content").first().html();  // update previewers
                         $(".previewer-content").html(originalHtml+response.files[0].imageHtmlBlock);
                         addNewFile(response.files[0]);
+                        var nameuuid={name: file.name, uuid: response.files[0].uuid};                        
+                        //console.log("Nameuuid = " + nameuuid["name"] + ", " + nameuuid["uuid"]);
+                        filesInServer.push(nameuuid);
                     }
                 });
 
@@ -198,7 +227,7 @@
                 ['insert', ['link', 'picture', 'video']]
             ],
             callbacks: {
-                onMediaDelete : function(target, editor) {
+                onMediaDelete: function(target, editor) {
                     addRemovedFile(target[0].id);
                     target.remove();
                 },
@@ -218,6 +247,7 @@
         });
 
         function sendFile(file) {
+            //console.log("sendFile(file)");
             data = new FormData();
             data.append("file", file);
             data.append("_csrf", /*[[${_csrf.token}]]*/ "");
@@ -249,13 +279,16 @@
         /*<![CDATA[*/
         var newFiles = new Array();
         var removedFiles = new Array();
+        var filesInServer = new Array();
         var thisForm = $(/*[['#'+ ${deliverable.id?: '0'} + '-content-form']]*/);
 
         function addNewFile(file) {
+            //console.log("addNewFile(file) " + file.uuid);
             newFiles.push(file.uuid);
         }
 
         function addRemovedFile(uuid) {
+            //console.log("addRemovedFile(uuid)");
             removedFiles.push(uuid);
         }
 
@@ -270,6 +303,7 @@
         });
         
        function removeFile(uuid) {
+            //console.log('removeFile(uuid) {');
             data = new FormData();
             data.append("_csrf", /*[[${_csrf.token}]]*/ "");
             $.ajax({
@@ -288,6 +322,7 @@
         }
 
         function handleFiles() {
+            //console.log("koot: new, removed = " + newFiles.length + ", " + removedFiles.length); 
             if (/*[[${deliverable.id == null}]]*/) {  // Creation, no files
                 console.log('No File(s) to handle ');
                 newFiles = new Array();
@@ -298,12 +333,16 @@
 
             data = new FormData();
             var _i, _j;
+            
+            
             for ( _i = 0; _i < newFiles.length; _i++) {
+                //console.log("handleFiles(new) " + _i +", " + newFiles[_i]);
                 data.append("addFile",newFiles[_i]);
             }
-            //for ( _j = 0; _j < removedFiles.length; _j++) {
-            //    data.append("removeFile",removedFiles[_j]);
-            //}
+           for ( _j = 0; _j < removedFiles.length; _j++) {
+                //console.log("handleFiles(removed) " + _j +", " + removedFiles[_j]);
+               data.append("removeFile",removedFiles[_j]);
+           }
             data.append("_csrf", /*[[${_csrf.token}]]*/ "");
             $.ajax({
                 data: data,
@@ -345,6 +384,7 @@
    
 
             $(".remove-content-file").click(function (event) {
+                //console.log(".remove-content-file");
                 event.preventDefault();
                 addRemovedFile($(this).attr("href"));
                 $(".previewer-content div:has(#"+$(this).attr("href")+")").remove();  //poista esikatselusta
@@ -362,19 +402,14 @@
                 for (_i = 0; _i < newFiles.length; _i++) {  // remove newly added files from server
                     removeFile(newFiles[_i]);
                 }
-                for (_i = 0; _i < removedFiles.length; _i++) {  // remove newly removed files from server
-                    removeFile(removedFiles[_i]);
-                }
+                //for (_i = 0; _i < removedFiles.length; _i++) {  // remove newly removed files from server
+                //    removeFile(removedFiles[_i]);
+                //}
                 $("textarea[name='content.content']").summernote('destroy');
                 mContent.popup.close(this);
                 
             });
-                       
-            $(".ui-dialog-titlebar-close").bind("onclick", function() {
-                //event.preventDefault();
-                console.log("Nurkan nappia painettu...");
-            });
-        
+              
 
         });
 

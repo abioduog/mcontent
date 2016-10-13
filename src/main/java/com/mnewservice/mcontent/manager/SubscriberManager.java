@@ -38,9 +38,15 @@ public class SubscriberManager {
         return mapper.toDomain(entities);
     }
     
-        public Collection<Subscriber> getAllSubscribersOrderByPhoneNumberAsc() {
+    public Collection<Subscriber> getAllSubscribersOrderByPhoneNumberAsc() {
         LOG.info("Getting all subscribers order by phonenumber asc");
         Collection<SubscriberEntity> entities = repository.findAllByOrderByPhoneNumberAsc();
+        return mapper.toDomain(entities);
+    }
+    public Collection<Subscriber> findByPhoneNumberContaining(String phoneNumber) {
+        LOG.info("Getting all subscribers order by phonenumber asc (" + phoneNumber + ")");
+        //Collection<SubscriberEntity> entities = repository.findByPhoneNumberContainingOrderByPhoneNumberAsc(phoneNumber);
+        Collection<SubscriberEntity> entities = repository.findByPhoneNumberContainingOrderByPhoneNumberAsc(phoneNumber);
         return mapper.toDomain(entities);
     }
 

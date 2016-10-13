@@ -27,7 +27,8 @@ public class SubscriberController {
     private static final Logger LOG
             = Logger.getLogger(SubscriberController.class);
 
-    private int LIST_PAGE_SIZE = 25;
+    private int LIST_PAGE_SIZE = 25; // How many rows in page
+    private int PAGINATION_MENU_SIZE = 5; // How many numbers is visible in pagination menu
         
     @Autowired
     private SubscriberManager subscriberManager;
@@ -86,28 +87,35 @@ public class SubscriberController {
 
       @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value={"/status/subscriberpaged/page/{pagenumber}"})
-    public ModelAndView viewSubscribersPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber) {
+    public ModelAndView viewSubscribersPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber, @RequestParam(value = "nameFilter", required = false) String fname) {
         String baseUrl = "/status/subscriberpaged/page";
+        ModelAndView mav = new ModelAndView("subscriberListPaged");
         PagedListHolder<?> pagedListHolder = (PagedListHolder<?>) request.getSession().getAttribute("subscribersList"); 
         if(pagedListHolder == null){
             pagedListHolder = new PagedListHolder(subscriberManager.getAllSubscribersOrderByPhoneNumberAsc()
                 .stream().collect(Collectors.toList()));
-            pagedListHolder.setPageSize(LIST_PAGE_SIZE);
+
         }else{
             final int goToPage = pagenumber - 1;
             if(goToPage <= pagedListHolder.getPageCount() && goToPage >= 0){
                 pagedListHolder.setPage(goToPage);
             }
+            if(fname != null){
+                pagedListHolder = new PagedListHolder(subscriberManager.findByPhoneNumberContaining(fname).stream().collect(Collectors.toList()));
+
+                //mav.addObject("messages", systemStatuseManager.getFilteredSmsMessages(fname));
+            }
         }
+        pagedListHolder.setPageSize(LIST_PAGE_SIZE);
         pagedListHolder.getPageList();
         request.getSession().setAttribute("subscribersList", pagedListHolder);
         int current = pagedListHolder.getPage() + 1;
-        int begin = Math.max(1, current-LIST_PAGE_SIZE);
-        int end = Math.min(begin+5, pagedListHolder.getPageCount());
+        int begin = Math.max(1, current - (PAGINATION_MENU_SIZE / 2));
+        int end = Math.min(begin + (PAGINATION_MENU_SIZE - 1), pagedListHolder.getPageCount());
         int totalPageCount = pagedListHolder.getPageCount();
 
 
-        ModelAndView mav = new ModelAndView("subscriberListPaged");
+
         mav.addObject("allSubscribers", pagedListHolder.getPageList());
         mav.addObject("beginIndex", begin);
         mav.addObject("endIndex", end);
@@ -115,6 +123,7 @@ public class SubscriberController {
         mav.addObject("totalPageCount", totalPageCount);
         mav.addObject("baseUrl", baseUrl);
         mav.addObject("pagedListHolder", pagedListHolder);
+        mav.addObject("nameFilter", fname);
         
         return mav;
     }
@@ -157,6 +166,24 @@ public class SubscriberController {
             }
         }
 
+        return mav;
+    }
+    
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @RequestMapping({"/subscriber/list/filtered/"})
+    public ModelAndView listFilteredProviders(HttpServletRequest request, @RequestParam(value = "nameFilter", required=false) String fname) {
+                String filter = (fname == null || fname.length() == 0) ? "%" : "%" + fname + "%";
+                
+        System.out.println("listFilteredProviders: nameFilter = " + fname + ", " + filter);
+        ModelAndView mav = new ModelAndView("subscriberList");
+        mav.addObject("allSubscribers", subscriberManager.findByPhoneNumberContaining(filter));
+        /*
+        ModelAndView mav = new ModelAndView("serviceList");
+        
+       mav.addObject("allServices", populateFilteredServices(filter));
+*/
+        mav.addObject("nameFilter", fname);
+        
         return mav;
     }
 

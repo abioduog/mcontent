@@ -50,10 +50,10 @@
         <div id="workarea">
             <h1 th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</h1>
         </div>
-
+        <script th:src="@{|/lib/bootstrap/bootstrap.min.js|}"></script>
         <script th:src="@{|/lib/jquery/jquery.min.js|}"></script>
         <script th:src="@{|/lib/jquery/jquery-ui.min.js|}"></script>
-        <script th:src="@{|/lib/bootstrap/bootstrap.min.js|}"></script>
+
         <script th:src="@{|/lib/jquery/jquery.multi-select.js|}"></script>
         <script th:src="@{|/lib/jquery/jquery.dropdown.min.js|}"></script>
         <script th:src="@{|/lib/underscore/underscore.min.js|}"></script>

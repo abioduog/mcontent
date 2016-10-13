@@ -17,6 +17,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -30,7 +31,8 @@ public class ProviderController {
     private static final Logger LOG
             = Logger.getLogger(ProviderController.class);
 
-    private int LIST_PAGE_SIZE = 25;
+    private int LIST_PAGE_SIZE = 25; // How many rows in page
+    private int PAGINATION_MENU_SIZE = 5; // How many numbers is visible in pagination menu
     
     @Autowired
     private ProviderManager providerManager;
@@ -93,23 +95,27 @@ public class ProviderController {
 
      @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping(value={"/provider/list/page/{pagenumber}"})
-    public ModelAndView viewSmsMessageLogPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber) {
+    public ModelAndView viewSmsMessageLogPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber, @RequestParam(value = "nameFilter", required = false) String fname) {
         String baseUrl = "/provider/list/page";
         PagedListHolder<?> pagedListHolder = (PagedListHolder<?>) request.getSession().getAttribute("allProviders"); 
         if(pagedListHolder == null){
             pagedListHolder = new PagedListHolder(populateProviders() ); 
-            pagedListHolder.setPageSize(LIST_PAGE_SIZE);
+
         }else{
             final int goToPage = pagenumber - 1;
             if(goToPage <= pagedListHolder.getPageCount() && goToPage >= 0){
                 pagedListHolder.setPage(goToPage);
             }
+            if(fname != null){
+                pagedListHolder = new PagedListHolder(populateFilteredProviders(fname));
+            }
         }
+        pagedListHolder.setPageSize(LIST_PAGE_SIZE);
         pagedListHolder.getPageList();
         request.getSession().setAttribute("allProviders", pagedListHolder);
         int current = pagedListHolder.getPage() + 1;
-        int begin = Math.max(1, current-LIST_PAGE_SIZE);
-        int end = Math.min(begin+5, pagedListHolder.getPageCount());
+        int begin = Math.max(1, current - (PAGINATION_MENU_SIZE / 2));
+        int end = Math.min(begin + (PAGINATION_MENU_SIZE - 1), pagedListHolder.getPageCount());
         int totalPageCount = pagedListHolder.getPageCount();
 
         /*
@@ -126,6 +132,7 @@ public class ProviderController {
         mav.addObject("totalPageCount", totalPageCount);
         mav.addObject("baseUrl", baseUrl);
         mav.addObject("pagedListHolder", pagedListHolder);
+        mav.addObject("nameFilter", fname);
         
         return mav;
     }
@@ -184,4 +191,28 @@ public class ProviderController {
         return mav;
     }
 
+        @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @RequestMapping({"/provider/list/filtered/"})
+    public ModelAndView listFilteredProviders(HttpServletRequest request, @RequestParam(value = "nameFilter", required=false) String fname) {
+        System.out.println("listFilteredProviders: nameFilter = " + fname);
+        ModelAndView mav = new ModelAndView("providerList");
+        
+        mav.addObject("allProviders", populateFilteredProviders(fname));
+
+        mav.addObject("nameFilter", fname);
+        
+        return mav;
+    }
+    
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @ModelAttribute("allProviders")
+    public List<ProviderInfo> populateFilteredProviders(String nameFilter) {
+        List<ProviderInfo> contentProviders = providerManager.getFilteredProviders(nameFilter)
+                .stream().map(p -> {
+            return (new ProviderInfo()).init(p, providerManager.getPipeCount(p.getId()));
+                }).collect(Collectors.toList());
+        return contentProviders;
+    }
+
+   
 }

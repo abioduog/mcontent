@@ -1,5 +1,11 @@
 <h1 th:inline="text">Subscribers list</h1>
 <div class="subscriber-list" th:unless="${#lists.isEmpty(allSubscribers)}">
+        <div class="form-fields">
+        <label th:text="#{deliverypipe.name}">Name</label>
+        <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
+        <a class="search-pipes pure-button" th:href="@{|/subscriber/list/filtered/|}" th:text="#{general.search}">Search</a>
+    </div>
+    <br/>
     <table class="pure-table table-striped  table-bordered">
         <thead>
             <tr>
@@ -36,6 +42,21 @@
     $(".view-subscriber").click(function() {
         event.preventDefault();
         mContent.popup.loadWide('Subscriptions', $(this).attr("href"));
+        return false;
+    });
+    
+    $(".search-pipes").click(function() {
+        event.preventDefault();
+        $.ajax({
+            type: "GET",
+            data: {
+                "nameFilter" : document.getElementById("nameFilter").value
+            },
+            url: $(this).attr("href"),
+            success: function(data) {
+                $("#workarea").html("").append(data);
+            }
+        });
         return false;
     });
 

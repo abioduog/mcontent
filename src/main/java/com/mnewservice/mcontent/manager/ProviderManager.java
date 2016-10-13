@@ -4,10 +4,16 @@ import com.mnewservice.mcontent.domain.DeliveryPipe;
 import com.mnewservice.mcontent.domain.Provider;
 import com.mnewservice.mcontent.domain.mapper.ProviderMapper;
 import com.mnewservice.mcontent.repository.ProviderRepository;
+import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.ProviderEntity;
+import com.mnewservice.mcontent.repository.entity.RoleEntity;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,6 +95,43 @@ public class ProviderManager {
         LOG.info("Checking for provider delivery pipe count with id=" + id);
         Collection<DeliveryPipe> retval = deliveryPipeManager.getDeliveryPipesByProvider(id);
         return retval == null ? -1 : retval.size();
+    }
+
+
+    
+    
+    @Transactional(readOnly = true)
+    public Collection<Provider> getFilteredProviders(String nameFilter) {
+        String filter = (nameFilter == null || nameFilter.length() == 0) ? "%" : "%" + nameFilter + "%";
+        LOG.info("Getting providers filtered by name [" + filter + "]");
+        EnumSet<RoleEntity.RoleEnum> roles = getCurrentUserRoles();
+
+        Collection<ProviderEntity> entities = Arrays.asList();
+        if (roles.contains(RoleEntity.RoleEnum.ADMIN)) {
+            //entities = mapper.makeCollection(repository.findAll(filter));
+            entities = mapper.makeCollection(repository.findByNameContainingOrderByNameAsc(filter));
+        } /*else if (roles.contains(RoleEntity.RoleEnum.PROVIDER)) {
+            //entities = mapper.makeCollection(repository.findByProvidersUsername(filter, getCurrentUserUsername()));
+            entities = mapper.makeCollection(repository.findByProvidersUsernameOrderByNameAsc(filter, getCurrentUserUsername()));
+        }*/
+        LOG.info("Found " + entities.size() + " entity.");
+        return mapper.toDomain(entities);
+    }
+    
+        protected EnumSet<RoleEntity.RoleEnum> getCurrentUserRoles() {
+        EnumSet<RoleEntity.RoleEnum> roles = EnumSet.noneOf(RoleEntity.RoleEnum.class);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        authentication.getAuthorities().forEach( authority -> {
+            roles.add(RoleEntity.RoleEnum.valueOf(authority.getAuthority()));
+        });
+
+        return roles;
+    }
+        
+    protected String getCurrentUserUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return ((org.springframework.security.core.userdetails.User)authentication.getPrincipal()).getUsername();
     }
 
 }

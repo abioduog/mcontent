@@ -25,4 +25,10 @@ public class SystemStatusManager {
     public List<SmsMessage> getSmsMessages() {
         return smsMessageRepository.findAllByOrderByCreatedDesc().stream().map(smsMessageMapper::toDomain).collect(Collectors.toList());
     }
+        public List<SmsMessage> getFilteredSmsMessages(String phoneNumber) {
+            if(phoneNumber == null)
+                return getSmsMessages();
+            else
+                return smsMessageRepository.findByReceiversContainingOrderByCreatedDesc(phoneNumber).stream().map(smsMessageMapper::toDomain).collect(Collectors.toList());
+    }
 }

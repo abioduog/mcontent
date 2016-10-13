@@ -51,7 +51,7 @@
     <div class="form-fields">
         <label th:text="#{deliverypipe.name}">Name</label>
         <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
-        <a class="search-pipes pure-button" th:href="@{/deliverypipe/list/filtered/}" th:text="#{general.search}">Search</a>
+        <a class="search-pipes pure-button" th:href="@{|${baseUrl}/1|}" th:text="#{general.search}">Search</a>
     </div>
     <br/>
     <table class="pure-table table-striped table-bordered">

@@ -1,7 +1,7 @@
 <h1 th:inline="text">SMS log</h1>
-<div class="content-menu">
+<!-- div class="content-menu" -->
 
-<div>
+
     <div class="pagination">
         <ul class="pagination">
             <li th:class="${currentIndex == 1}? 'disabled' : '' ">
@@ -23,7 +23,6 @@
                 <span 
                     th:if='${item == currentIndex}' th:text='${item}'>1</span>
                     <a class="linktopage" th:if='${item != currentIndex}'
-                       
                       th:href="@{|${baseUrl}/${item}|}">
                     <span th:text='${item}'>1</span>
                     </a>
@@ -44,10 +43,18 @@
             </li>
             
         </ul>
-    </div>
+
     
 </div>
-<div class="sms-log" th:unless="${#lists.isEmpty(messages)}">
+<div class="sms-log" th:unless="${#lists.isEmpty(smsmessagesList)}">
+    <div class="form-fields">
+        <label text="To">To</label>
+        <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
+        <!-- a class="search-pipes pure-button" th:href="@{|/status/smsmessages/filtered|}" th:text="#{general.search}">Search</a -->
+        <a class="search-pipes pure-button" th:href="@{|${baseUrl}/1|}" th:text="#{general.search}">Search</a>
+    </div>
+    <br/>
+    
     <table class="pure-table table-striped table-bordered">
         <thead>
         <tr>
@@ -62,7 +69,7 @@
         </thead>
         <tbody>
            
-        <tr th:each="message : ${messages}">
+        <tr th:each="message : ${smsmessagesList}">
             <td th:text="${message.fromNumber}">FROM</td>
             <td><p th:each="receiver : ${message.receivers}" th:text="${receiver.number}">RECIEVER</p></td>
             <td th:text="${message.message}">MESSAGE</td>
@@ -77,13 +84,27 @@
     </table>
   
 </div>
-</div>
+<!-- /div -->
 
 <script sec:authorize="hasAnyRole('ADMIN')">
 
         $(".linktopage").click(function(event) {
         event.preventDefault();
         mContent.loaders.workArea($(this).attr("href"));
+        return false;
+    });
+            $(".search-pipes").click(function() {
+        event.preventDefault();
+        $.ajax({
+            type: "GET",
+            data: {
+                "nameFilter" : document.getElementById("nameFilter").value
+            },
+            url: $(this).attr("href"),
+            success: function(data) {
+                $("#workarea").html("").append(data);
+            }
+        });
         return false;
     });
 </script> 

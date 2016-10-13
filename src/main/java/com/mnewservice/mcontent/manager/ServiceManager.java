@@ -62,6 +62,16 @@ public class ServiceManager {
         Collection<ServiceEntity> entities = repository.findAllByOrderByOperatorAscShortCodeAscKeywordAsc();
         return mapper.toDomain(entities);
     }
+    
+    @Transactional(readOnly = true)
+    public Collection<Service> getFilteredServices(String nameFilter) {
+        LOG.info("Getting filtered services, filterName = " + nameFilter);
+       // Collection<ServiceEntity> entities = mapper.makeCollection(repository.findAll());
+        //Collection<ServiceEntity> entities = repository.findAllByOrderByKeywordAsc(nameFilter);
+        Collection<ServiceEntity> entities = repository.findByKeywordContainingOrderByOperatorAscShortCodeAscKeywordAsc(nameFilter);
+        return mapper.toDomain(entities);
+    }
+    
 
     @Transactional(readOnly = true)
     public Service getService(long id) {

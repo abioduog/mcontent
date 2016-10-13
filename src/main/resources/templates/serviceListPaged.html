@@ -44,7 +44,14 @@
         </ul>
     </div>
     
-<div class="service-list" th:unless="${#lists.isEmpty(allServices)}">
+<div class="service-list" th:unless="${#lists.isEmpty(allServicesPaged)}">
+            <div class="form-fields">
+        <label th:text="#{service.keyword}">Keyword</label>
+        <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
+        <a class="search-pipes pure-button" th:href="@{|${baseUrl}/1|}" th:text="#{general.search}">Search</a>
+    </div>
+    <br/>
+    
     <table class="pure-table table-striped  table-bordered">
         <thead>
             <tr>
@@ -102,6 +109,20 @@
     $(".linktopage").click(function(event) {
         event.preventDefault();
         mContent.loaders.workArea($(this).attr("href"));
+        return false;
+    });
+            $(".search-pipes").click(function() {
+        event.preventDefault();
+        $.ajax({
+            type: "GET",
+            data: {
+                "nameFilter" : document.getElementById("nameFilter").value
+            },
+            url: $(this).attr("href"),
+            success: function(data) {
+                $("#workarea").html("").append(data);
+            }
+        });
         return false;
     });
 </script>

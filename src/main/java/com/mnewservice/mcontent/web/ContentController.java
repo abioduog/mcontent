@@ -52,7 +52,8 @@ public class ContentController {
     private static final Logger LOG
             = Logger.getLogger(ContentController.class);
 
-    private int LIST_PAGE_SIZE = 25;
+    private int LIST_PAGE_SIZE = 25; // How many rows in page
+    private int PAGINATION_MENU_SIZE = 5; // How many numbers is visible in pagination menu
             
     @Value("${application.notification.deliverable.created.message.subject}")
     private String deliverableCreatedMessageSubject;
@@ -153,23 +154,30 @@ public class ContentController {
     
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping(value={"/content/list/page/{pagenumber}"})
-    public ModelAndView viewSmsMessageLogPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber) {
+    public ModelAndView viewSmsMessageLogPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber,
+            @RequestParam(value = "nameFilter", required = false) String fname) {
+
         String baseUrl = "/content/list/page";
         PagedListHolder<?> pagedListHolder = (PagedListHolder<?>) request.getSession().getAttribute("servicesList"); 
         if(pagedListHolder == null){
             pagedListHolder = new PagedListHolder(populateServices()); 
-            pagedListHolder.setPageSize(LIST_PAGE_SIZE);
+
         }else{
             final int goToPage = pagenumber - 1;
             if(goToPage <= pagedListHolder.getPageCount() && goToPage >= 0){
                 pagedListHolder.setPage(goToPage);
             }
+            if(fname != null){
+                pagedListHolder = new PagedListHolder(deliveryPipeManager.getDeliveryPipes(fname).stream().collect(Collectors.toList()));
+            }
         }
+        
+        pagedListHolder.setPageSize(LIST_PAGE_SIZE);
         pagedListHolder.getPageList();
         request.getSession().setAttribute("servicesList", pagedListHolder);
         int current = pagedListHolder.getPage() + 1;
-        int begin = Math.max(1, current-LIST_PAGE_SIZE);
-        int end = Math.min(begin+5, pagedListHolder.getPageCount());
+        int begin = Math.max(1, current - (PAGINATION_MENU_SIZE / 2));
+        int end = Math.min(begin + (PAGINATION_MENU_SIZE - 1), pagedListHolder.getPageCount());
         int totalPageCount = pagedListHolder.getPageCount();
 
         /*
@@ -186,7 +194,8 @@ public class ContentController {
         mav.addObject("totalPageCount", totalPageCount);
         mav.addObject("baseUrl", baseUrl);
         mav.addObject("pagedListHolder", pagedListHolder);
-        
+        mav.addObject("nameFilter", fname);
+                
         return mav;
     }
 
@@ -194,9 +203,11 @@ public class ContentController {
     @RequestMapping({"/deliverypipe/list/filtered/"})
     public ModelAndView listFilteredServices(@RequestParam(value = "nameFilter") String fname) {
         ModelAndView mav = new ModelAndView("deliveryPipeList");
+        System.out.println("nameFilter" + fname);
         mav.addObject("filteredDeliveryPipes", deliveryPipeManager.getDeliveryPipes(fname)
                 .stream().collect(Collectors.toList()));
         mav.addObject("nameFilter", fname);
+        
         return mav;
     }
 

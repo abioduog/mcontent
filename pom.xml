@@ -97,26 +97,32 @@
             <artifactId>commons-io</artifactId>
             <version>2.4</version>
         </dependency>
-        <dependency>
-            <groupId>xlsx</groupId>
-            <artifactId>1</artifactId>
-            <version>1</version>
-        </dependency>
-        <dependency>
-            <groupId>xl</groupId>
-            <artifactId>2</artifactId>
-            <version>1</version>
-        </dependency>
-        <dependency>
-            <groupId>xlsx</groupId>
-            <artifactId>3</artifactId>
-            <version>1</version>
-        </dependency>
-        <dependency>
-            <groupId>xlsx</groupId>
-            <artifactId>4</artifactId>
-            <version>1</version>
-        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.xmlbeans/xmlbeans -->
+<dependency>
+    <groupId>org.apache.xmlbeans</groupId>
+    <artifactId>xmlbeans</artifactId>
+    <version>2.6.0</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
+<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi-ooxml</artifactId>
+    <version>3.14</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi</artifactId>
+    <version>3.14</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml-schemas -->
+<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi-ooxml-schemas</artifactId>
+    <version>3.14</version>
+</dependency>
+
+
     </dependencies>
     <name>mContent</name>
 

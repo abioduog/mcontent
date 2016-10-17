@@ -1,0 +1,111 @@
+<h1 th:inline="text">Admin Dashboard</h1>
+<div class="dashboard-services-list form-horizontal" th:unless="${#lists.isEmpty(allDashboardServicesPaged)}">
+    <div >
+        <ul class="pagination">
+            <li th:class="${currentIndex == 1}? 'disabled' : '' ">
+                <span th:if='${currentIndex == 1}'>First</span>
+                <a class="linktopage" th:if='${currentIndex != 1}'
+                   th:href="@{|${baseUrl}/1|}"
+                   title='Go to first page'>First</a>
+            </li>
+            <li th:class="${currentIndex != 1}? '' : 'disabled' ">
+                <span th:if='${currentIndex == 1}'>&lt;&lt;</span>
+                <a class="linktopage" th:if='${currentIndex != 1}'
+                   th:href="@{|${baseUrl}/${currentIndex - 1}|}"
+                   title='Go to previous page'>&lt;&lt;</a>
+            </li>
+            <li th:each="item : ${#numbers.sequence(beginIndex, endIndex)}"
+                th:class="${item == currentIndex ? 'active' : ''}">
+                <span
+                    th:if='${item == currentIndex}' th:text='${item}'>1</span>
+                    <a class="linktopage" th:if='${item != currentIndex}'
+
+                      th:href="@{|${baseUrl}/${item}|}">
+                    <span th:text='${item}'>1</span>
+                    </a>
+            </li>
+            <li th:class="${currentIndex != totalPageCount}? '' : 'disabled' ">
+                <span th:if='${currentIndex == totalPageCount}'>&gt;&gt;</span>
+                <a class="linktopage" th:if='${currentIndex != totalPageCount}'
+                   th:href="@{|${baseUrl}/${currentIndex + 1}|}"
+                   title='Go to next page'>&gt;&gt;</a>
+            </li>
+            <li th:class="${currentIndex == totalPageCount}? 'disabled' : '' ">
+                <span th:if='${currentIndex == totalPageCount}'>Last</span>
+                <a class="linktopage" th:if='${currentIndex != totalPageCount}'
+                   th:href="@{|${baseUrl}/${totalPageCount}|}"
+                   title='Go to last page'>Last</a>
+            </li>
+        </ul>
+    </div>
+    <div class="form-group form-group-sm">
+        <label th:text="#{dashboard.subscribers}" class="col-sm-2">SUBSCRIBERS</label>
+        <label th:text="#{dashboard.runningservices}" class="col-sm-2">RUNNING SERVICES</label>
+        <label th:text="#{dashboard.providers}" class="col-sm-2">PROVIDERS</label>
+        <label class="col-sm-6">&nbsp;</label>
+        <div class="col-sm-2">
+            <input id="numOfSubscribers" class="form-control" name="numOfSubscribers" type="text" th:value="${numOfSubscribers}" disabled="true" required="false"/>
+        </div>
+        <div class="col-sm-2">
+            <input id="runningServices" class="form-control" name="runningServices" type="text" th:value="${runningServices}" disabled="true" required="false"/>
+        </div>
+        <div class="col-sm-2">
+            <input id="numOfProviders" class="form-control" name="numOfProviders" type="text" th:value="${numOfProviders}" disabled="true" required="false"/>
+        </div>
+    </div>
+    <div class="form-fields">
+        <label th:text="#{service.keyword}">KEYWORD</label>
+        <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
+        <a class="search-dashboard-services pure-button" th:href="@{/dashboard/service/list/filtered/}" th:text="#{general.search}">Search</a>
+    </div>
+    <br/>
+    <table class="pure-table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th th:text="#{service.operator}">OPERATOR</th>
+                <th th:text="#{service.shortCode}">00000</th>
+                <th th:text="#{service.keyword}">KEYWORD</th>
+                <th th:text="#{service.serviceDescription}">DESCRIPTION</th>
+                <th th:text="#{dashboardservice.subscribers}">SUBSCRIBERS</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="dashboardService : ${allDashboardServicesPaged}">
+                <td th:text="${dashboardService.operator}">OPERATOR</td>
+                <td th:text="${dashboardService.shortCode}">00000</td>
+                <td th:text="${dashboardService.keyword}">KEYWORD</td>
+                <td th:text="${dashboardService.serviceDescription}">DESCRIPTION</td>
+                <td th:text="${dashboardService.numOfSubscribers}">0</td>
+                <td>
+                    <a class="view-service-details pure-button" sec:authorize="hasRole('ADMIN')"
+                       th:href="@{|/service/${dashboardService.id}/subscription/report/weekly|}"
+                       th:text="#{general.details}">DETAILS</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<script sec:authorize="hasAnyRole('ADMIN')">
+    $(".search-dashboard-services").click(function() {
+        event.preventDefault();
+        $.ajax({
+            type: "GET",
+            data: {
+                "nameFilter" : document.getElementById("nameFilter").value
+            },
+            url: $(this).attr("href"),
+            success: function(data) {
+                $("#workarea").html("").append(data);
+            }
+        });
+        return false;
+    });
+
+    $(".view-service-details").click(function(event) {
+        event.preventDefault();
+        mContent.loaders.workArea($(this).attr("href"));
+        return false;
+    });
+
+</script>

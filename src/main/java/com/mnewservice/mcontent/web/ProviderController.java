@@ -86,14 +86,14 @@ public class ProviderController {
     }
 
     
-        @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping({"/provider/list"})
     public String listProvidersPaged(HttpServletRequest request) {
                 request.getSession().setAttribute("providerList", null);
         return "redirect:/provider/list/page/1";
     }
 
-     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping(value={"/provider/list/page/{pagenumber}"})
     public ModelAndView viewSmsMessageLogPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber, @RequestParam(value = "nameFilter", required = false) String fname) {
         String baseUrl = "/provider/list/page";
@@ -191,7 +191,7 @@ public class ProviderController {
         return mav;
     }
 
-        @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping({"/provider/list/filtered/"})
     public ModelAndView listFilteredProviders(HttpServletRequest request, @RequestParam(value = "nameFilter", required=false) String fname) {
         System.out.println("listFilteredProviders: nameFilter = " + fname);

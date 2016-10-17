@@ -133,8 +133,7 @@ public class ServiceController {
         PagedListHolder<?> pagedListHolder = (PagedListHolder<?>) request.getSession().getAttribute("allServicesPaged"); 
         if(pagedListHolder == null){
             pagedListHolder = new PagedListHolder(populateServices()); 
-
-        }else{
+        } else {
             final int goToPage = pagenumber - 1;
             if(goToPage <= pagedListHolder.getPageCount() && goToPage >= 0){
                 pagedListHolder.setPage(goToPage);

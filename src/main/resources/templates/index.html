@@ -29,6 +29,7 @@
                 <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/service/list}" onclick="return false;">Service management</a></li>
                 <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/subscriber/list}" onclick="return false;">Subscriber management</a></li>
                 <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/status/smsmessages}" onclick="return false;">System status</a></li>
+                <li sec:authorize="hasRole('ADMIN')" class="pure-menu-item"><a class="pure-menu-link" th:href="@{/dashboard/service/list}" onclick="return false;">Dashboard</a></li>
 
             </ul>
             <div id="session-control" class="pure-menu">

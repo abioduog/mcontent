@@ -3,6 +3,8 @@ package com.mnewservice.mcontent.manager;
 import com.mnewservice.mcontent.domain.PhoneNumber;
 import com.mnewservice.mcontent.domain.SmsMessage;
 import com.mnewservice.mcontent.domain.Subscription;
+import com.mnewservice.mcontent.domain.SubscriptionLog;
+import com.mnewservice.mcontent.domain.SubscriptionLogAction;
 import com.mnewservice.mcontent.domain.mapper.PhoneNumberMapper;
 import com.mnewservice.mcontent.domain.mapper.SubscriptionMapper;
 import com.mnewservice.mcontent.domain.mapper.SubscriptionPeriodMapper;
@@ -15,7 +17,6 @@ import com.mnewservice.mcontent.repository.entity.SubscriberEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionPeriodEntity;
 import com.mnewservice.mcontent.util.DateUtils;
-import com.mnewservice.mcontent.util.exception.MessagingException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.NoSuchElementException;
@@ -23,7 +24,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +36,9 @@ public class SubscriptionManager {
 
     @Autowired
     private MessageCenter messageCenter;
+
+    @Autowired
+    private SubscriptionLogManager subscriptionLogManager;
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
@@ -95,8 +98,10 @@ public class SubscriptionManager {
                 = subscriptionRepository.save(subscriptionEntity);
         if (savedEntity != null && savedEntity.getId() != null) {
             if (savedEntity.getId().equals(id)) {
+                subscriptionLogManager.saveSubscriptionLog(new SubscriptionLog(subscription, SubscriptionLogAction.RENEWAL));
                 sendRenewMessage(savedEntity);
             } else {
+                subscriptionLogManager.saveSubscriptionLog(new SubscriptionLog(subscription, SubscriptionLogAction.SUBSCRIPTION));
                 sendWelcomeMessage(savedEntity);
             }
             LOG.info("Saved entity with id " + savedEntity.getId());
@@ -227,6 +232,7 @@ public class SubscriptionManager {
         }
 
         if (savedEntity != null && savedEntity.getId() != null) {
+            subscriptionLogManager.saveSubscriptionLog(new SubscriptionLog(subscription, SubscriptionLogAction.UNSUBSCRIPTION));
             sendUnsubscribeMessage(savedEntity);
             LOG.info("Saved entity with id " + savedEntity.getId());
             return true;

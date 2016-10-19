@@ -1,10 +1,18 @@
 package com.mnewservice.mcontent.web;
 
 import com.mnewservice.mcontent.domain.DashboardServiceInfo;
+import com.mnewservice.mcontent.domain.SubscriptionLog;
+import com.mnewservice.mcontent.domain.WeekDayItem;
+import com.mnewservice.mcontent.domain.WeekItem;
 import com.mnewservice.mcontent.manager.ProviderManager;
 import com.mnewservice.mcontent.manager.ServiceManager;
 import com.mnewservice.mcontent.manager.SubscriberManager;
+import com.mnewservice.mcontent.manager.SubscriptionLogManager;
 import com.mnewservice.mcontent.manager.SubscriptionManager;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
@@ -28,8 +36,9 @@ public class DashboardController {
     private static final Logger LOG
             = Logger.getLogger(DashboardController.class);
 
-    private int LIST_PAGE_SIZE = 20; // How many rows in page
+    private int LIST_PAGE_SIZE = 10; // How many rows in page
     private int PAGINATION_MENU_SIZE = 5; // How many numbers is visible in pagination menu
+    private int WEEK_LIST_SIZE = 5; // How many weeks per service
 
     @Autowired
     private ProviderManager providerManager;
@@ -39,6 +48,9 @@ public class DashboardController {
 
     @Autowired
     private SubscriptionManager subscriptionManager;
+
+    @Autowired
+    private SubscriptionLogManager subscriptionLogManager;
 
     @Autowired
     private SubscriberManager subscriberManager;
@@ -76,20 +88,24 @@ public class DashboardController {
 
 //</editor-fold>
     @PreAuthorize("hasAuthority('ADMIN')")
-    @ModelAttribute("allDashboardServices")
-    public List<DashboardServiceInfo> populateDashboardServices() {
+    @ModelAttribute("allDashboardServicesPaged")
+    public List<DashboardServiceInfo> getInitializedDashboardServiceInfo() {
+        return new ArrayList<>();
+    }
+
+    public List<DashboardServiceInfo> populateDashboardServices(List<WeekItem> weeks) {
         // return new ArrayList(serviceManager.getAllServices());
         return serviceManager.getAllServices()
                 .stream().map(p -> {
-                    return (new DashboardServiceInfo()).init(p, subscriptionManager.getAllSubscriptionsByService(p.getId()).size());
+            return (new DashboardServiceInfo()).init(p, getDataForWeeks(p.getId(), weeks), subscriptionManager.getAllSubscriptionsByService(p.getId()).size());
                 }).collect(Collectors.toList());
     }
 
-    public List<DashboardServiceInfo> populateFilteredDashboardServices(String nameFilter) {
+    public List<DashboardServiceInfo> populateFilteredDashboardServices(String nameFilter, List<WeekItem> weeks) {
         // return new ArrayList(serviceManager.getFilteredServices(nameFilter));
         return serviceManager.getFilteredServices(nameFilter)
                 .stream().map(p -> {
-                    return (new DashboardServiceInfo()).init(p, subscriptionManager.getAllSubscriptionsByService(p.getId()).size());
+            return (new DashboardServiceInfo()).init(p, getDataForWeeks(p.getId(), weeks), subscriptionManager.getAllSubscriptionsByService(p.getId()).size());
                 }).collect(Collectors.toList());
     }
 
@@ -102,21 +118,38 @@ public class DashboardController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @RequestMapping(value = {"/dashboard/service/list/page/{pagenumber}"})
-    public ModelAndView viewDashboardServicesPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber, @RequestParam(value = "nameFilter", required = false) String fname) {
+    public ModelAndView viewDashboardServicesPageNumberX(HttpServletRequest request,
+                                                         @PathVariable("pagenumber") Integer pagenumber,
+                                                         @RequestParam(value = "nameFilter", required = false) String fname,
+                                                         @RequestParam(value = "selectedWeek", required = false) String selectedWeek) {
         String baseUrl = "dashboard/service/list/page";
         ModelAndView mav = new ModelAndView("adminDashboardPaged");
 
+        mav.addObject("numOfSubscribers", subscriberManager.getAllSubscribers().size());
+        mav.addObject("runningServices", serviceManager.getAllServices().size());
+        mav.addObject("numOfProviders", providerManager.getAllProviders().size());
+
+        // Generate weekList
+        Calendar today = Calendar.getInstance();
+        List<WeekItem> weekList = WeekItem.createList(today, today.getWeeksInWeekYear(), false);
+        mav.addObject("weekList", weekList);
+
+        List<WeekItem> selectedWeeks = WeekItem.createList(WeekItem.getCalendar(selectedWeek), WEEK_LIST_SIZE, true);
+        mav.addObject("selectedWeek", selectedWeeks.get(0).getStartDate()); // 1st day of 1st week
+
+        // Collections.reverse(selectedWeeks);
+        mav.addObject("weekHeaders", selectedWeeks);
+
         PagedListHolder<?> pagedListHolder = (PagedListHolder<?>) request.getSession().getAttribute("allDashboardServicesPaged");
         if (pagedListHolder == null) {
-            pagedListHolder = new PagedListHolder(populateDashboardServices());
-
+            pagedListHolder = new PagedListHolder(populateDashboardServices(selectedWeeks));
         } else {
             final int goToPage = pagenumber - 1;
             if (goToPage <= pagedListHolder.getPageCount() && goToPage >= 0) {
                 pagedListHolder.setPage(goToPage);
             }
             if (fname != null) {
-                pagedListHolder = new PagedListHolder(populateFilteredDashboardServices(fname));
+                pagedListHolder = new PagedListHolder(populateFilteredDashboardServices(fname, selectedWeeks));
             }
         }
 
@@ -129,14 +162,6 @@ public class DashboardController {
         int totalPageCount = pagedListHolder.getPageCount();
 
         mav.addObject("allDashboardServicesPaged", pagedListHolder.getPageList());
-
-        // numOfSubscribers
-        mav.addObject("numOfSubscribers", subscriberManager.getAllSubscribers().size());
-        // runningServices
-        mav.addObject("runningServices", serviceManager.getAllServices().size());
-        // numOfProviders
-        mav.addObject("numOfProviders", providerManager.getAllProviders().size());
-
         mav.addObject("beginIndex", begin);
         mav.addObject("endIndex", end);
         mav.addObject("currentIndex", current);
@@ -148,4 +173,55 @@ public class DashboardController {
         return mav;
     }
 
+    private List<WeekItem> getDataForWeeks(Long serviceId, List<WeekItem> weeks) {
+        weeks.stream().forEach(p -> {
+            getDataForWeek(serviceId, p);
+        });
+        return weeks;
+    }
+
+    private void getDataForWeek(Long serviceId, WeekItem week) {
+        Date firstDate = week.getFirstCalendarDay().getTime();
+        Date lastDate = week.getLastCalendarDay().getTime();
+        week.initWeekData();
+        debugWeek("Before: ", week);
+        Collection<SubscriptionLog> logData = subscriptionLogManager.getAllSubscriptionsByService(serviceId, firstDate, lastDate);
+        if (logData != null) {
+            for (SubscriptionLog x : logData) {
+                for (WeekDayItem dayItem : week.getWeekData()) {
+                    if (dayItem.isSameDay(x.getTimeStamp())) {
+                        if (null != x.getAction()) {
+                            switch (x.getAction()) {
+                                case RENEWAL:
+                                    dayItem.addRenewal();
+                                    break;
+                                case SUBSCRIPTION:
+                                    dayItem.addSubscription();
+                                    break;
+                                case UNSUBSCRIPTION:
+                                    dayItem.addUnSubscription();
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        debugWeek("After:  ", week);
+    }
+
+    private void debugWeek(String msg, WeekItem week) {
+        String weekFirstDay = week.getStartDate();
+        String weekLastDay = week.getEndDate();
+        String weekDay0 = week.getWeekData().get(0).getDayString();
+        String weekDay1 = week.getWeekData().get(1).getDayString();
+        String weekDay2 = week.getWeekData().get(2).getDayString();
+        String weekDay3 = week.getWeekData().get(3).getDayString();
+        String weekDay4 = week.getWeekData().get(4).getDayString();
+        String weekDay5 = week.getWeekData().get(5).getDayString();
+        String weekDay6 = week.getWeekData().get(6).getDayString();
+        LOG.info(msg + weekFirstDay + "-" + weekLastDay + " " + weekDay0 + " " + weekDay1 + " " + weekDay2 + " " + weekDay3 + " " + weekDay4 + " " + weekDay5 + " " + weekDay6);
+    }
 }

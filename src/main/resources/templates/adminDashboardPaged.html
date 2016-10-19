@@ -1,6 +1,44 @@
 <h1 th:inline="text">Admin Dashboard</h1>
-<div class="dashboard-services-list form-horizontal" th:unless="${#lists.isEmpty(allDashboardServicesPaged)}">
-    <div >
+<div class="dashboard-info form-horizontal">
+    <div class="form-group form-group-sm">
+        <div class="col-sm-2">
+            <label class="col-sm-6 control-label" for="numOfSubscribers" th:text="#{dashboard.subscribers}" >SUBSCRIBERS</label>
+            <div class="col-sm-6">
+                <input id="numOfSubscribers" class="form-control" name="numOfSubscribers" type="text" th:value="${numOfSubscribers}" disabled="true" required="false"/>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <label class="col-sm-6 control-label" for="runningServices" th:text="#{dashboard.services}" >SERVICES</label>
+            <div class="col-sm-6">
+                <input id="runningServices" class="form-control" name="runningServices" type="text" th:value="${runningServices}" disabled="true" required="false"/>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <label class="col-sm-6 control-label" for="numOfProviders" th:text="#{dashboard.providers}" >PROVIDERS</label>
+            <div class="col-sm-6">
+                <input id="numOfProviders" class="form-control" name="numOfProviders" type="text" th:value="${numOfProviders}" disabled="true" required="false"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-search form-inline">
+    <div class="form-group">
+                <label th:text="#{service.keyword}">KEYWORD</label>
+                <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
+                <a class="search-pipes pure-button" th:href="@{|${baseUrl}/1|}" th:text="#{general.search}">Search</a>
+    </div>
+    <div class="form-group">
+        <label>&nbsp;</label>
+    </div>
+    <label class="" th:text="#{general.fromweek}">FROM WEEK</label>
+    <select class="" id="selectedWeek" name="selectedWeek" required="false" th:href="@{|${baseUrl}/1|}">
+        <option th:each="week : ${weekList}" th:value="${week.startDate}" th:text="${week.weekText}">19/Sep - 16/Oct</option>
+    </select>
+</div>
+
+<div class="dashboard-search form-inline">
+    <div class="form-group">
         <ul class="pagination">
             <li th:class="${currentIndex == 1}? 'disabled' : '' ">
                 <span th:if='${currentIndex == 1}'>First</span>
@@ -38,55 +76,54 @@
             </li>
         </ul>
     </div>
-    <div class="form-group form-group-sm">
-        <label th:text="#{dashboard.subscribers}" class="col-sm-2">SUBSCRIBERS</label>
-        <label th:text="#{dashboard.runningservices}" class="col-sm-2">RUNNING SERVICES</label>
-        <label th:text="#{dashboard.providers}" class="col-sm-2">PROVIDERS</label>
-        <label class="col-sm-6">&nbsp;</label>
-        <div class="col-sm-2">
-            <input id="numOfSubscribers" class="form-control" name="numOfSubscribers" type="text" th:value="${numOfSubscribers}" disabled="true" required="false"/>
-        </div>
-        <div class="col-sm-2">
-            <input id="runningServices" class="form-control" name="runningServices" type="text" th:value="${runningServices}" disabled="true" required="false"/>
-        </div>
-        <div class="col-sm-2">
-            <input id="numOfProviders" class="form-control" name="numOfProviders" type="text" th:value="${numOfProviders}" disabled="true" required="false"/>
-        </div>
-    </div>
-    <div class="form-fields">
-        <label th:text="#{service.keyword}">KEYWORD</label>
-        <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
-        <a class="search-dashboard-services pure-button" th:href="@{/dashboard/service/list/filtered/}" th:text="#{general.search}">Search</a>
-    </div>
-    <br/>
+</div>
+
+<div class="dashboard-services-list form-horizontal" th:unless="${#lists.isEmpty(allDashboardServicesPaged)}">
     <table class="pure-table table-striped table-bordered">
         <thead>
             <tr>
-                <th th:text="#{service.operator}">OPERATOR</th>
-                <th th:text="#{service.shortCode}">00000</th>
-                <th th:text="#{service.keyword}">KEYWORD</th>
-                <th th:text="#{service.serviceDescription}">DESCRIPTION</th>
-                <th th:text="#{dashboardservice.subscribers}">SUBSCRIBERS</th>
+                <th th:text="#{dashboard.services}">
+                <!--    <div class="col-sm-12" th:text="#{service.operator}">OPERATOR</div>
+                    <div class="col-sm-12" th:text="#{service.shortCode}">SHORTCODE</div>
+                    <div class="col-sm-12" th:text="#{dashboard.service.keyword}">KEYWORD</div> -->
+                </th>
+                <th th:text="#{dashboard.service.subscribers}">SUBSCRIBERS</th>
                 <th>&nbsp;</th>
+                <th th:each="week : ${weekHeaders}"><em th:text="${week.startDate}">1 Jan 1970</em>
+                    <!-- <div class="col-sm-12" th:text="#{dashboard.service.renewed}">RENEWED</div>
+                    <div class="col-sm-12" th:text="#{dashboard.service.unsubscribed}">UNSUBSCRIBED</div>
+                    <div class="col-sm-12"><em th:text="${week.startDate}">1 Jan 1970</em></div> -->
+                </th>
             </tr>
         </thead>
         <tbody>
             <tr th:each="dashboardService : ${allDashboardServicesPaged}">
-                <td th:text="${dashboardService.operator}">OPERATOR</td>
-                <td th:text="${dashboardService.shortCode}">00000</td>
-                <td th:text="${dashboardService.keyword}">KEYWORD</td>
-                <td th:text="${dashboardService.serviceDescription}">DESCRIPTION</td>
+                <td>
+                    <div class="col-sm-12" th:text="${dashboardService.operator}">OPERATOR</div>
+                    <div class="col-sm-12" th:text="${dashboardService.shortCode}">00000</div>
+                    <div class="col-sm-12" th:text="${dashboardService.keyword}">KEYWORD</div>
+                </td>
                 <td th:text="${dashboardService.numOfSubscribers}">0</td>
                 <td>
-                    <a class="view-service-details pure-button" sec:authorize="hasRole('ADMIN')"
-                       th:href="@{|/service/${dashboardService.id}/subscription/report/weekly|}"
-                       th:text="#{general.details}">DETAILS</a>
+                    <div class="col-sm-12"><strong th:text="#{dashboard.service.renewed}">RENEWED</strong></div>
+                    <div class="col-sm-12"><strong th:text="#{dashboard.service.unsubscribed}">UNSUBSCRIBED</strong></div>
+                </td>
+                <td th:each="week : ${dashboardService.weeks}">
+                    <div class="col-sm-12" th:text="${week.renewals}">0</div>
+                    <div class="col-sm-12" th:text="${week.unSubscriptions}">0</div>
                 </td>
             </tr>
         </tbody>
     </table>
 </div>
-<script sec:authorize="hasAnyRole('ADMIN')">
+<script th:inline="javascript" sec:authorize="hasAnyRole('ADMIN')">
+    /*<![CDATA[*/
+
+    $(document).ready(function() {
+console.dir(/*[[${selectedWeek}]]*/);
+        $("#selectedWeek").val(/*[[${selectedWeek}]]*/ "");
+    });
+
     $(".search-dashboard-services").click(function() {
         event.preventDefault();
         $.ajax({
@@ -102,10 +139,19 @@
         return false;
     });
 
-    $(".view-service-details").click(function(event) {
+    $("#selectedWeek").change(function(event) {
         event.preventDefault();
-        mContent.loaders.workArea($(this).attr("href"));
+        $.ajax({
+            type: "GET",
+            data: {
+                "selectedWeek" : document.getElementById("selectedWeek").value
+            },
+            url: $(this).attr("href"),
+            success: function(data) {
+                $("#workarea").html("").append(data);
+            }
+        });
         return false;
     });
-
+    /*]]>*/
 </script>

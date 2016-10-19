@@ -1,14 +1,21 @@
 <h1 th:inline="text">Provider list</h1>
 
-    <div class="pagination">
+
+<div class="provider-list" th:unless="${#lists.isEmpty(allProviders)}">
+        <div class="form-fields">
+        <label th:text="#{provider.name}">Provider name</label>
+        <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
+        <a class="search-pipes pure-button" th:href="@{|${baseUrl}/1|}" th:text="#{general.search}">Search</a>
+    </div>
+    <div>
         <ul class="pagination">
             <li th:class="${currentIndex == 1}? 'disabled' : '' ">
-                <span th:if='${currentIndex == 1}'>First</span>                
+                <span th:if='${currentIndex == 1}'>First</span>
                 <a class="linktopage" th:if='${currentIndex != 1}'
-                   th:href="@{|${baseUrl}/1|}" 
+                   th:href="@{|${baseUrl}/1|}"
                    title='Go to first page'>First</a>
             </li>
-            
+
             <li th:class="${currentIndex != 1}? '' : 'disabled' ">
                 <span th:if='${currentIndex == 1}'>&lt;&lt;</span>
                 <a class="linktopage" th:if='${currentIndex != 1}'
@@ -18,39 +25,31 @@
 
             <li th:each="item : ${#numbers.sequence(beginIndex, endIndex)}"
                 th:class="${item == currentIndex ? 'active' : ''}">
-                <span 
+                <span
                     th:if='${item == currentIndex}' th:text='${item}'>1</span>
                     <a class="linktopage" th:if='${item != currentIndex}'
-                       
+
                       th:href="@{|${baseUrl}/${item}|}">
                     <span th:text='${item}'>1</span>
                     </a>
             </li>
 
             <li th:class="${currentIndex != totalPageCount}? '' : 'disabled' ">
-                <span th:if='${currentIndex == totalPageCount}'>&gt;&gt;</span>                
+                <span th:if='${currentIndex == totalPageCount}'>&gt;&gt;</span>
                 <a class="linktopage" th:if='${currentIndex != totalPageCount}'
                    th:href="@{|${baseUrl}/${currentIndex + 1}|}"
                    title='Go to next page'>&gt;&gt;</a>
             </li>
 
             <li th:class="${currentIndex == totalPageCount}? 'disabled' : '' ">
-                <span th:if='${currentIndex == totalPageCount}'>Last</span>                
+                <span th:if='${currentIndex == totalPageCount}'>Last</span>
                 <a class="linktopage" th:if='${currentIndex != totalPageCount}'
                    th:href="@{|${baseUrl}/${totalPageCount}|}"
                    title='Go to last page'>Last</a>
             </li>
-            
+
         </ul>
     </div>
-
-<div class="provider-list" th:unless="${#lists.isEmpty(allProviders)}">
-        <div class="form-fields">
-        <label th:text="#{provider.name}">Provider name</label>
-        <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
-        <a class="search-pipes pure-button" th:href="@{|${baseUrl}/1|}" th:text="#{general.search}">Search</a>
-    </div>
-    <br/>
     <table class="pure-table table-striped  table-bordered">
         <thead>
             <tr>

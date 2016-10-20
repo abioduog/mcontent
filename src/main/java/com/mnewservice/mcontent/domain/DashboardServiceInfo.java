@@ -7,7 +7,7 @@ import org.springframework.beans.BeanUtils;
 public class DashboardServiceInfo extends Service {
 
     private long numOfSubscribers;
-    private List<WeekItem> weeks;
+    private List<WeekServiceInfo> weeks;
 
     public DashboardServiceInfo init(Service service, long numOfSubscribers) {
         BeanUtils.copyProperties(service, this);
@@ -24,11 +24,11 @@ public class DashboardServiceInfo extends Service {
         this.numOfSubscribers = numOfSubscribers;
     }
 
-    public List<WeekItem> getWeeks() {
+    public List<WeekServiceInfo> getWeeks() {
         return weeks;
     }
 
-    public void setWeeks(List<WeekItem> weeks) {
+    public void setWeeks(List<WeekServiceInfo> weeks) {
         this.weeks = weeks;
     }
 

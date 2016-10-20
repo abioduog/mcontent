@@ -169,7 +169,7 @@ public class DashboardController {
 
         List<DashboardServiceInfo> serviceList = (List<DashboardServiceInfo>) pagedListHolder.getPageList();
         serviceList.stream().forEach(p -> {
-            List<WeekItem> selectedWeeks = WeekServiceInfo.createWeekList(WeekServiceInfo.getCalendar(selectedWeek), WEEK_LIST_SIZE, true);
+            List<WeekServiceInfo> selectedWeeks = WeekServiceInfo.createWeekList(WeekServiceInfo.getCalendar(selectedWeek), WEEK_LIST_SIZE, true);
             p.setWeeks(getDataForWeeks(p.getId(), selectedWeeks));
         });
 
@@ -185,7 +185,7 @@ public class DashboardController {
         return mav;
     }
 
-    private List<WeekItem> getDataForWeeks(Long serviceId, List<WeekItem> weeks) {
+    private List<WeekServiceInfo> getDataForWeeks(Long serviceId, List<WeekServiceInfo> weeks) {
         Date minDate = weeks.stream().map(p -> p.getFirstCalendarDay().getTime()).min((a, b) -> a.compareTo(b)).orElse(new Date());
         Date maxDate = weeks.stream().map(p -> p.getLastCalendarDay().getTime()).max((a, b) -> a.compareTo(b)).orElse(new Date());
         LOG.info("min/max Dates: " + minDate.toString() + "  " + maxDate.toString());
@@ -194,9 +194,8 @@ public class DashboardController {
         return weeks;
     }
 
-    private void setWeekData(List<WeekItem> weeks, Collection<SubscriptionLog> logData) {
-        for (WeekItem weekItem : weeks) {
-            WeekServiceInfo week = (WeekServiceInfo) weekItem;
+    private void setWeekData(List<WeekServiceInfo> weeks, Collection<SubscriptionLog> logData) {
+        for (WeekServiceInfo week : weeks) {
             week.initWeekData();
             if (logData != null) {
                 for (SubscriptionLog x : logData) {

@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class WeekServiceInfo extends WeekItem {
+public class WeekServiceInfo extends AbstractWeek {
 
     public WeekServiceInfo(Date date) {
         super(date);
@@ -17,9 +17,9 @@ public class WeekServiceInfo extends WeekItem {
         this.setWeekDays(WeekDayServiceInfo.createDayList(this.getFirstCalendarDay(), 7, true));
     }
 
-    public static List<WeekItem> createWeekList(Calendar firstDay, int numOfWeeks, boolean toFuture) {
+    public static List<WeekServiceInfo> createWeekList(Calendar firstDay, int numOfWeeks, boolean toFuture) {
         Calendar day = (Calendar) firstDay.clone();
-        List<WeekItem> weekList = new ArrayList<>();
+        List<WeekServiceInfo> weekList = new ArrayList<>();
         int i = numOfWeeks;
         while (i > 0) {
             weekList.add(new WeekServiceInfo(day.getTime()));

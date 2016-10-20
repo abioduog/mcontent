@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class WeekDayServiceInfo extends WeekDayItem {
+public class WeekDayServiceInfo extends AbstractWeekDay {
 
     private Long renewals = 0L;
     private Long unSubscriptions = 0L;
@@ -14,9 +14,9 @@ public class WeekDayServiceInfo extends WeekDayItem {
         super(day);
     }
 
-    public static List<WeekDayItem> createDayList(Calendar firstDay, int numOfDays, boolean toFuture) {
+    public static List<WeekDayServiceInfo> createDayList(Calendar firstDay, int numOfDays, boolean toFuture) {
         Calendar weekDay = (Calendar) firstDay.clone();
-        List<WeekDayItem> weekDataList = new ArrayList<>();
+        List<WeekDayServiceInfo> weekDataList = new ArrayList<>();
         int i = numOfDays;
         while (i > 0) {
             weekDataList.add(new WeekDayServiceInfo(weekDay));

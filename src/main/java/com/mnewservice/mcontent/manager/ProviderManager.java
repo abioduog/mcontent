@@ -4,24 +4,21 @@ import com.mnewservice.mcontent.domain.DeliveryPipe;
 import com.mnewservice.mcontent.domain.Provider;
 import com.mnewservice.mcontent.domain.mapper.ProviderMapper;
 import com.mnewservice.mcontent.repository.ProviderRepository;
-import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.ProviderEntity;
 import com.mnewservice.mcontent.repository.entity.RoleEntity;
+import com.mnewservice.mcontent.util.SessionUtils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Marko Tuononen <marko.tuononen at nolwenture.com>
  */
-@Service
+@org.springframework.stereotype.Service
 public class ProviderManager {
 
     @Autowired
@@ -38,10 +35,11 @@ public class ProviderManager {
     @Transactional(readOnly = true)
     public Collection<Provider> getAllProviders() {
         LOG.info("Getting all providers");
-       // Collection<ProviderEntity> entities
-       //         = mapper.makeCollection(repository.findAll());
-                Collection<ProviderEntity> entities
-                = repository.findAllByOrderByNameAsc();
+        EnumSet<RoleEntity.RoleEnum> roles = SessionUtils.getCurrentUserRoles();
+        Collection<ProviderEntity> entities = Arrays.asList();
+        if (roles.contains(RoleEntity.RoleEnum.ADMIN)) {
+            entities = mapper.makeCollection(repository.findAllByOrderByNameAsc());
+        }
         return mapper.toDomain(entities);
     }
 
@@ -75,7 +73,13 @@ public class ProviderManager {
         LOG.info("Finding provider with userId=" + userId);
         return mapper.toDomain(repository.findByUserId(userId));
     }
-    
+
+    @Transactional(readOnly = true)
+    public Provider findByName(String name) {
+        LOG.info("Finding provider with name=" + name);
+        return mapper.toDomain(repository.findByUserName(name));
+    }
+
     @Transactional(readOnly = true)
     public Provider findByEmail(String email) {
         LOG.info("Finding provider with email=" + email);
@@ -104,7 +108,7 @@ public class ProviderManager {
     public Collection<Provider> getFilteredProviders(String nameFilter) {
         String filter = (nameFilter == null || nameFilter.length() == 0) ? "%" : "%" + nameFilter + "%";
         LOG.info("Getting providers filtered by name [" + filter + "]");
-        EnumSet<RoleEntity.RoleEnum> roles = getCurrentUserRoles();
+        EnumSet<RoleEntity.RoleEnum> roles = SessionUtils.getCurrentUserRoles();
 
         Collection<ProviderEntity> entities = Arrays.asList();
         if (roles.contains(RoleEntity.RoleEnum.ADMIN)) {
@@ -116,22 +120,6 @@ public class ProviderManager {
         }*/
         LOG.info("Found " + entities.size() + " entity.");
         return mapper.toDomain(entities);
-    }
-    
-        protected EnumSet<RoleEntity.RoleEnum> getCurrentUserRoles() {
-        EnumSet<RoleEntity.RoleEnum> roles = EnumSet.noneOf(RoleEntity.RoleEnum.class);
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        authentication.getAuthorities().forEach( authority -> {
-            roles.add(RoleEntity.RoleEnum.valueOf(authority.getAuthority()));
-        });
-
-        return roles;
-    }
-        
-    protected String getCurrentUserUsername() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return ((org.springframework.security.core.userdetails.User)authentication.getPrincipal()).getUsername();
     }
 
 }

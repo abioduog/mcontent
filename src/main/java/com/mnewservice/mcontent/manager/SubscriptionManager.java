@@ -1,6 +1,7 @@
 package com.mnewservice.mcontent.manager;
 
 import com.mnewservice.mcontent.domain.PhoneNumber;
+import com.mnewservice.mcontent.domain.Service;
 import com.mnewservice.mcontent.domain.SmsMessage;
 import com.mnewservice.mcontent.domain.Subscription;
 import com.mnewservice.mcontent.domain.SubscriptionLog;
@@ -22,16 +23,16 @@ import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Marko Tuononen <marko.tuononen at nolwenture.com>
  */
-@Service
+@org.springframework.stereotype.Service
 public class SubscriptionManager {
 
     @Autowired
@@ -75,8 +76,16 @@ public class SubscriptionManager {
         
     @Transactional(readOnly = true)
     public Collection<Subscription> getAllSubscriptionsByService(Long serviceId) {
-        LOG.info("Getting all services by delivery pipe id = " + serviceId);
-        Collection<SubscriptionEntity> entities = subscriptionMapper.makeCollection(subscriptionRepository.findAllByServiceId(serviceId));
+        LOG.info("Getting all subscriptions by service id = " + serviceId);
+        Collection<SubscriptionEntity> entities = subscriptionMapper.makeCollection(subscriptionRepository.findByServiceId(serviceId));
+        return subscriptionMapper.toDomain(entities);
+    }
+
+    @Transactional(readOnly = true)
+    public Collection<Subscription> getAllSubscriptionsByServices(Collection<Service> services) {
+        LOG.info("Getting all subscriptions for collection of services ");
+        Collection<Long> serviceIdList = services.stream().map(p -> p.getId()).collect(Collectors.toList());
+        Collection<SubscriptionEntity> entities = subscriptionMapper.makeCollection(subscriptionRepository.findByServiceIdIn(serviceIdList));
         return subscriptionMapper.toDomain(entities);
     }
 
@@ -328,4 +337,6 @@ public class SubscriptionManager {
     private void sendMessage(SmsMessage message) {
         messageCenter.queueMessage(message);
     }
+
+
 }

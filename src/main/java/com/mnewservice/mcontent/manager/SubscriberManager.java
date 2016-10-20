@@ -1,24 +1,35 @@
 package com.mnewservice.mcontent.manager;
 
+import com.mnewservice.mcontent.domain.Service;
 import com.mnewservice.mcontent.domain.Subscriber;
+import com.mnewservice.mcontent.domain.Subscription;
 import com.mnewservice.mcontent.domain.mapper.SubscriberMapper;
 import com.mnewservice.mcontent.repository.SubscriberRepository;
+import com.mnewservice.mcontent.repository.entity.RoleEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriberEntity;
+import com.mnewservice.mcontent.util.SessionUtils;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Marko Tuononen <marko.tuononen at nolwenture.com>
  */
-@Service
+@org.springframework.stereotype.Service
 public class SubscriberManager {
 
     @Autowired
     private SubscriberRepository repository;
+
+    @Autowired
+    private ServiceManager serviceManager;
+
+    @Autowired
+    private SubscriptionManager subscriptionManager;
 
     @Autowired
     private SubscriberMapper mapper;
@@ -34,7 +45,21 @@ public class SubscriberManager {
 
     public Collection<Subscriber> getAllSubscribers() {
         LOG.info("Getting all subscribers");
-        Collection<SubscriberEntity> entities = mapper.makeCollection(repository.findAll());
+        EnumSet<RoleEntity.RoleEnum> roles = SessionUtils.getCurrentUserRoles();
+        Collection<SubscriberEntity> entities = new ArrayList<>();
+        if (roles.contains(RoleEntity.RoleEnum.ADMIN)) {
+            entities = mapper.makeCollection(repository.findAll());
+        } else if (roles.contains(RoleEntity.RoleEnum.PROVIDER)) {
+            Collection<Service> services = serviceManager.getAllServices();
+            Collection<Subscription> subscriptions = subscriptionManager.getAllSubscriptionsByServices(services);
+            Collection<Subscriber> retval = new ArrayList<>();
+            for (Subscription subscription : subscriptions) {
+                if (!retval.contains(subscription.getSubscriber())) {
+                    retval.add(subscription.getSubscriber());
+                }
+            }
+            return retval;
+        }
         return mapper.toDomain(entities);
     }
     

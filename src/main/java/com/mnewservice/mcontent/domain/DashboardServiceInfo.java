@@ -9,10 +9,10 @@ public class DashboardServiceInfo extends Service {
     private long numOfSubscribers;
     private List<WeekItem> weeks;
 
-    public DashboardServiceInfo init(Service service, List<WeekItem> weekList, long numOfSubscribers) {
+    public DashboardServiceInfo init(Service service, long numOfSubscribers) {
         BeanUtils.copyProperties(service, this);
         this.numOfSubscribers = numOfSubscribers;
-        this.weeks = new ArrayList<>(weekList);
+        this.weeks = new ArrayList<>();
         return this;
     }
 

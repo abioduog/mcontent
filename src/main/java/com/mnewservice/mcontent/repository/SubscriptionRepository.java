@@ -2,6 +2,7 @@ package com.mnewservice.mcontent.repository;
 
 import com.mnewservice.mcontent.repository.entity.ServiceEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -42,8 +43,8 @@ public interface SubscriptionRepository
             @Param("offset") Long offsest
     );
 
-    @Query("select se from SubscriptionEntity se "
-            + "where se.service.id = :serviceId")
-    List<SubscriptionEntity> findAllByServiceId(@Param("serviceId") Long serviceId);
+    List<SubscriptionEntity> findByServiceId(Long serviceId);
+
+    List<SubscriptionEntity> findByServiceIdIn(Collection<Long> services);
 
 }

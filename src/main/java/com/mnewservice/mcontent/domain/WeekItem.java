@@ -5,24 +5,35 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class WeekItem {
 
     private Calendar firstCalendarDay;
     private Calendar lastCalendarDay;
-    private List<WeekDayItem> weekData;
+    private List<?> weekDays;
 
     public WeekItem(Date date) {
         firstCalendarDay = WeekItem.setToStartOfDay(WeekItem.getCalendar(date)); // Transfer date to Calendar and set Hours = 0, Minutes = 0 etc...
         firstCalendarDay.add(Calendar.DAY_OF_YEAR, firstCalendarDay.getFirstDayOfWeek() - firstCalendarDay.get(Calendar.DAY_OF_WEEK)); // Adjust to begining of the week
         lastCalendarDay = WeekItem.setToEndOfDay((Calendar) firstCalendarDay.clone()); // Use 1st day but change hours=23, minutes=59 etc ...
         lastCalendarDay.add(Calendar.DAY_OF_YEAR, 6); // Move 6 days ahead to last day of the week
-        weekData = new ArrayList<>();
+        weekDays = new ArrayList<>();
     }
 
     public void initWeekData() {
-        this.weekData = WeekDayItem.createList(this.firstCalendarDay, 7, true);
+        this.setWeekDays(WeekDayItem.createDayList(this.getFirstCalendarDay(), 7, true));
+    }
+
+    public static List<WeekItem> createWeekList(Calendar firstDay, int numOfWeeks, boolean toFuture) {
+        Calendar day = (Calendar) firstDay.clone();
+        List<WeekItem> weekList = new ArrayList<>();
+        int i = numOfWeeks;
+        while (i > 0) {
+            weekList.add(new WeekItem(day.getTime()));
+            day.add(Calendar.DAY_OF_YEAR, toFuture ? 7 : -7);
+            i--;
+        }
+        return weekList;
     }
 
     public boolean isInWeek(Date date) {
@@ -86,18 +97,6 @@ public class WeekItem {
         return cal;
     }
 
-    public static List<WeekItem> createList(Calendar firstDay, int numOfWeeks, boolean toFuture) {
-        Calendar day = (Calendar) firstDay.clone();
-        List<WeekItem> weekList = new ArrayList<>();
-        int i = numOfWeeks;
-        while (i > 0) {
-            weekList.add(new WeekItem(day.getTime()));
-            day.add(Calendar.DAY_OF_YEAR, toFuture ? 7 : -7);
-            i--;
-        }
-        return weekList;
-    }
-
     public String getStartDate() {
         return WeekItem.dateToString(this.firstCalendarDay.getTime());
     }
@@ -110,22 +109,14 @@ public class WeekItem {
         return this.getStartDate() + " - " + this.getEndDate();
     }
 
-    public Long getRenewals() {
-        return weekData.stream().collect(Collectors.summingLong(p -> p.getRenewals()));
-    }
-
-    public Long getSubscriptions() {
-        return weekData.stream().collect(Collectors.summingLong(p -> p.getSubscriptions()));
-    }
-
-    public Long getUnSubscriptions() {
-        return weekData.stream().collect(Collectors.summingLong(p -> p.getUnSubscriptions()));
-    }
 
 //<editor-fold defaultstate="collapsed" desc="getters/setters">
+    public List<?> getWeekDays() {
+        return weekDays;
+    }
 
-    public List<WeekDayItem> getWeekData() {
-        return weekData;
+    public void setWeekDays(List<?> weekDays) {
+        this.weekDays = weekDays;
     }
 
     public Calendar getFirstCalendarDay() {

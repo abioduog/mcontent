@@ -1,5 +1,6 @@
 package com.mnewservice.mcontent.domain;
 
+import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
 import java.util.Date;
 
 public class SubscriptionLog {
@@ -14,7 +15,7 @@ public class SubscriptionLog {
     public SubscriptionLog() {
     }
 
-    public SubscriptionLog(Subscription subscription, SubscriptionLogAction action) {
+    public SubscriptionLog(SubscriptionEntity subscription, SubscriptionLogAction action) {
         this.action = action;
         this.timeStamp = new Date();
         this.subscriptionId = subscription.getId();

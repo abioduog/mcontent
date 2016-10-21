@@ -107,10 +107,10 @@ public class SubscriptionManager {
                 = subscriptionRepository.save(subscriptionEntity);
         if (savedEntity != null && savedEntity.getId() != null) {
             if (savedEntity.getId().equals(id)) {
-                subscriptionLogManager.saveSubscriptionLog(new SubscriptionLog(subscription, SubscriptionLogAction.RENEWAL));
+                subscriptionLogManager.saveSubscriptionLog(new SubscriptionLog(savedEntity, SubscriptionLogAction.RENEWAL));
                 sendRenewMessage(savedEntity);
             } else {
-                subscriptionLogManager.saveSubscriptionLog(new SubscriptionLog(subscription, SubscriptionLogAction.SUBSCRIPTION));
+                subscriptionLogManager.saveSubscriptionLog(new SubscriptionLog(savedEntity, SubscriptionLogAction.SUBSCRIPTION));
                 sendWelcomeMessage(savedEntity);
             }
             LOG.info("Saved entity with id " + savedEntity.getId());
@@ -241,7 +241,7 @@ public class SubscriptionManager {
         }
 
         if (savedEntity != null && savedEntity.getId() != null) {
-            subscriptionLogManager.saveSubscriptionLog(new SubscriptionLog(subscription, SubscriptionLogAction.UNSUBSCRIPTION));
+            subscriptionLogManager.saveSubscriptionLog(new SubscriptionLog(savedEntity, SubscriptionLogAction.UNSUBSCRIPTION));
             sendUnsubscribeMessage(savedEntity);
             LOG.info("Saved entity with id " + savedEntity.getId());
             return true;

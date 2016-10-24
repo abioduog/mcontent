@@ -89,6 +89,21 @@ public class SubscriptionManager {
         return subscriptionMapper.toDomain(entities);
     }
 
+    @Transactional(readOnly = true)
+    public Collection<Subscription> getSubscribersDistinctByServices(Collection<Service> services) {
+        LOG.info("Getting all subscriptions for collection of services ");
+        Collection<Long> serviceIdList = services.stream().map(p -> p.getId()).collect(Collectors.toList());
+        Collection<SubscriptionEntity> entities = subscriptionMapper.makeCollection(subscriptionRepository.findDistinctSubscriberByServiceIdIn(serviceIdList));
+        return subscriptionMapper.toDomain(entities);
+    }
+
+    @Transactional(readOnly = true)
+    public Long countSubscribersDistinctByServices(Collection<Service> services) {
+        LOG.info("Getting all subscriptions for collection of services ");
+        Collection<Long> serviceIdList = services.stream().map(p -> p.getId()).collect(Collectors.toList());
+        return subscriptionRepository.countDistinctSubscriberByServiceIdIn(serviceIdList);
+    }
+
     @Transactional
     public void removeSubscription(Subscription subscription) {
         LOG.debug("Removing subscription=" + subscription.getId());

@@ -47,4 +47,8 @@ public interface SubscriptionRepository
 
     List<SubscriptionEntity> findByServiceIdIn(Collection<Long> services);
 
+    List<SubscriptionEntity> findDistinctSubscriberByServiceIdIn(Collection<Long> services);
+
+    Long countDistinctSubscriberByServiceIdIn(Collection<Long> services);
+
 }

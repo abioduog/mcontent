@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class WeekItem extends AbstractWeek {
+public class WeekItem extends AbstractWeek<WeekDayItem> {
 
     public WeekItem(Date date) {
         super(date);

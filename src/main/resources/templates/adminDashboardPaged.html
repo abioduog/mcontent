@@ -83,9 +83,11 @@
         <thead>
             <tr>
                 <th th:text="#{dashboard.services}">
-                <!--    <div class="col-sm-12" th:text="#{service.operator}">OPERATOR</div>
+                <!--
+                    <div class="col-sm-12" th:text="#{service.operator}">OPERATOR</div>
                     <div class="col-sm-12" th:text="#{service.shortCode}">SHORTCODE</div>
-                    <div class="col-sm-12" th:text="#{dashboard.service.keyword}">KEYWORD</div> -->
+                    <div class="col-sm-12" th:text="#{dashboard.service.keyword}">KEYWORD</div>
+                -->
                 </th>
                 <th th:text="#{dashboard.service.subscribers}">SUBSCRIBERS</th>
                 <th>&nbsp;</th>
@@ -120,36 +122,34 @@
 
     $(document).ready(function() {
         $("#selectedWeek").val(/*[[${selectedWeek}]]*/ "");
+console.log(/*[[${selectedWeek}]]*/ "");
+console.log(/*[[${nameFilter}]]*/ "");
     });
 
     $(".search-dashboard-services").click(function() {
         event.preventDefault();
-        $.ajax({
-            type: "GET",
-            data: {
-                "nameFilter" : document.getElementById("nameFilter").value
-            },
-            url: $(this).attr("href"),
-            success: function(data) {
-                $("#workarea").html("").append(data);
-            }
-        });
+        reloadForm($(this).attr("href"));
         return false;
     });
 
     $("#selectedWeek").change(function(event) {
         event.preventDefault();
+        reloadForm($(this).attr("href"));
+        return false;
+    });
+
+    function reloadForm(url) {
         $.ajax({
             type: "GET",
             data: {
-                "selectedWeek" : document.getElementById("selectedWeek").value
+                "selectedWeek" : document.getElementById("selectedWeek").value,
+                "nameFilter" : document.getElementById("nameFilter").value
             },
-            url: $(this).attr("href"),
+            url: url,
             success: function(data) {
                 $("#workarea").html("").append(data);
             }
         });
-        return false;
-    });
+    }
     /*]]>*/
 </script>

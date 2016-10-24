@@ -36,7 +36,9 @@ public interface ServiceRepository extends CrudRepository<ServiceEntity, Long> {
 //            + "left join se.deliveryPipe dp "
 //            + "where dp.id = :pipeId"
 //            + "order by se.operator asc, se.shortCode asc, se.keyword asc")
-    List<ServiceEntity> findByDeliveryPipeIdOrderByOperatorAscShortCodeAscKeywordAsc(Long deliveryPipeId);
+    List<ServiceEntity> findByDeliveryPipeIdInOrderByOperatorAscShortCodeAscKeywordAsc(List<Long> pipeIds);
+
+    Long countByDeliveryPipeIdInOrderByOperatorAscShortCodeAscKeywordAsc(List<Long> pipeIds);
 
     @Query("select se from ServiceEntity se "
             + "where se.keyword like ?1 order by se.keyword asc")
@@ -49,6 +51,6 @@ public interface ServiceRepository extends CrudRepository<ServiceEntity, Long> {
     
     Collection<ServiceEntity> findByKeywordContainingOrderByOperatorAscShortCodeAscKeywordAsc(String nameFilter);
 
-    Collection<ServiceEntity> findByDeliveryPipeIdAndKeywordOrderByOperatorAscShortCodeAscKeywordAsc(Long deliveryPipeId, String nameFilter);
+    Collection<ServiceEntity> findByDeliveryPipeIdInAndKeywordContainingOrderByOperatorAscShortCodeAscKeywordAsc(Collection<Long> deliveryPipeIds, String nameFilter);
 
 }

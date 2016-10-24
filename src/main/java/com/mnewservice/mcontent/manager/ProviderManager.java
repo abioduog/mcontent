@@ -44,6 +44,16 @@ public class ProviderManager {
     }
 
     @Transactional(readOnly = true)
+    public Long countAllProviders() {
+        LOG.info("Getting all providers");
+        EnumSet<RoleEntity.RoleEnum> roles = SessionUtils.getCurrentUserRoles();
+        if (roles.contains(RoleEntity.RoleEnum.ADMIN)) {
+            return new Long(repository.count());
+        }
+        return 0L;
+    }
+
+    @Transactional(readOnly = true)
     public Provider getProvider(long id) {
         LOG.info("Getting provider with id=" + id);
         ProviderEntity entity = repository.findOne(id);

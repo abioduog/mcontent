@@ -6,13 +6,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public abstract class AbstractWeek {
+public abstract class AbstractWeek<T> {
 
     private static String DATE_FORMAT = "d MMM yyyy";
     private static String WEEK_TEXT = "%s - %s";
     private Calendar firstCalendarDay;
     private Calendar lastCalendarDay;
-    private List<?> weekDays;
+    private List<T> weekDays;
 
     public AbstractWeek(Date date) {
         firstCalendarDay = WeekItem.setToStartOfDay(WeekItem.getCalendar(date)); // Transfer date to Calendar and set Hours = 0, Minutes = 0 etc...
@@ -99,11 +99,11 @@ public abstract class AbstractWeek {
 
 
 //<editor-fold defaultstate="collapsed" desc="getters/setters">
-    public List<?> getWeekDays() {
+    public List<T> getWeekDays() {
         return weekDays;
     }
 
-    public void setWeekDays(List<?> weekDays) {
+    public void setWeekDays(List<T> weekDays) {
         this.weekDays = weekDays;
     }
 

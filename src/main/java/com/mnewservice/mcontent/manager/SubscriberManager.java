@@ -11,6 +11,7 @@ import com.mnewservice.mcontent.util.SessionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ public class SubscriberManager {
 
     @Autowired
     private SubscriberRepository repository;
+
 
     @Autowired
     private ServiceManager serviceManager;
@@ -43,6 +45,7 @@ public class SubscriberManager {
         return mapper.toDomain(entity);
     }
 
+    @Transactional(readOnly = true)
     public Collection<Subscriber> getAllSubscribers() {
         LOG.info("Getting all subscribers");
         EnumSet<RoleEntity.RoleEnum> roles = SessionUtils.getCurrentUserRoles();
@@ -51,23 +54,34 @@ public class SubscriberManager {
             entities = mapper.makeCollection(repository.findAll());
         } else if (roles.contains(RoleEntity.RoleEnum.PROVIDER)) {
             Collection<Service> services = serviceManager.getAllServices();
-            Collection<Subscription> subscriptions = subscriptionManager.getAllSubscriptionsByServices(services);
-            Collection<Subscriber> retval = new ArrayList<>();
-            for (Subscription subscription : subscriptions) {
-                if (!retval.contains(subscription.getSubscriber())) {
-                    retval.add(subscription.getSubscriber());
-                }
-            }
+            Collection<Subscription> subscriptions = subscriptionManager.getSubscribersDistinctByServices(services);
+            Collection<Subscriber> retval = subscriptions.stream().map(p -> p.getSubscriber()).collect(Collectors.toList());
             return retval;
         }
         return mapper.toDomain(entities);
     }
-    
+
+    @Transactional(readOnly = true)
+    public Long countAllSubscribers() {
+        LOG.info("Getting all subscribers");
+        EnumSet<RoleEntity.RoleEnum> roles = SessionUtils.getCurrentUserRoles();
+        if (roles.contains(RoleEntity.RoleEnum.ADMIN)) {
+            return new Long(repository.count());
+        } else if (roles.contains(RoleEntity.RoleEnum.PROVIDER)) {
+            Collection<Service> services = serviceManager.getAllServices();
+            return subscriptionManager.countSubscribersDistinctByServices(services);
+        }
+        return 0L;
+    }
+
+    @Transactional(readOnly = true)
     public Collection<Subscriber> getAllSubscribersOrderByPhoneNumberAsc() {
         LOG.info("Getting all subscribers order by phonenumber asc");
         Collection<SubscriberEntity> entities = repository.findAllByOrderByPhoneNumberAsc();
         return mapper.toDomain(entities);
     }
+
+    @Transactional(readOnly = true)
     public Collection<Subscriber> findByPhoneNumberContaining(String phoneNumber) {
         LOG.info("Getting all subscribers order by phonenumber asc (" + phoneNumber + ")");
         //Collection<SubscriberEntity> entities = repository.findByPhoneNumberContainingOrderByPhoneNumberAsc(phoneNumber);

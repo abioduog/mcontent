@@ -11,6 +11,8 @@ import com.mnewservice.mcontent.util.SessionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,13 +80,30 @@ public class ServiceManager {
             Provider provider = providerManager.findByName(SessionUtils.getCurrentUserUsername());
             if (provider != null) {
                 Collection<DeliveryPipe> deliveryPipes = deliveryPipeManager.getDeliveryPipesByProvider(provider.getId());
-                for (DeliveryPipe pipe : deliveryPipes) {
-                    entities.addAll(mapper.makeCollection(repository.findByDeliveryPipeIdOrderByOperatorAscShortCodeAscKeywordAsc(pipe.getId())));
-                }
+                List<Long> pipeIds = deliveryPipes.stream().map(p -> p.getId()).collect(Collectors.toList());
+                entities.addAll(mapper.makeCollection(repository.findByDeliveryPipeIdInOrderByOperatorAscShortCodeAscKeywordAsc(pipeIds)));
             }
         }
 
         return mapper.toDomain(entities);
+    }
+
+    @Transactional(readOnly = true)
+    public Long countAllServices() {
+        LOG.info("Getting all services");
+        EnumSet<RoleEntity.RoleEnum> roles = SessionUtils.getCurrentUserRoles();
+        if (roles.contains(RoleEntity.RoleEnum.ADMIN)) {
+            return new Long(repository.count());
+        } else if (roles.contains(RoleEntity.RoleEnum.PROVIDER)) {
+            Provider provider = providerManager.findByName(SessionUtils.getCurrentUserUsername());
+            if (provider != null) {
+                Collection<DeliveryPipe> deliveryPipes = deliveryPipeManager.getDeliveryPipesByProvider(provider.getId());
+                List<Long> pipeIds = deliveryPipes.stream().map(p -> p.getId()).collect(Collectors.toList());
+                return repository.countByDeliveryPipeIdInOrderByOperatorAscShortCodeAscKeywordAsc(pipeIds);
+            }
+        }
+
+        return 0L;
     }
 
     @Transactional(readOnly = true)
@@ -98,9 +117,8 @@ public class ServiceManager {
             Provider provider = providerManager.findByName(SessionUtils.getCurrentUserUsername());
             if (provider != null) {
                 Collection<DeliveryPipe> deliveryPipes = deliveryPipeManager.getDeliveryPipesByProvider(provider.getId());
-                for (DeliveryPipe pipe : deliveryPipes) {
-                    entities.addAll(mapper.makeCollection(repository.findByDeliveryPipeIdAndKeywordOrderByOperatorAscShortCodeAscKeywordAsc(pipe.getId(), nameFilter)));
-                }
+                List<Long> pipeIds = deliveryPipes.stream().map(p -> p.getId()).collect(Collectors.toList());
+                entities.addAll(mapper.makeCollection(repository.findByDeliveryPipeIdInAndKeywordContainingOrderByOperatorAscShortCodeAscKeywordAsc(pipeIds, nameFilter)));
             }
         }
         return mapper.toDomain(entities);

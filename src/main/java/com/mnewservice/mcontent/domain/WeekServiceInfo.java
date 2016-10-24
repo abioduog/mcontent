@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class WeekServiceInfo extends AbstractWeek {
+public class WeekServiceInfo extends AbstractWeek<WeekDayServiceInfo> {
 
     public WeekServiceInfo(Date date) {
         super(date);

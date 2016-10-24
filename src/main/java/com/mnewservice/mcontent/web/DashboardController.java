@@ -128,14 +128,15 @@ public class DashboardController {
 
         if (request.isUserInRole("ADMIN")) {
             LOG.info("viewDashboardServicesPageNumberX: User has role Admin");
-        }
+        } else
         if (request.isUserInRole("PROVIDER")) {
             LOG.info("viewDashboardServicesPageNumberX: User has role Provider");
-        }
+            } else
+                LOG.info("viewDashboardServicesPageNumberX: User role unknown!");
 
-        mav.addObject("numOfSubscribers", subscriberManager.getAllSubscribers().size());
-        mav.addObject("runningServices", serviceManager.getAllServices().size());
-        mav.addObject("numOfProviders", providerManager.getAllProviders().size());
+        mav.addObject("numOfSubscribers", subscriberManager.countAllSubscribers());
+        mav.addObject("runningServices", serviceManager.countAllServices());
+        mav.addObject("numOfProviders", providerManager.countAllProviders());
 
         // Generate weekList
         Calendar today = Calendar.getInstance();
@@ -199,8 +200,7 @@ public class DashboardController {
             week.initWeekData();
             if (logData != null) {
                 for (SubscriptionLog x : logData) {
-                    for (Object day : week.getWeekDays()) {
-                        WeekDayServiceInfo dayItem = (WeekDayServiceInfo) day;
+                    for (WeekDayServiceInfo dayItem : week.getWeekDays()) {
                         if (dayItem.isSameDay(x.getTimeStamp())) {
                             if (null != x.getAction()) {
                                 switch (x.getAction()) {

@@ -191,7 +191,9 @@
 
                 this.on("error", function (file, response, xhr) {
                     var _filename = file.name;
+   
                     mContent.alert.error("Error uploading file", response.message);
+
                     var removeButton = Dropzone.createElement("<button>Clear</button>");
                     var _this = this;
                     removeButton.addEventListener("click", function (e) {

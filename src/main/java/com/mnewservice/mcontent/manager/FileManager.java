@@ -69,7 +69,7 @@ public class FileManager {
     private static final Logger LOG = Logger.getLogger(FileManager.class);
 
     public String getFilestoragePath(){
-        return smbPath.substring(5);
+        return smbPath.substring(5) + (smbPath.endsWith("/") ? "" : "/");
     }
     
     public boolean isSambafile(){

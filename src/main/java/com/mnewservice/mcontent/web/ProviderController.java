@@ -76,6 +76,7 @@ public class ProviderController {
                 .stream().map(p -> {
             return (new ProviderInfo()).init(p, providerManager.getPipeCount(p.getId()));
                 }).collect(Collectors.toList());
+
         return contentProviders;
     }
 

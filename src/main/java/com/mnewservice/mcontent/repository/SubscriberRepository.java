@@ -22,7 +22,7 @@ public interface SubscriberRepository
 /*    
     @Query("select db from SmsMessageEntity db "
          + "where db.receivers like ?1 order by db.sent desc")
-    Collection<SubscriberEntity> findAllByOrderBySentdDesc(String nameFilter); 
+    Collection<SubscriberEntity> findAllByOrderBySentDesc(String nameFilter); 
 */
     Collection<SubscriberEntity> findByPhoneNumberContainingOrderByPhoneNumberAsc(String phoneNumber);
 

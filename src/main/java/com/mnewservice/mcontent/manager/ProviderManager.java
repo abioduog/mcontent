@@ -35,7 +35,7 @@ public class ProviderManager {
 
     private static final Logger LOG = Logger.getLogger(ProviderManager.class);
 
-    @Transactional(readOnly = true)
+    //@Transactional(readOnly = true)
     public Collection<Provider> getAllProviders() {
         LOG.info("Getting all providers");
        // Collection<ProviderEntity> entities
@@ -43,6 +43,7 @@ public class ProviderManager {
                 Collection<ProviderEntity> entities
                 = repository.findAllByOrderByNameAsc();
         return mapper.toDomain(entities);
+
     }
 
     @Transactional(readOnly = true)

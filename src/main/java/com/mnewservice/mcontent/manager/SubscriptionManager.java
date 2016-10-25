@@ -3,6 +3,7 @@ package com.mnewservice.mcontent.manager;
 import com.mnewservice.mcontent.domain.PhoneNumber;
 import com.mnewservice.mcontent.domain.SmsMessage;
 import com.mnewservice.mcontent.domain.Subscription;
+import com.mnewservice.mcontent.domain.SubscriptionPeriod;
 import com.mnewservice.mcontent.domain.mapper.PhoneNumberMapper;
 import com.mnewservice.mcontent.domain.mapper.SubscriptionMapper;
 import com.mnewservice.mcontent.domain.mapper.SubscriptionPeriodMapper;
@@ -16,11 +17,17 @@ import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionPeriodEntity;
 import com.mnewservice.mcontent.util.DateUtils;
 import com.mnewservice.mcontent.util.exception.MessagingException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -88,11 +95,19 @@ public class SubscriptionManager {
     public boolean registerSubscription(Subscription subscription) {
         LOG.debug("registerSubscription() with subscription=" + subscription);
 
+        
         SubscriptionEntity subscriptionEntity = doRegisterSubscription(subscription);
         Long id = subscriptionEntity.getId();
+        
 
+        /*
+        //
+        Collection<SubscriptionPeriodEntity> periodEntities
+                    = subscriptionPeriodMapper.toEntity(subscription.getPeriods());
+*/
         SubscriptionEntity savedEntity
                 = subscriptionRepository.save(subscriptionEntity);
+
         if (savedEntity != null && savedEntity.getId() != null) {
             if (savedEntity.getId().equals(id)) {
                 sendRenewMessage(savedEntity);
@@ -171,11 +186,12 @@ public class SubscriptionManager {
             int diffInDays
                     = DateUtils.calculateDifferenceInDays(
                             maxEndDate, periodToBeMerged.getStart());
+            // period starts after previous ends. 
             periodToBeMerged.setStart(
-                    DateUtils.addDays(periodToBeMerged.getStart(), diffInDays)
+                    DateUtils.addDays(periodToBeMerged.getStart(), (diffInDays + 1))
             );
             periodToBeMerged.setEnd(
-                    DateUtils.addDays(periodToBeMerged.getEnd(), diffInDays)
+                    DateUtils.addDays(periodToBeMerged.getEnd(), (diffInDays + 1))
             );
 
         }
@@ -197,11 +213,25 @@ public class SubscriptionManager {
     }
 
     private void sendRenewMessage(SubscriptionEntity savedEntity) {
+ 
+       SubscriptionPeriodEntity last = null;
+        for(SubscriptionPeriodEntity sp :savedEntity.getPeriods()){
+            //System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(sp.getEnd()));
+            if(last != null){
+                if(sp.getEnd().after(last.getEnd()))
+                    last = sp;
+            }else{
+                last = sp;
+            }
+        }
         SmsMessage message = createSmsMessage(
                 savedEntity.getService().getShortCode(),
+                // how many days and then date
+                // In String it is like "Lorem ipsum %d dolor sit %s amet"
                 String.format(
                         savedEntity.getService().getRenewMessage(),
-                        savedEntity.getService().getSubscriptionPeriod()
+                        savedEntity.getService().getSubscriptionPeriod(),
+                        new SimpleDateFormat("yyyy-MM-dd").format(last.getEnd())
                 ),
                 phoneNumberMapper.toDomain(savedEntity.getSubscriber().getPhone())
         );

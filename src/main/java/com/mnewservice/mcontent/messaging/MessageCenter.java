@@ -138,20 +138,20 @@ public class MessageCenter {
                     message.getFromNumber()
             );
             message.setSent(new Date());
-            message.log("Sent successfully");
+            message.log("Sent successfully"  +"\\n");
         } catch (URISyntaxException ex) {
             String msg = String.format(ERROR_URI_SYNTAX, ex.getMessage());
             LOG.error(msg);
-            message.log(msg);
+            message.log(msg +"\\n");
         } catch (IllegalArgumentException ex) {
             String msg = ex.getMessage();
             LOG.error(msg);
-            message.log(msg);
+            message.log(msg +"\\n");
         } catch (MessagingException ex) {
             String msg = ex.getMessage();
             
             LOG.error(msg);
-            message.log(msg);
+            message.log(msg +"\\n");
         }
         smsMessageRepository.save(message);
     }

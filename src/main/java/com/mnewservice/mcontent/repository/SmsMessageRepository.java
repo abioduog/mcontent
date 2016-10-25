@@ -20,7 +20,7 @@ public interface SmsMessageRepository extends CrudRepository<SmsMessageEntity, L
     //List<SmsMessageEntity> findByReceiversByOrderByCreatedDesc();
         @Query("select db from SmsMessageEntity db "
          + "where db.receivers like ?1 order by db.sent desc")
-    List<SmsMessageEntity> findAllByOrderBySentdDesc(String nameFilter); 
+    List<SmsMessageEntity> findAllByOrderBySentDesc(String nameFilter); 
     
     List<SmsMessageEntity> findByReceiversContainingOrderByCreatedDesc(String phoneNumber);
 }

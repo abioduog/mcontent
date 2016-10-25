@@ -1,6 +1,7 @@
 package com.mnewservice.mcontent.repository.entity;
 
 import com.mnewservice.mcontent.domain.PhoneNumber;
+import java.text.SimpleDateFormat;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -98,4 +99,5 @@ public class SmsMessageEntity extends AbstractEntity {
     public void log(String logMessage) {
         this.log = (log == null ? new Date().toString() + ": " + logMessage : log + "\n" + new Date().toString() + ": " + logMessage);
     }
+    
 }

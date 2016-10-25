@@ -19,6 +19,7 @@ import com.mnewservice.mcontent.repository.entity.SubscriptionPeriodEntity;
 import com.mnewservice.mcontent.util.DateUtils;
 import com.mnewservice.mcontent.util.exception.MessagingException;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -161,18 +162,21 @@ public class DeliveryManager {
             String expiryMessage,
             Integer expiryMinDuration,
             Integer sendSize) {
+        
         List<SubscriptionEntity> subscriptions;
         boolean subscriptionsFound;
         long offSet = 0L;
         do {
-            LOG.info("Getting subscriptions, start");
+            LOG.info("Getting expiring subscriptions, start");
+            
+            //LOG.info("Values: " + (new SimpleDateFormat("dd-M-yyyy HH:mm:ss").format(expiryAt)) + ", " + expiryMinDuration);
             subscriptions = subscriptionRepository.findByExpiry(
                     service.getId(), expiryAt, expiryMinDuration, pageSize, offSet);
             subscriptionsFound = subscriptions != null && subscriptions.size() > 0;
 
             if (subscriptionsFound) {
                 LOG.info(String.format(
-                        "Getting subscriptions, end (count %d)",
+                        "Getting expiring subscriptions, end (count %d)",
                         subscriptions.size())
                 );
                 processExpiringSubscriptions(service,
@@ -182,7 +186,7 @@ public class DeliveryManager {
                 );
             } else {
                 LOG.info(String.format(
-                        "Getting subscriptions, end (count %d)",
+                        "Getting expiring, end (count %d)",
                         0)
                 );
             }
@@ -277,12 +281,17 @@ public class DeliveryManager {
             Integer shortCode, ScheduledDeliverableEntity scheduledDeliverable,
             SeriesDeliverableEntity[] seriesDeliverables,
             Integer sendSize) throws UnsupportedOperationException {
+        
         LOG.info("Processing subscriptions, start");
+        
         Map<AbstractDeliverableEntity, AbstractMessage> messagesMap = new HashMap<>();
+
         for (SubscriptionEntity subscription : subscriptions) {
+            LOG.info(subscription.getSubscriber().getPhone().getNumber() + " = " + sendSize);
+            
             AbstractDeliverableEntity deliverable
                     = getDeliverable(subscription, scheduledDeliverable, seriesDeliverables);
-
+            
             if (deliverable == null) {
                 // nothing to deliver
                 LOG.debug("Nothing to deliver for subscription, id=" + subscription.getId());
@@ -291,7 +300,7 @@ public class DeliveryManager {
 
             SmsMessage message = createMessage(shortCode, messagesMap, deliverable, subscription);
 
-            if (message.getReceivers().size() >= sendSize) {
+            if (message.getReceivers().size() >= sendSize) { 
                 sendMessage(message);
                 messagesMap.remove(deliverable);
             }
@@ -326,6 +335,7 @@ public class DeliveryManager {
     }
 
     private SmsMessage createExpiryMessage(String expiryMessage) {
+        LOG.info("Create expiry message");
         SmsMessage message = new SmsMessage();
         message.setMessage(expiryMessage);
         return message;
@@ -334,6 +344,7 @@ public class DeliveryManager {
     private void addPhoneNumberToMessage(
             SubscriptionEntity subscription,
             AbstractMessage message) {
+        LOG.info("Add phonenumber to message");
         PhoneNumber phoneNumber = phoneNumberMapper
                 .toDomain(subscription.getSubscriber().getPhone());
         ((SmsMessage) message).getReceivers().add(phoneNumber);
@@ -344,6 +355,7 @@ public class DeliveryManager {
             Map<AbstractDeliverableEntity, AbstractMessage> messagesMap,
             AbstractDeliverableEntity deliverable,
             SubscriptionEntity subscription) throws UnsupportedOperationException {
+        LOG.info("Create message");
         AbstractMessage message = messagesMap.get(deliverable);
         if (message == null) {
             message = new SmsMessage();
@@ -375,10 +387,12 @@ public class DeliveryManager {
 
         // ..or one or more seriesDeliverables
         int activeDayNumber = subscription.getActiveDaysOverall();
-        LOG.debug(subscription.getSubscriber().getPhone().getNumber() +
+
+        LOG.info(subscription.getSubscriber().getPhone().getNumber() +
                     "'s subscription to " + subscription.getService().getKeyword() +
-                    "(" + subscription.getService().getOperator()
-                    + ") has been active for " + activeDayNumber);
+                    "(" + subscription.getService().getOperator() +
+                    ") has been active for " + activeDayNumber);
+        
         if (activeDayNumber > 0 && activeDayNumber <= seriesDeliverableOrdered.length) {
            return seriesDeliverableOrdered[activeDayNumber-1];
         }

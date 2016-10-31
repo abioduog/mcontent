@@ -3,14 +3,13 @@
     width: 100%;
     height: 100%;
     margin: 0;
-    position: absolute;
 }
 
 .themed-content .ad-panel {
     margin: 0 auto;
 }
 
-.content {
+.themed-content .content {
     background: none;
 }
 
@@ -119,8 +118,8 @@
 }
 
 .themed-content .content-image {
-    width: calc(100vw - 9rem);
-    height: calc(100vh - (10rem + 90px));
+    width: calc(100% - 9rem);
+    height: 100%;
     position: absolute;
     left: 50%;
     transform: translate(-50%);
@@ -130,6 +129,7 @@
     .themed-content .content-image {
         height: calc(100vh - (12.8vw + 5.2rem));
         top: calc(12.8vw + .5rem);
+        width: 100%;
     }
 }
 

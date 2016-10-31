@@ -19,10 +19,36 @@
     <formfield id="previewers" class="tab-content tab-content-preview">
         <legend>Preview</legend>
         <div class="iphone-previewer">
-            <div class="previewer-content" th:utext="${deliverable.content.content}"></div>
+            <div class="preview-device-screen">
+                <div class="themed-content" th:classappend="${deliveryPipe.theme}">
+                    <div class="content">
+                        <div class="ad-panel"></div>
+                        <div class="workarea previewer-content" th:utext="${deliverable.content.content}"></div>
+                    </div>
+                    <div class="user-menu">
+                        <div class="user-menu-content">
+                        <a class="view-subscriber">Subscription history</a> | <a>Discover</a> | <a>Logout</a>
+                        </div><br/>
+                        <div class="copy">mContent Platform. All rights Reserved</div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="ipad-previewer">
-            <div class="previewer-content" th:utext="${deliverable.content.content}"></div>
+            <div class="preview-device-screen">
+                <div class="themed-content" th:classappend="${deliveryPipe.theme}">
+                    <div class="content">
+                        <div class="ad-panel"></div>
+                        <div class="workarea previewer-content" th:utext="${deliverable.content.content}"></div>
+                    </div>
+                    <div class="user-menu">
+                        <div class="user-menu-content">
+                        <a class="view-subscriber">Subscription history</a> | <a>Discover</a> | <a>Logout</a>
+                        </div><br/>
+                        <div class="copy">mContent Platform. All rights Reserved</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </formfield>
     <script>
@@ -34,5 +60,8 @@
             $(".tab-content-" + navId).addClass("active");
             return false;
         }
+        
+        $("#theme-css").remove();
+        $("head").append('<link id="theme-css" rel="stylesheet" th:href="@{|/theme/css/${deliveryPipe.theme}.css|}"/>')
     </script>
 </div>

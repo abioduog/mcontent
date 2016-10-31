@@ -1,15 +1,15 @@
 .themed-content {
-    margin: 40px auto 10px auto;
+    margin: 0 auto 10px auto;
     max-width: 728px;
     width: 100%;
 }
 
-.content {
+.themed-content .content {
     background: white;
     width: 100%;
 }
 
-.workarea {
+.themed-content .workarea {
     padding: 20px 30px 50px 30px;
 }
 

@@ -49,6 +49,62 @@ form[name='content-form']{
 
 #previewers .previewer-content {
     overflow: hidden;
+    position: relative;
+}
+
+#previewers > div {
+    background: linear-gradient(to bottom, #5d5d5d 0%, #292929 100%);
+}
+
+#previewers .ad-panel {
+    position: relative;
+    display: block !important;
+}
+
+#previewers .ad-panel:empty {
+    background-color: #e4e4e4;
+}
+
+#previewers .ad-panel:after {
+    content: 'AD PANEL';
+    font-size: 1.4rem;
+    color: white;
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+#previewers .themed-content-comic .workarea {
+    position: relative;
+}
+
+#previewers.themed-content.comics .workarea:not(:first-child) img {
+    display: none;
+}
+
+#previewers .themed-content .user-menu {
+    text-align: center;
+    padding: 10px 0;
+    color: white;
+    position: relative;
+}
+
+#previewers .themed-content .user-menu a {
+    padding: 0px .2rem;
+    font-size: .8rem;
+    color: white;
+    text-decoration: inherit;
+    cursor: pointer;
+}
+
+#previewers .themed-content .user-menu a:hover {
+    text-decoration: underline;
+}
+
+#previewers .themed-content .user-menu .copy {
+    font-size: .7rem;
+    color: #aaa;
 }
 
 
@@ -60,9 +116,23 @@ form[name='content-form']{
     zoom: 0.4;
 }
 
-.iphone-previewer > .previewer-content {
+.iphone-previewer > .preview-device-screen {
     width: 320px;
     height: 568px;
+}
+
+.iphone-previewer .themed-content .ad-panel {
+        height: 72px;
+        width: 100%;
+}
+
+.iphone-previewer .themed-content.comics .workarea {
+    height: calc(568px - (1.2rem + 90px));
+    top: 0;
+}
+
+.iphone-previewer .themed-content.comics .workarea .content-image {
+    width: 100%;
 }
 
 .ipad-previewer {
@@ -73,9 +143,24 @@ form[name='content-form']{
     zoom: 0.4;
 }
 
-.ipad-previewer > .previewer-content {
+.ipad-previewer > .preview-device-screen {
     width: 1024px;
     height: 768px;
+}
+
+.ipad-previewer .themed-content .ad-panel {
+    height: 90px;
+    width: 728px;
+    margin: 0 auto;
+}
+
+.ipad-previewer .themed-content.comics .workarea {
+    height: calc(768px - (1.9rem + 90px));
+    top: 0;
+}
+
+.ipad-previewer .themed-content.comics .workarea .content-image {
+    width: calc(100% - 9rem);
 }
 
 .note-editor {

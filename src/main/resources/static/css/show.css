@@ -34,7 +34,7 @@ body {
 
 @media screen and (max-width: 728px) {
     .themed-content .ad-panel {
-        height: 12.8vw;
+        height: 90px;
         width: 100vw;
     }
 }

@@ -1,9 +1,12 @@
 package com.mnewservice.mcontent.manager;
 
 import com.mnewservice.mcontent.domain.PhoneNumber;
+import com.mnewservice.mcontent.domain.Service;
 import com.mnewservice.mcontent.domain.SmsMessage;
 import com.mnewservice.mcontent.domain.Subscription;
 import com.mnewservice.mcontent.domain.SubscriptionPeriod;
+import com.mnewservice.mcontent.domain.SubscriptionLog;
+import com.mnewservice.mcontent.domain.SubscriptionLogAction;
 import com.mnewservice.mcontent.domain.mapper.PhoneNumberMapper;
 import com.mnewservice.mcontent.domain.mapper.SubscriptionMapper;
 import com.mnewservice.mcontent.domain.mapper.SubscriptionPeriodMapper;
@@ -16,7 +19,6 @@ import com.mnewservice.mcontent.repository.entity.SubscriberEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionPeriodEntity;
 import com.mnewservice.mcontent.util.DateUtils;
-import com.mnewservice.mcontent.util.exception.MessagingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,22 +29,24 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 import java.util.TreeSet;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Marko Tuononen <marko.tuononen at nolwenture.com>
  */
-@Service
+@org.springframework.stereotype.Service
 public class SubscriptionManager {
 
     @Autowired
     private MessageCenter messageCenter;
+
+    @Autowired
+    private SubscriptionLogManager subscriptionLogManager;
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
@@ -79,9 +83,32 @@ public class SubscriptionManager {
         
     @Transactional(readOnly = true)
     public Collection<Subscription> getAllSubscriptionsByService(Long serviceId) {
-        LOG.info("Getting all services by delivery pipe id = " + serviceId);
-        Collection<SubscriptionEntity> entities = subscriptionMapper.makeCollection(subscriptionRepository.findAllByServiceId(serviceId));
+        LOG.info("Getting all subscriptions by service id = " + serviceId);
+        Collection<SubscriptionEntity> entities = subscriptionMapper.makeCollection(subscriptionRepository.findByServiceId(serviceId));
         return subscriptionMapper.toDomain(entities);
+    }
+
+    @Transactional(readOnly = true)
+    public Collection<Subscription> getAllSubscriptionsByServices(Collection<Service> services) {
+        LOG.info("Getting all subscriptions for collection of services ");
+        Collection<Long> serviceIdList = services.stream().map(p -> p.getId()).collect(Collectors.toList());
+        Collection<SubscriptionEntity> entities = subscriptionMapper.makeCollection(subscriptionRepository.findByServiceIdIn(serviceIdList));
+        return subscriptionMapper.toDomain(entities);
+    }
+
+    @Transactional(readOnly = true)
+    public Collection<Subscription> getSubscribersDistinctByServices(Collection<Service> services) {
+        LOG.info("Getting all subscriptions for collection of services ");
+        Collection<Long> serviceIdList = services.stream().map(p -> p.getId()).collect(Collectors.toList());
+        Collection<SubscriptionEntity> entities = subscriptionMapper.makeCollection(subscriptionRepository.findDistinctSubscriberByServiceIdIn(serviceIdList));
+        return subscriptionMapper.toDomain(entities);
+    }
+
+    @Transactional(readOnly = true)
+    public Long countSubscribersDistinctByServices(Collection<Service> services) {
+        LOG.info("Getting all subscriptions for collection of services ");
+        Collection<Long> serviceIdList = services.stream().map(p -> p.getId()).collect(Collectors.toList());
+        return subscriptionRepository.countDistinctSubscriberByServiceIdIn(serviceIdList);
     }
 
     @Transactional
@@ -110,8 +137,10 @@ public class SubscriptionManager {
 
         if (savedEntity != null && savedEntity.getId() != null) {
             if (savedEntity.getId().equals(id)) {
+                subscriptionLogManager.saveSubscriptionLog(new SubscriptionLog(savedEntity, SubscriptionLogAction.RENEWAL));
                 sendRenewMessage(savedEntity);
             } else {
+                subscriptionLogManager.saveSubscriptionLog(new SubscriptionLog(savedEntity, SubscriptionLogAction.SUBSCRIPTION));
                 sendWelcomeMessage(savedEntity);
             }
             LOG.info("Saved entity with id " + savedEntity.getId());
@@ -257,6 +286,7 @@ public class SubscriptionManager {
         }
 
         if (savedEntity != null && savedEntity.getId() != null) {
+            subscriptionLogManager.saveSubscriptionLog(new SubscriptionLog(savedEntity, SubscriptionLogAction.UNSUBSCRIPTION));
             sendUnsubscribeMessage(savedEntity);
             LOG.info("Saved entity with id " + savedEntity.getId());
             return true;
@@ -352,4 +382,6 @@ public class SubscriptionManager {
     private void sendMessage(SmsMessage message) {
         messageCenter.queueMessage(message);
     }
+
+
 }

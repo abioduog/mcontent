@@ -1,6 +1,5 @@
 package com.mnewservice.mcontent.repository;
 
-import com.mnewservice.mcontent.repository.entity.ProviderEntity;
 import com.mnewservice.mcontent.repository.entity.ServiceEntity;
 import com.mnewservice.mcontent.repository.entity.ServiceEntity.DeliveryTime;
 import java.util.Collection;
@@ -27,13 +26,21 @@ public interface ServiceRepository extends CrudRepository<ServiceEntity, Long> {
 
     List<ServiceEntity> findByOperatorNotIn(List<String> operators);
     List<ServiceEntity> findAllByOrderByOperatorAscShortCodeAscKeywordAsc();
-     
+
     @Query("select se from ServiceEntity se "
             + "left join se.deliveryPipe dp "
             + "where dp.id = :pipeId")
     List<ServiceEntity> findAllByPipeId(@Param("pipeId") Long pipeId);
     
-     @Query("select se from ServiceEntity se "
+//    @Query("select se from ServiceEntity se "
+//            + "left join se.deliveryPipe dp "
+//            + "where dp.id = :pipeId"
+//            + "order by se.operator asc, se.shortCode asc, se.keyword asc")
+    List<ServiceEntity> findByDeliveryPipeIdInOrderByOperatorAscShortCodeAscKeywordAsc(List<Long> pipeIds);
+
+    Long countByDeliveryPipeIdInOrderByOperatorAscShortCodeAscKeywordAsc(List<Long> pipeIds);
+
+    @Query("select se from ServiceEntity se "
             + "where se.keyword like ?1 order by se.keyword asc")
     Collection<ServiceEntity> findAllByOrderByKeywordAsc(String nameFilter);
     /*
@@ -43,4 +50,7 @@ public interface ServiceRepository extends CrudRepository<ServiceEntity, Long> {
 */
     
     Collection<ServiceEntity> findByKeywordContainingOrderByOperatorAscShortCodeAscKeywordAsc(String nameFilter);
+
+    Collection<ServiceEntity> findByDeliveryPipeIdInAndKeywordContainingOrderByOperatorAscShortCodeAscKeywordAsc(Collection<Long> deliveryPipeIds, String nameFilter);
+
 }

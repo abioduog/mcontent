@@ -1,6 +1,5 @@
 package com.mnewservice.mcontent.repository;
 
-import com.mnewservice.mcontent.repository.entity.DeliveryPipeEntity;
 import com.mnewservice.mcontent.repository.entity.ProviderEntity;
 import java.util.Collection;
 import java.util.List;
@@ -18,7 +17,12 @@ public interface ProviderRepository extends CrudRepository<ProviderEntity, Long>
     ProviderEntity findByCorrespondencesId(Long correspondencesId);
 
     ProviderEntity findByUserId(Long userId);
-    
+
+    @Query("select db from ProviderEntity db "
+            + "left join db.user u "
+            + "where u.username like ?1 order by db.name asc")
+    ProviderEntity findByUserName(String name);
+
     ProviderEntity findByEmail(String email);
     
     List<ProviderEntity> findAllByOrderByNameAsc();

@@ -1,0 +1,155 @@
+<h1 th:inline="text">Admin Dashboard</h1>
+<div class="dashboard-info form-horizontal">
+    <div class="form-group form-group-sm">
+        <div class="col-sm-2">
+            <label class="col-sm-6 control-label" for="numOfSubscribers" th:text="#{dashboard.subscribers}" >SUBSCRIBERS</label>
+            <div class="col-sm-6">
+                <input id="numOfSubscribers" class="form-control" name="numOfSubscribers" type="text" th:value="${numOfSubscribers}" disabled="true" required="false"/>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <label class="col-sm-6 control-label" for="runningServices" th:text="#{dashboard.services}" >SERVICES</label>
+            <div class="col-sm-6">
+                <input id="runningServices" class="form-control" name="runningServices" type="text" th:value="${runningServices}" disabled="true" required="false"/>
+            </div>
+        </div>
+        <div class="col-sm-2" sec:authorize="hasRole('ADMIN')">
+            <label class="col-sm-6 control-label" for="numOfProviders" th:text="#{dashboard.providers}" >PROVIDERS</label>
+            <div class="col-sm-6">
+                <input id="numOfProviders" class="form-control" name="numOfProviders" type="text" th:value="${numOfProviders}" disabled="true" required="false"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-search form-inline">
+    <div class="form-group">
+                <label th:text="#{service.keyword}">KEYWORD</label>
+                <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
+                <a class="search-dashboard-services pure-button" th:href="@{|${baseUrl}/1|}" th:text="#{general.search}">Search</a>
+    </div>
+    <div class="form-group">
+        <label>&nbsp;</label>
+    </div>
+    <label class="" th:text="#{general.fromweek}">FROM WEEK</label>
+    <select class="" id="selectedWeek" name="selectedWeek" required="false" th:href="@{|${baseUrl}/1|}">
+        <option th:each="week : ${weekList}" th:value="${week.startDate}" th:text="${week.weekText}">19/Sep - 16/Oct</option>
+    </select>
+</div>
+
+<div class="dashboard-search form-inline">
+    <div class="form-group">
+        <ul class="pagination">
+            <li th:class="${currentIndex == 1}? 'disabled' : '' ">
+                <span th:if='${currentIndex == 1}'>First</span>
+                <a class="linktopage" th:if='${currentIndex != 1}'
+                   th:href="@{|${baseUrl}/1|}"
+                   title='Go to first page'>First</a>
+            </li>
+            <li th:class="${currentIndex != 1}? '' : 'disabled' ">
+                <span th:if='${currentIndex == 1}'>&lt;&lt;</span>
+                <a class="linktopage" th:if='${currentIndex != 1}'
+                   th:href="@{|${baseUrl}/${currentIndex - 1}|}"
+                   title='Go to previous page'>&lt;&lt;</a>
+            </li>
+            <li th:each="item : ${#numbers.sequence(beginIndex, endIndex)}"
+                th:class="${item == currentIndex ? 'active' : ''}">
+                <span
+                    th:if='${item == currentIndex}' th:text='${item}'>1</span>
+                    <a class="linktopage" th:if='${item != currentIndex}'
+
+                      th:href="@{|${baseUrl}/${item}|}">
+                    <span th:text='${item}'>1</span>
+                    </a>
+            </li>
+            <li th:class="${currentIndex != totalPageCount}? '' : 'disabled' ">
+                <span th:if='${currentIndex == totalPageCount}'>&gt;&gt;</span>
+                <a class="linktopage" th:if='${currentIndex != totalPageCount}'
+                   th:href="@{|${baseUrl}/${currentIndex + 1}|}"
+                   title='Go to next page'>&gt;&gt;</a>
+            </li>
+            <li th:class="${currentIndex == totalPageCount}? 'disabled' : '' ">
+                <span th:if='${currentIndex == totalPageCount}'>Last</span>
+                <a class="linktopage" th:if='${currentIndex != totalPageCount}'
+                   th:href="@{|${baseUrl}/${totalPageCount}|}"
+                   title='Go to last page'>Last</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="dashboard-services-list form-horizontal" >
+    <table class="pure-table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th th:text="#{dashboard.services}">
+                <!--
+                    <div class="col-sm-12" th:text="#{service.operator}">OPERATOR</div>
+                    <div class="col-sm-12" th:text="#{service.shortCode}">SHORTCODE</div>
+                    <div class="col-sm-12" th:text="#{dashboard.service.keyword}">KEYWORD</div>
+                -->
+                </th>
+                <th th:text="#{dashboard.service.subscribers}">SUBSCRIBERS</th>
+                <th>&nbsp;</th>
+                <th th:each="week : ${weekHeaders}"><em th:text="${week.startDate}">1 Jan 1970</em>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="dashboardService : ${allDashboardServicesPaged}" th:unless="${#lists.isEmpty(allDashboardServicesPaged)}">
+                <td>
+                    <div class="col-sm-12" th:text="${dashboardService.operator}">OPERATOR</div>
+                    <div class="col-sm-12" th:text="${dashboardService.shortCode}">00000</div>
+                    <div class="col-sm-12" th:text="${dashboardService.keyword}">KEYWORD</div>
+                </td>
+                <td th:text="${dashboardService.numOfSubscribers}">0</td>
+                <td>
+                    <div class="col-sm-12"><strong th:text="#{dashboard.service.subscribed}">SUBSCRIBED</strong></div>
+                    <div class="col-sm-12"><strong th:text="#{dashboard.service.renewed}">RENEWED</strong></div>
+                    <div class="col-sm-12"><strong th:text="#{dashboard.service.unsubscribed}">UNSUBSCRIBED</strong></div>
+                </td>
+                <td th:each="week : ${dashboardService.weeks}">
+                    <div class="col-sm-12" th:text="${week.subscriptions} == 0 ? '-' : ${week.subscriptions}">-</div>
+                    <div class="col-sm-12" th:text="${week.renewals} == 0 ? '-' : ${week.renewals}">-</div>
+                    <div class="col-sm-12" th:text="${week.unSubscriptions} == 0 ? '-' : ${week.unSubscriptions}">-</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<script th:inline="javascript" sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
+    /*<![CDATA[*/
+
+    $(document).ready(function() {
+        $("#selectedWeek").val(/*[[${selectedWeek}]]*/ "");
+console.log(/*[[${selectedWeek}]]*/ "");
+console.log(/*[[${nameFilter}]]*/ "");
+    });
+
+    $(".search-dashboard-services").click(function() {
+        event.preventDefault();
+        reloadForm($(this).attr("href"));
+        return false;
+    });
+
+    $("#selectedWeek").change(function(event) {
+        event.preventDefault();
+        reloadForm($(this).attr("href"));
+        return false;
+    });
+
+    function reloadForm(url) {
+        $.ajax({
+            type: "GET",
+            data: {
+                "selectedWeek" : document.getElementById("selectedWeek").value,
+                "nameFilter" : document.getElementById("nameFilter").value
+            },
+            url: url,
+            success: function(data) {
+                $("#workarea").html("").append(data);
+            }
+        });
+    }
+    /*]]>*/
+</script>

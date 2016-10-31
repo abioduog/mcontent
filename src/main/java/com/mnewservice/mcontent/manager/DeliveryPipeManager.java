@@ -7,6 +7,7 @@ import com.mnewservice.mcontent.domain.mapper.DeliveryPipeMapper;
 import com.mnewservice.mcontent.repository.ContentRepository;
 import com.mnewservice.mcontent.repository.DeliveryPipeRepository;
 import com.mnewservice.mcontent.repository.entity.*;
+import com.mnewservice.mcontent.util.SessionUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,8 +16,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -48,15 +47,13 @@ public class DeliveryPipeManager {
     public Collection<DeliveryPipe> getDeliveryPipes(String nameFilter) {
         String filter = (nameFilter == null || nameFilter.length() == 0) ? "%" : "%" + nameFilter + "%";
         LOG.info("Getting delivery pipes filtered by name [" + filter + "]");
-        EnumSet<RoleEntity.RoleEnum> roles = getCurrentUserRoles();
+        EnumSet<RoleEntity.RoleEnum> roles = SessionUtils.getCurrentUserRoles();
 
         Collection<DeliveryPipeEntity> entities = Arrays.asList();
         if (roles.contains(RoleEntity.RoleEnum.ADMIN)) {
-            //entities = mapper.makeCollection(repository.findAll(filter));
             entities = mapper.makeCollection(repository.findAllByOrderByNameAsc(filter));
         } else if (roles.contains(RoleEntity.RoleEnum.PROVIDER)) {
-            //entities = mapper.makeCollection(repository.findByProvidersUsername(filter, getCurrentUserUsername()));
-            entities = mapper.makeCollection(repository.findByProvidersUsernameOrderByNameAsc(filter, getCurrentUserUsername()));
+            entities = mapper.makeCollection(repository.findByProvidersUsernameOrderByNameAsc(filter, SessionUtils.getCurrentUserUsername()));
         }
         LOG.info("Found " + entities.size() + " entity.");
         return mapper.toDomain(entities);
@@ -128,34 +125,17 @@ public class DeliveryPipeManager {
         });
     }
 
-
     public Content getContentByUuid(String shortUuid) {
-        EnumSet<RoleEntity.RoleEnum> roles = getCurrentUserRoles();
+        EnumSet<RoleEntity.RoleEnum> roles = SessionUtils.getCurrentUserRoles();
         AbstractContentEntity entity = null;
         if(roles.contains(RoleEntity.RoleEnum.ADMIN)) {
             entity = contentRepository.findByShortUuid(shortUuid);
         } else if(roles.contains(RoleEntity.RoleEnum.PROVIDER)) {
-            entity = contentRepository.findByShortUuidAndProviderUsername(shortUuid, getCurrentUserUsername());
+            entity = contentRepository.findByShortUuidAndProviderUsername(shortUuid, SessionUtils.getCurrentUserUsername());
         } else {
-            entity = contentRepository.findByShortUuidWithValidSubscription(shortUuid, getCurrentUserUsername());
+            entity = contentRepository.findByShortUuidWithValidSubscription(shortUuid, SessionUtils.getCurrentUserUsername());
         }
         return contentMapper.toDomain(entity);
-    }
-
-    protected EnumSet<RoleEntity.RoleEnum> getCurrentUserRoles() {
-        EnumSet<RoleEntity.RoleEnum> roles = EnumSet.noneOf(RoleEntity.RoleEnum.class);
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        authentication.getAuthorities().forEach( authority -> {
-            roles.add(RoleEntity.RoleEnum.valueOf(authority.getAuthority()));
-        });
-
-        return roles;
-    }
-
-    protected String getCurrentUserUsername() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return ((org.springframework.security.core.userdetails.User)authentication.getPrincipal()).getUsername();
     }
 
     public String getThemeForContentByUuid(String shortUuid) {

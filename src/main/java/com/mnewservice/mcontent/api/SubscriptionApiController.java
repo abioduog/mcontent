@@ -78,8 +78,7 @@ try{
     return RETURN_VALUE_UNSUCCESSFUL;
 }
 
-        
-        if (isRegisteringNewOne(service, message)) {
+        if (isRegisteringSubscription(service, message)) {
             returnValue = subscriptionManager.registerSubscription(subscription);
         } else {
             returnValue = subscriptionManager.unRegisterSubscription(subscription);
@@ -251,7 +250,7 @@ try{
         return todaysRunTime;
     }
 
-    private boolean isRegisteringNewOne(Service service, String message) {
+    private boolean isRegisteringSubscription(Service service, String message) {
         return service.getKeyword().equalsIgnoreCase(message);
     }
 }

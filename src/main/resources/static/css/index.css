@@ -75,11 +75,7 @@ form[name='content-form']{
     transform: translate(-50%, -50%);
 }
 
-#previewers .themed-content-comic .workarea {
-    position: relative;
-}
-
-#previewers.themed-content.comics .workarea:not(:first-child) img {
+#previewers .themed-content.comics .workarea .content-image:not(:first-child) img {
     display: none;
 }
 
@@ -263,4 +259,8 @@ span.form-warning {
     float: left;
     font-size: 1.2em;
     padding: 10px 0;
+}
+
+#previewers .preview-device-screen {
+    overflow: hidden;
 }

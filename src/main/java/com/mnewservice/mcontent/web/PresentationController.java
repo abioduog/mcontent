@@ -63,6 +63,7 @@ public class PresentationController {
             HttpServletRequest request
     ) {
         ModelAndView mav = new ModelAndView("show");
+        //System.out.println(shortUuid + ", " + deliveryPipeManager.getThemeForContentByUuid(shortUuid) + ", " + deliveryPipeManager.getContentByUuid(shortUuid));
         mav.addObject("theme", deliveryPipeManager.getThemeForContentByUuid(shortUuid));
         mav.addObject("content", deliveryPipeManager.getContentByUuid(shortUuid));
         mav.addObject("subscriber", request.getRemoteUser());

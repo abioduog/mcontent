@@ -63,6 +63,7 @@
     $(".disapprove").click(function (event) {
         event.preventDefault();
         mContent.ajax.get(contentUrlBase + $(this).attr('href') + '/disapprove', function (data) {
+            console.log(".disapprove = " + contentUrlBase + $(this).attr('href') );
             mContent.alert.success("Content disapproved.");
             mContent.loaders.workArea(deliveryPipeContentListUrl);
         }, function (error) {

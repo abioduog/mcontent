@@ -9,6 +9,10 @@ import org.springframework.stereotype.Component;
 /**
  *
  * @author Marko Tuononen <marko.tuononen at nolwenture.com>
+ * 
+ * Edited by Pasi Saukkonen
+ * 
+ * Added email = contact person email
  */
 @Component
 public class ProviderMapper extends AbstractMapper<Provider, ProviderEntity> {
@@ -41,7 +45,8 @@ public class ProviderMapper extends AbstractMapper<Provider, ProviderEntity> {
 //        domain.setPhone(phoneNumberMapper.toDomain(entity.getPhone()));
 //        domain.setEmail(emailMapper.toDomain(entity.getEmail()));
         domain.setPhone(entity.getPhone());
-        domain.setEmail(entity.getEmail());
+        //domain.setEmail(entity.getEmail());
+        domain.setEmail(entity.getEmailOfContactPerson());
         domain.setFax(entity.getFax());
         domain.setCompanyname(entity.getCompanyname());
         domain.setUser(userMapper.toDomain(entity.getUser()));
@@ -77,7 +82,8 @@ public class ProviderMapper extends AbstractMapper<Provider, ProviderEntity> {
 //        entity.setPhone(phoneNumberMapper.toEntity(domain.getPhone()));
 //        entity.setEmail(emailMapper.toEntity(domain.getEmail()));
         entity.setPhone(domain.getPhone());
-        entity.setEmail(domain.getEmail());
+        //entity.setEmail(domain.getEmail());
+        entity.setEmail(domain.getEmailOfContactPerson());
         entity.setFax(domain.getFax());
         entity.setCompanyname(domain.getCompanyname());
         entity.setUser(userMapper.toEntity(domain.getUser()));

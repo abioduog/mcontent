@@ -46,6 +46,7 @@ public class UserController {
     @RequestMapping({"/user/{id}/activate"})
     @ResponseStatus(value = HttpStatus.OK)
     public void activateProvider(@PathVariable("id") long id) {
+
         User user = userManager.getUser(id);
         if (user.isActive()) {
             throw new IllegalStateException("User is already active");

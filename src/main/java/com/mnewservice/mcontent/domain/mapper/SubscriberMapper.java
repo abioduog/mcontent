@@ -3,7 +3,10 @@ package com.mnewservice.mcontent.domain.mapper;
 import com.mnewservice.mcontent.domain.Subscriber;
 import com.mnewservice.mcontent.repository.entity.SubscriberEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -54,6 +57,8 @@ public class SubscriberMapper extends AbstractMapper<Subscriber, SubscriberEntit
         domain.setSubscriptions(new HashSet<>());
 
         int activeSubscriptions = 0, inactiveSubscriptions = 0;
+                
+
         for (SubscriptionEntity subscription : entity.getSubscriptions()) {
             if (subscription.isActive()) {
                 activeSubscriptions++;

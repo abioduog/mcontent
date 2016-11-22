@@ -48,9 +48,13 @@
 <script th:inline="javascript">
     var providerListUrl = /*[[@{|/provider/list|}]]*/;
 
+//var providerListUrl = /*[[@{|${baseUrl}/${currentIndex}|}]]*/;
+console.log("providerList" + providerListUrl);
+
     $(".activate").click(function (event) {
         event.preventDefault();
         mContent.ajax.get($(this).attr('href'), function (data) {
+            console.log("providerList .activate: " + $(this).attr('href'));
             mContent.alert.success("Provider activated.");
             mContent.loaders.workArea(providerListUrl);
         }, function (error) {

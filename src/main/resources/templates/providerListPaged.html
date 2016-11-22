@@ -91,7 +91,8 @@
 -->
 <script th:inline="javascript">
     var providerListUrl = /*[[@{|/provider/list|}]]*/;
-
+    //var providerListUrl = /*[[@{|${baseUrl}/${currentIndex}|}]]*/;
+    //console.log(providerListUrl);
     $(".activate").click(function (event) {
         event.preventDefault();
         mContent.ajax.get($(this).attr('href'), function (data) {
@@ -110,6 +111,7 @@
         mContent.ajax.get($(this).attr('href'), function (data) {
             mContent.alert.success("Provider deactivated.");
             mContent.loaders.workArea(providerListUrl);
+            //mContent.loaders.workArea($(this).attr("href"));
         }, function (error) {
             console.log(error);
             mContent.alert.error("Failed to deactivate provider.", error);

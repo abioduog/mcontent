@@ -79,30 +79,33 @@ public class ProviderController {
 
         return contentProviders;
     }
-
+/*
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping({"/provider/list_alk"})
     public String listProviders() {
         return "providerList";
     }
-
+*/
     
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping({"/provider/list"})
     public String listProvidersPaged(HttpServletRequest request) {
-                request.getSession().setAttribute("providerList", null);
+                request.getSession().setAttribute("providerList", null);              
+                request.getSession().setAttribute("allProviders", null); 
         return "redirect:/provider/list/page/1";
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping(value={"/provider/list/page/{pagenumber}"})
-    public ModelAndView viewSmsMessageLogPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber, @RequestParam(value = "nameFilter", required = false) String fname) {
+    //@ResponseStatus(value = HttpStatus.OK)
+    public ModelAndView viewProvidersPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber, @RequestParam(value = "nameFilter", required = false) String fname) {
         String baseUrl = "/provider/list/page";
         PagedListHolder<?> pagedListHolder = (PagedListHolder<?>) request.getSession().getAttribute("allProviders"); 
+        
         if(pagedListHolder == null){
-            pagedListHolder = new PagedListHolder(populateProviders() ); 
+            pagedListHolder = new PagedListHolder(populateProviders()); 
 
-        }else{
+        }else{  
             final int goToPage = pagenumber - 1;
             if(goToPage <= pagedListHolder.getPageCount() && goToPage >= 0){
                 pagedListHolder.setPage(goToPage);

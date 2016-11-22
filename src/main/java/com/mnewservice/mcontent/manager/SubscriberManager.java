@@ -98,7 +98,7 @@ public class SubscriberManager {
 
     @Transactional(readOnly = true)
     public Subscriber getSubscriberWithSubscriptions(long id, boolean showAll) {
-        LOG.info("Getting subscriber with id=" + id);
+        LOG.info("Getting subscriber with subscriptions with id=" + id);
         SubscriberEntity entity = repository.findOne(id);
         return mapper.toDomainWithSubscriptions(entity, showAll);
     }

@@ -37,7 +37,7 @@ public class DashboardController {
     private static final Logger LOG
             = Logger.getLogger(DashboardController.class);
 
-    private int LIST_PAGE_SIZE = 10; // How many rows in page
+    private int LIST_PAGE_SIZE = 25; // How many rows in page
     private int PAGINATION_MENU_SIZE = 5; // How many numbers is visible in pagination menu
     private int WEEK_LIST_SIZE = 5; // How many weeks per service
 

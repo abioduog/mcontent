@@ -138,13 +138,13 @@ public class ContentController {
         return userManager.getAllUsersByRoleName(Role.PROVIDER_SHOULD_BE_ENUM)
                 .stream().collect(Collectors.toList());
     }
-
+/*
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping({"/content/list_alk"})
     public String listServices() {
         return "deliveryPipeList";
     }
-    
+*/  
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping({"/content/list"})
     public String listServicesPaged(HttpServletRequest request) {
@@ -203,7 +203,7 @@ public class ContentController {
     @RequestMapping({"/deliverypipe/list/filtered/"})
     public ModelAndView listFilteredServices(@RequestParam(value = "nameFilter") String fname) {
         ModelAndView mav = new ModelAndView("deliveryPipeList");
-        System.out.println("nameFilter" + fname);
+       //System.out.println("nameFilter" + fname);
         mav.addObject("filteredDeliveryPipes", deliveryPipeManager.getDeliveryPipes(fname)
                 .stream().collect(Collectors.toList()));
         mav.addObject("nameFilter", fname);

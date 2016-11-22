@@ -42,6 +42,7 @@ import javax.persistence.UniqueConstraint;
         + "    s.service_id = :serviceId "
         + "ORDER BY "
         + "    s.id "
+        //+ "    p.`end` desc "   // Pasi testasi, ei lajitellut     
         + "LIMIT "
         + "    :limit "
         + "OFFSET "

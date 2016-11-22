@@ -125,7 +125,12 @@
 console.log(/*[[${selectedWeek}]]*/ "");
 console.log(/*[[${nameFilter}]]*/ "");
     });
-
+        $(".linktopage").click(function(event) {
+        event.preventDefault();
+        mContent.loaders.workArea($(this).attr("href"));
+        return false;
+    });
+    
     $(".search-dashboard-services").click(function() {
         event.preventDefault();
         reloadForm($(this).attr("href"));

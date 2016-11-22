@@ -30,7 +30,7 @@
             
             <label for="providers" th:text="#{deliverypipe.providers}">Providers</label>
             <select multiple="multiple" name="providers" th:field="${deliveryPipe.providers}">
-                <option th:each="provider : ${allProviders}" th:value="${provider.id}"
+                <option th:each="provider : ${allProviders}" th:if="${provider.active}" th:value="${provider.id}"
                         th:text="${provider.username}">Provider</option>
             </select>
 

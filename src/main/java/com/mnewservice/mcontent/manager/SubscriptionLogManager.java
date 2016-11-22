@@ -32,7 +32,8 @@ public class SubscriptionLogManager {
     @Transactional(readOnly = true)
     public Collection<SubscriptionLog> getAllSubscriptionsByService(Long serviceId, Date firstDate, Date lastDate) {
         LOG.info("Getting all subscription log entries by delivery pipe id = " + serviceId);
-        Collection<SubscriptionLogEntity> entities = mapper.makeCollection(repository.findAllByServiceIdBetweenDates(serviceId, firstDate, lastDate));
+        //Collection<SubscriptionLogEntity> entities = mapper.makeCollection(repository.findAllByServiceIdBetweenDates(serviceId, firstDate, lastDate));
+        Collection<SubscriptionLogEntity> entities = mapper.makeCollection(repository.findAllByServiceId(serviceId));
         return mapper.toDomain(entities);
     }
 

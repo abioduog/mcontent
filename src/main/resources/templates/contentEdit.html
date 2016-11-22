@@ -23,8 +23,9 @@
                 <input type="text" required="true" name="content.title" th:value="${deliverable.content.title}"/>
    
                 <label for="content.message" th:text="#{content.message}">Message</label>
-                <input type="text" required="true" name="content.message" th:value="${deliverable.content.message}"/>
-                
+                <input type="text" id="message_txt" required="true" name="content.message" th:maxlength="160" th:value="${deliverable.content.message}"/>
+                <span id="character-count">160</span> characters remaining.
+     
 <!--
                 <label for="content.message" th:text="#{content.message}">Message</label>
                 <div class="message-preview">
@@ -409,9 +410,16 @@
                 }
             );
         }
+        
+        var totallength = 160;
+
+        $('input#message_txt').on('keydown, keyup', function(e) {   
+             $('span#character-count').text((totallength - this.value.length));
+        });
 
         $(document).ready(function() {
-   
+       var begintotallength = 160;
+$('span#character-count').text((begintotallength - $('input#message_txt').val().length));
 
             $(".remove-content-file").click(function (event) {
                 //console.log(".remove-content-file");

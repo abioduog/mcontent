@@ -3,13 +3,14 @@ package com.mnewservice.mcontent.repository.entity;
 import com.mnewservice.mcontent.util.DateUtils;
 
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -42,7 +43,7 @@ import javax.persistence.UniqueConstraint;
         + "    s.service_id = :serviceId "
         + "ORDER BY "
         + "    s.id "
-        //+ "    p.`end` desc "   // Pasi testasi, ei lajitellut     
+        //+ "    p.`end` desc "   // Pasi testasi, ei lajitellut
         + "LIMIT "
         + "    :limit "
         + "OFFSET "
@@ -64,7 +65,8 @@ public class SubscriptionEntity extends AbstractEntity {
     private SubscriberEntity subscriber;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<SubscriptionPeriodEntity> periods;
+    @OrderBy("start DESC")
+    private List<SubscriptionPeriodEntity> periods;
 
     public boolean isActive() {
         Date now = new Date();
@@ -75,10 +77,9 @@ public class SubscriptionEntity extends AbstractEntity {
         int totalActiveDays = 0;
         Date currentDate = DateUtils.getCurrentDate();
         for (SubscriptionPeriodEntity period : this.getPeriods()) {
-            if(period.getStart().after(currentDate)) {
+            if (period.getStart().after(currentDate)) {
                 //This is not active yet
-            }
-            else if(period.getEnd().before(currentDate)) {
+            } else if (period.getEnd().before(currentDate)) {
                 //This is already totally ended
                 totalActiveDays += DateUtils.calculateDifferenceInDays(
                         period.getEnd(),
@@ -109,11 +110,11 @@ public class SubscriptionEntity extends AbstractEntity {
         this.subscriber = subscriber;
     }
 
-    public Set<SubscriptionPeriodEntity> getPeriods() {
+    public List<SubscriptionPeriodEntity> getPeriods() {
         return periods;
     }
 
-    public void setPeriods(Set<SubscriptionPeriodEntity> periods) {
+    public void setPeriods(List<SubscriptionPeriodEntity> periods) {
         this.periods = periods;
     }
     // </editor-fold>

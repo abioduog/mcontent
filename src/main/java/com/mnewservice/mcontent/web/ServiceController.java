@@ -36,7 +36,7 @@ public class ServiceController {
 
     private static final Logger LOG
             = Logger.getLogger(ServiceController.class);
-    
+
     private int LIST_PAGE_SIZE = 25; // How many rows in page
     private int PAGINATION_MENU_SIZE = 5; // How many numbers is visible in pagination menu
 
@@ -87,6 +87,7 @@ public class ServiceController {
         return serviceManager.getAllServices()
                 .stream().collect(Collectors.toList());
     }
+
     public List<Service> populateFilteredServices(String nameFilter) {
         return serviceManager.getFilteredServices(nameFilter)
                 .stream().collect(Collectors.toList());
@@ -110,39 +111,39 @@ public class ServiceController {
         return "serviceList";
     }
     /*
-        @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping({"/service/listpaged"})
-    public String listServicesPaged() {
-        return "serviceListPaged";
-    }
-    */
-    
-        @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+     @PreAuthorize("hasAuthority('ADMIN')")
+     @RequestMapping({"/service/listpaged"})
+     public String listServicesPaged() {
+     return "serviceListPaged";
+     }
+     */
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping({"/service/list"})
     public String listServicesPaged(HttpServletRequest request) {
-                request.getSession().setAttribute("allServicesPaged", null);
+        request.getSession().setAttribute("allServicesPaged", null);
         return "redirect:/service/list/page/1";
     }
-    
-        @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
-    @RequestMapping(value={"/service/list/page/{pagenumber}"})
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
+    @RequestMapping(value = {"/service/list/page/{pagenumber}"})
     public ModelAndView viewServicesPageNumberX(HttpServletRequest request, @PathVariable("pagenumber") Integer pagenumber, @RequestParam(value = "nameFilter", required = false) String fname) {
         String baseUrl = "service/list/page";
         ModelAndView mav = new ModelAndView("serviceListPaged");
-        
-        PagedListHolder<?> pagedListHolder = (PagedListHolder<?>) request.getSession().getAttribute("allServicesPaged"); 
-        if(pagedListHolder == null){
-            pagedListHolder = new PagedListHolder(populateServices()); 
+
+        PagedListHolder<?> pagedListHolder = (PagedListHolder<?>) request.getSession().getAttribute("allServicesPaged");
+        if (pagedListHolder == null) {
+            pagedListHolder = new PagedListHolder(populateServices());
         } else {
             final int goToPage = pagenumber - 1;
-            if(goToPage <= pagedListHolder.getPageCount() && goToPage >= 0){
+            if (goToPage <= pagedListHolder.getPageCount() && goToPage >= 0) {
                 pagedListHolder.setPage(goToPage);
             }
-            if(fname != null){
+            if (fname != null) {
                 pagedListHolder = new PagedListHolder(populateFilteredServices(fname));
             }
         }
-        
+
         pagedListHolder.setPageSize(LIST_PAGE_SIZE);
         pagedListHolder.getPageList();
         request.getSession().setAttribute("allServicesPaged", pagedListHolder);
@@ -152,11 +153,10 @@ public class ServiceController {
         int totalPageCount = pagedListHolder.getPageCount();
 
         /*
-        System.out.println("Begin, end, current : " + begin + ", " + end + ", " + current);
-        ArrayList<SmsMessage> al = (ArrayList<SmsMessage>) systemStatuseManager.getSmsMessages();
-        ArrayList<SmsMessage> al2 = new ArrayList<SmsMessage>(al.subList((begin - 1), end));
-*/
-
+         System.out.println("Begin, end, current : " + begin + ", " + end + ", " + current);
+         ArrayList<SmsMessage> al = (ArrayList<SmsMessage>) systemStatuseManager.getSmsMessages();
+         ArrayList<SmsMessage> al2 = new ArrayList<SmsMessage>(al.subList((begin - 1), end));
+         */
         //mav.addObject("messages", systemStatuseManager.getSmsMessages());
         mav.addObject("allServicesPaged", pagedListHolder.getPageList());
         mav.addObject("beginIndex", begin);
@@ -166,7 +166,7 @@ public class ServiceController {
         mav.addObject("baseUrl", baseUrl);
         mav.addObject("pagedListHolder", pagedListHolder);
         mav.addObject("nameFilter", fname);
-        
+
         return mav;
     }
 
@@ -268,18 +268,20 @@ public class ServiceController {
 
         return mav;
     }
-    
+
     @PreAuthorize("hasAnyAuthority('ADMIN','PROVIDER')")
     @RequestMapping({"/service/list/filtered/"})
-    public ModelAndView listFilteredProviders(HttpServletRequest request, @RequestParam(value = "nameFilter", required=false) String fname) {
-                String filter = (fname == null || fname.length() == 0) ? "%" : "%" + fname + "%";
+    public ModelAndView listFilteredProviders(
+            HttpServletRequest request,
+            @RequestParam(value = "nameFilter", required = false) String fname) {
+        String filter = (fname == null || fname.length() == 0) ? "%" : "%" + fname + "%";
         System.out.println("listFilteredProviders: nameFilter = " + fname);
         ModelAndView mav = new ModelAndView("serviceList");
-        
-       mav.addObject("allServices", populateFilteredServices(filter));
+
+        mav.addObject("allServices", populateFilteredServices(filter));
 
         mav.addObject("nameFilter", fname);
-        
+
         return mav;
     }
 

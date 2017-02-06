@@ -71,16 +71,15 @@ public class SubscriptionManager {
     private static final String ERROR_SUBSCRIPTION_WAS_NOT_FOUND
             = "Subscription was not found with keyword=%s, shortCode=%d, "
             + "operator=%s, and phone number=%s";
-       
+
     private static final String ERROR_UNSUBSCRIPTION_WAS_NOT_FOUND
             = "Unsubscription was not found with keyword=%s, shortCode=%d, "
             + "operator=%s";
-    
-        private static final String ERROR_SERVICE_WAS_NOT_FOUND
+
+    private static final String ERROR_SERVICE_WAS_NOT_FOUND
             = "Service was not found with keyword=%s, shortCode=%d, "
             + "operator=%s";
 
-        
     @Transactional(readOnly = true)
     public Collection<Subscription> getAllSubscriptionsByService(Long serviceId) {
         LOG.info("Getting all subscriptions by service id = " + serviceId);
@@ -122,16 +121,15 @@ public class SubscriptionManager {
     public boolean registerSubscription(Subscription subscription) {
         LOG.debug("registerSubscription() with subscription=" + subscription);
 
-        
         SubscriptionEntity subscriptionEntity = doRegisterSubscription(subscription);
         Long id = subscriptionEntity.getId();
-        
+
 
         /*
-        //
-        Collection<SubscriptionPeriodEntity> periodEntities
-                    = subscriptionPeriodMapper.toEntity(subscription.getPeriods());
-*/
+         //
+         Collection<SubscriptionPeriodEntity> periodEntities
+         = subscriptionPeriodMapper.toEntity(subscription.getPeriods());
+         */
         SubscriptionEntity savedEntity
                 = subscriptionRepository.save(subscriptionEntity);
 
@@ -204,7 +202,7 @@ public class SubscriptionManager {
         return subscriptionEntity;
     }
 
-    private void mergePeriods(Set<SubscriptionPeriodEntity> periods,
+    private void mergePeriods(List<SubscriptionPeriodEntity> periods,
             SubscriptionPeriodEntity periodToBeMerged) {
 
         Date currDate = DateUtils.getCurrentDateAtMidnight();
@@ -215,7 +213,7 @@ public class SubscriptionManager {
             int diffInDays
                     = DateUtils.calculateDifferenceInDays(
                             maxEndDate, periodToBeMerged.getStart());
-            // period starts after previous ends. 
+            // period starts after previous ends.
             periodToBeMerged.setStart(
                     DateUtils.addDays(periodToBeMerged.getStart(), (diffInDays + 1))
             );
@@ -242,14 +240,15 @@ public class SubscriptionManager {
     }
 
     private void sendRenewMessage(SubscriptionEntity savedEntity) {
- 
-       SubscriptionPeriodEntity last = null;
-        for(SubscriptionPeriodEntity sp :savedEntity.getPeriods()){
+
+        SubscriptionPeriodEntity last = null;
+        for (SubscriptionPeriodEntity sp : savedEntity.getPeriods()) {
             //System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(sp.getEnd()));
-            if(last != null){
-                if(sp.getEnd().after(last.getEnd()))
+            if (last != null) {
+                if (sp.getEnd().after(last.getEnd())) {
                     last = sp;
-            }else{
+                }
+            } else {
                 last = sp;
             }
         }
@@ -341,36 +340,35 @@ public class SubscriptionManager {
 
         sendMessage(message);
     }
-    
+
     private void sendUnsubscriptionNotFoundMessage(Subscription subscription) {
-            subscription.getSubscriber().getPhone();
-            subscription.getService().getShortCode();
-            String msg = String.format(
-                    ERROR_UNSUBSCRIPTION_WAS_NOT_FOUND,
-                    subscription.getService().getKeyword(),
-                    subscription.getService().getShortCode(),
-                    subscription.getService().getOperator()
-            );
-            
-           // LOG.info("msg = " + msg);
-            
-            SmsMessage message = createSmsMessage(subscription.getService().getShortCode(), msg, subscription.getSubscriber().getPhone());
-            //sendMessage()
-            sendMessage(message);
-    }
-    
-        public void sendServiceNotFoundMessage(Integer shortcode, String msg1, String phonenumber) {
+        subscription.getSubscriber().getPhone();
+        subscription.getService().getShortCode();
+        String msg = String.format(
+                ERROR_UNSUBSCRIPTION_WAS_NOT_FOUND,
+                subscription.getService().getKeyword(),
+                subscription.getService().getShortCode(),
+                subscription.getService().getOperator()
+        );
 
-            PhoneNumber pn = new PhoneNumber();
-
-            pn.setNumber(phonenumber);
            // LOG.info("msg = " + msg);
-            
-            SmsMessage message = createSmsMessage(shortcode, msg1, pn);
-            //sendMessage()
-            sendMessage(message);
+        SmsMessage message = createSmsMessage(subscription.getService().getShortCode(), msg, subscription.getSubscriber().getPhone());
+        //sendMessage()
+        sendMessage(message);
     }
-    
+
+    public void sendServiceNotFoundMessage(Integer shortcode, String msg1, String phonenumber) {
+
+        PhoneNumber pn = new PhoneNumber();
+
+        pn.setNumber(phonenumber);
+           // LOG.info("msg = " + msg);
+
+        SmsMessage message = createSmsMessage(shortcode, msg1, pn);
+        //sendMessage()
+        sendMessage(message);
+    }
+
     private SmsMessage createSmsMessage(Integer shortCode, String content, PhoneNumber receiver) {
         SmsMessage message = new SmsMessage();
         message.setFromNumber(shortCode.toString());
@@ -382,6 +380,5 @@ public class SubscriptionManager {
     private void sendMessage(SmsMessage message) {
         messageCenter.queueMessage(message);
     }
-
 
 }

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
     <head lang="en">
-        <title th:inline="text">mContent -  [[${content.title}]]</title>
+        <title th:inline="text">mContent - [[${content.title}]]</title>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <link rel="stylesheet" th:href="@{|/lib/jquery/jquery-ui.min.css|}"/>
@@ -21,19 +21,19 @@
 
                     <table class="pure-table" th:if="${not #lists.isEmpty(activelist)}">
                         <thead>
-                        <tr>
-                            <th th:text="#{subscription.service}">Service</th>
-                            <th th:text="#{subscription.shortcode}">Shortcode</th>
-                            <th th:text="#{subscription.expires}">Expires</th>
-                            <!--<th>&nbsp;</th> -->
-                        </tr>
+                            <tr>
+                                <th th:text="#{subscription.service}">Service</th>
+                                <th th:text="#{subscription.shortcode}">Shortcode</th>
+                                <th th:text="#{subscription.expires}">Expires</th>
+                                <!--<th>&nbsp;</th> -->
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="subscriptionhistory : ${activelist}">
-                            <td th:text="${subscriptionhistory.keyword}">Keyword</td>
-                            <td th:text="${subscriptionhistory.code}">Shortcode</td>
-                            <td th:text="${subscriptionhistory.expire}">Expires</td>
-                        </tr>
+                            <tr th:each="subscriptionhistory : ${activelist}">
+                                <td th:text="${subscriptionhistory.keyword}">Keyword</td>
+                                <td th:text="${subscriptionhistory.code}">Shortcode</td>
+                                <td th:text="${subscriptionhistory.expire}">Expires</td>
+                            </tr>
                         </tbody>
                     </table>
 
@@ -42,20 +42,20 @@
 
                     <table class="pure-table" th:if="${not #lists.isEmpty(expiredlist)}">
                         <thead>
-                        <tr>
-                            <th th:text="#{subscription.service}">Service</th>
-                            <th th:text="#{subscription.shortcode}">Shortcode</th>
-                            <th th:text="#{subscription.expired}">Expired</th>
-                            <!--<th>&nbsp;</th> -->
-                        </tr>
+                            <tr>
+                                <th th:text="#{subscription.service}">Service</th>
+                                <th th:text="#{subscription.shortcode}">Shortcode</th>
+                                <th th:text="#{subscription.expired}">Expired</th>
+                                <!--<th>&nbsp;</th> -->
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="subscriptionhistory1 : ${expiredlist}">
+                            <tr th:each="subscriptionhistory1 : ${expiredlist}">
 
-                            <td th:text="${subscriptionhistory1.keyword}">Keyword</td>
-                            <td th:text="${subscriptionhistory1.code}">Shortcode</td>
-                            <td th:text="${subscriptionhistory1.expire}">Expired</td>
-                        </tr>
+                                <td th:text="${subscriptionhistory1.keyword}">Keyword</td>
+                                <td th:text="${subscriptionhistory1.code}">Shortcode</td>
+                                <td th:text="${subscriptionhistory1.expire}">Expired</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -67,7 +67,12 @@
                     <form id="logout" th:action="@{/show/logout}" method="post">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     </form>
-                    <a class="view-subscriber" th:href="@{|/show/subscriber/${subscriberhistory}/history|(uuid=${short_uuid})}">Subscription history</a> | <a th:href="@{|/show/discover|(uuid=${short_uuid}, phone=${subscriberhistory})}">Discover</a> | <a onclick="$('#logout').submit();">Logout</a>
+                    <div sec:authorize="hasRole('ADMIN')">
+                        <span class="view-subscriber" title="Not available in preview mode">Subscription history</span> | <span class="view-subscriber" title="Not available in preview mode">Discover</span> | <a onclick="$('#logout').submit();">Logout</a>
+                    </div>
+                    <div sec:authorize="!hasRole('ADMIN')">
+                        <a class="view-subscriber" th:href="@{|/show/subscriber/${subscriberhistory}/history|(uuid=${short_uuid})}">Subscription history</a> | <a th:href="@{|/show/discover|(uuid=${short_uuid}, phone=${subscriberhistory})}">Discover</a> | <a onclick="$('#logout').submit();">Logout</a>
+                    </div>
                 </div><br/>
                 <div class="copy">mContent Platform. All rights Reserved</div>
             </div>
@@ -76,8 +81,5 @@
         <script th:src="@{|/lib/jquery/jquery-ui.min.js|}"></script>
         <script th:src="@{|/js/config.js|}"></script>
         <script th:src="@{|/js/show/show.js|}"></script>
-        <script>
-        //${#lists.toList(object)}   
-        </script>
     </body>
 </html>

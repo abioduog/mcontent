@@ -83,3 +83,7 @@ body {
     color: #aaa;
 }
 
+span.view-subscriber {
+    font-size: .8rem;
+    color: #ddd;
+}

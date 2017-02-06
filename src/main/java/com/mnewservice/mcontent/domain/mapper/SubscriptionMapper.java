@@ -62,7 +62,7 @@ public class SubscriptionMapper extends AbstractMapper<Subscription, Subscriptio
         entity.setSubscriber(subscriberMapper.toEntity(domain.getSubscriber()));
         entity.setPeriods(
                 subscriptionPeriodMapper.toEntity(
-                        domain.getPeriods()).stream().collect(Collectors.toSet()
+                        domain.getPeriods()).stream().collect(Collectors.toList()
                 )
         );
 

@@ -24,9 +24,9 @@
 
 <div class="dashboard-search form-inline">
     <div class="form-group">
-                <label th:text="#{service.keyword}">KEYWORD</label>
-                <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
-                <a class="search-dashboard-services pure-button" th:href="@{|${baseUrl}/1|}" th:text="#{general.search}">Search</a>
+        <label th:text="#{service.keyword}">KEYWORD</label>
+        <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
+        <a class="search-dashboard-services pure-button" th:href="@{|${baseUrl}/1|}" th:text="#{general.search}">Search</a>
     </div>
     <div class="form-group">
         <label>&nbsp;</label>
@@ -56,11 +56,11 @@
                 th:class="${item == currentIndex ? 'active' : ''}">
                 <span
                     th:if='${item == currentIndex}' th:text='${item}'>1</span>
-                    <a class="linktopage" th:if='${item != currentIndex}'
+                <a class="linktopage" th:if='${item != currentIndex}'
 
-                      th:href="@{|${baseUrl}/${item}|}">
+                   th:href="@{|${baseUrl}/${item}|}">
                     <span th:text='${item}'>1</span>
-                    </a>
+                </a>
             </li>
             <li th:class="${currentIndex != totalPageCount}? '' : 'disabled' ">
                 <span th:if='${currentIndex == totalPageCount}'>&gt;&gt;</span>
@@ -83,11 +83,11 @@
         <thead>
             <tr>
                 <th th:text="#{dashboard.services}">
-                <!--
-                    <div class="col-sm-12" th:text="#{service.operator}">OPERATOR</div>
-                    <div class="col-sm-12" th:text="#{service.shortCode}">SHORTCODE</div>
-                    <div class="col-sm-12" th:text="#{dashboard.service.keyword}">KEYWORD</div>
-                -->
+                    <!--
+                        <div class="col-sm-12" th:text="#{service.operator}">OPERATOR</div>
+                        <div class="col-sm-12" th:text="#{service.shortCode}">SHORTCODE</div>
+                        <div class="col-sm-12" th:text="#{dashboard.service.keyword}">KEYWORD</div>
+                    -->
                 </th>
                 <th th:text="#{dashboard.service.subscribers}">SUBSCRIBERS</th>
                 <th>&nbsp;</th>
@@ -120,26 +120,32 @@
 <script th:inline="javascript" sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
     /*<![CDATA[*/
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         $("#selectedWeek").val(/*[[${selectedWeek}]]*/ "");
-console.log(/*[[${selectedWeek}]]*/ "");
-console.log(/*[[${nameFilter}]]*/ "");
+        console.log(/*[[${selectedWeek}]]*/ "");
+        console.log(/*[[${nameFilter}]]*/ "");
     });
-        $(".linktopage").click(function(event) {
+    $(".linktopage").click(function (event) {
         event.preventDefault();
         mContent.loaders.workArea($(this).attr("href"));
         return false;
     });
-    
-    $(".search-dashboard-services").click(function() {
+
+    $(".search-dashboard-services").click(function () {
         event.preventDefault();
         reloadForm($(this).attr("href"));
         return false;
     });
 
-    $("#selectedWeek").change(function(event) {
+    $("#selectedWeek").change(function (event) {
         event.preventDefault();
         reloadForm($(this).attr("href"));
+        return false;
+    });
+
+    $(".linktopage").click(function (event) {
+        event.preventDefault();
+        mContent.loaders.workArea($(this).attr("href"));
         return false;
     });
 
@@ -147,11 +153,11 @@ console.log(/*[[${nameFilter}]]*/ "");
         $.ajax({
             type: "GET",
             data: {
-                "selectedWeek" : document.getElementById("selectedWeek").value,
-                "nameFilter" : document.getElementById("nameFilter").value
+                "selectedWeek": document.getElementById("selectedWeek").value,
+                "nameFilter": document.getElementById("nameFilter").value
             },
             url: url,
-            success: function(data) {
+            success: function (data) {
                 $("#workarea").html("").append(data);
             }
         });

@@ -25,7 +25,7 @@
                         <span class="view-subscriber" title="Not available in preview mode">Subscription history</span> | <span class="view-subscriber" title="Not available in preview mode">Discover</span> | <a onclick="$('#logout').submit();">Logout</a>
                     </div>
                     <div sec:authorize="!hasRole('ADMIN')">
-                        <a class="view-subscriber" th:href="@{|/show/subscriber/${subscriberhistory}/history|(uuid=${short_uuid})}">Subscription history</a> | <a th:href="@{|/show/discover|(uuid=${short_uuid}, phone=${subscriberhistory})}">Discover</a> | <a onclick="$('#logout').submit();">Logout</a>
+                        <a class="view-subscriber" th:href="@{|/show/subscriber/history|(uuid=${short_uuid})}">Subscription history</a> | <a th:href="@{|/show/discover|(uuid=${short_uuid})}">Discover</a> | <a onclick="$('#logout').submit();">Logout</a>
                     </div>
                 </div><br/>
                 <div class="copy">mContent Platform. All rights Reserved</div>

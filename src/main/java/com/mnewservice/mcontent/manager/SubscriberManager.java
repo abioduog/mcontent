@@ -26,7 +26,6 @@ public class SubscriberManager {
     @Autowired
     private SubscriberRepository repository;
 
-
     @Autowired
     private ServiceManager serviceManager;
 
@@ -104,7 +103,8 @@ public class SubscriberManager {
     }
 
     @Transactional(readOnly = true)
-    public Subscriber getSubscriberWithSubscriptions(String phone, boolean showAll) {
+    public Subscriber getUsersSubscriptions(boolean showAll) {
+        String phone = SessionUtils.getCurrentUserUsername();
         LOG.info("Getting subscriber with phone=" + phone);
         SubscriberEntity entity = repository.findByPhoneNumber(phone);
         return mapper.toDomainWithSubscriptions(entity, showAll);

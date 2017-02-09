@@ -209,7 +209,7 @@ public class ContentController {
         return mav;
     }
 
-    private void validate(SeriesDeliverable sd) {
+    private void validate(AbstractDeliverable sd) {
         // TODO: use standard Spring Form Validation: https://spring.io/guides/gs/validating-form-input/
         if (sd.getContent() == null) {
             throw new IllegalArgumentException();
@@ -787,7 +787,6 @@ public class ContentController {
     ) {
         LOG.info("/deliverypipe/" + deliveryPipeId + "/scheduled/" + deliverableId + " param=save");
         ModelAndView mav = new ModelAndView("contentEdit");
-
         if (bindingResult.hasErrors()) {
             mav = mavAddNLogErrorText(mav, bindingResult.getAllErrors());
             mav.addObject(
@@ -796,6 +795,7 @@ public class ContentController {
             );
             mav.addObject("error", true);
         } else {
+            validate(deliverable);
             try {
                 DeliveryPipe deliveryPipe = getDeliveryPipe(deliveryPipeId);
                 if (deliverableId != 0) { // deliverableId == 0 when deliverable is in create state

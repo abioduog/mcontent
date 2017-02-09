@@ -13,6 +13,12 @@
     height: 8em;
 }
 
+.message-preview span.character-count {
+    display: block;
+    float: right;
+    margin: -2em 0.6em 0 0;
+}
+
 .note-editable.panel-body {
     min-height: 240px;
 }

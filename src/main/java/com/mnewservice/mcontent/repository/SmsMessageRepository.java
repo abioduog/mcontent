@@ -1,8 +1,7 @@
 package com.mnewservice.mcontent.repository;
 
-import com.mnewservice.mcontent.repository.entity.ProviderEntity;
 import com.mnewservice.mcontent.repository.entity.SmsMessageEntity;
-import java.util.Collection;
+import java.util.Date;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,13 +13,17 @@ import org.springframework.data.jpa.repository.Query;
  */
 @Repository
 public interface SmsMessageRepository extends CrudRepository<SmsMessageEntity, Long> {
+
     List<SmsMessageEntity> findBySentIsNullAndTriesLessThan(int numberOfTries);
+
     List<SmsMessageEntity> findAllByOrderByCreatedDesc();
+
     List<SmsMessageEntity> findAllByOrderByCreatedAsc();
-    //List<SmsMessageEntity> findByReceiversByOrderByCreatedDesc();
-        @Query("select db from SmsMessageEntity db "
-         + "where db.receivers like ?1 order by db.sent desc")
-    List<SmsMessageEntity> findAllByOrderBySentDesc(String nameFilter); 
-    
+
+    @Query("select sme from SmsMessageEntity sme "
+            + "where sme.sent >= ?1 and sme.receivers like %?2% "
+            + "order by sme.sent desc")
+    List<SmsMessageEntity> findNewerThanAndReceiverPhone(Date newerThan, String receiverPhone);
+
     List<SmsMessageEntity> findByReceiversContainingOrderByCreatedDesc(String phoneNumber);
 }

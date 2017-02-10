@@ -3,13 +3,16 @@ package com.mnewservice.mcontent.web;
 import com.mnewservice.mcontent.domain.Content;
 import com.mnewservice.mcontent.domain.Discover;
 import com.mnewservice.mcontent.domain.Service;
+import com.mnewservice.mcontent.domain.SmsMessage;
 import com.mnewservice.mcontent.manager.DeliveryPipeManager;
 import com.mnewservice.mcontent.domain.Subscriber;
 import com.mnewservice.mcontent.domain.Subscription;
 import com.mnewservice.mcontent.domain.SubscriptionPeriod;
 import com.mnewservice.mcontent.domain.SubscriptionHistory;
 import com.mnewservice.mcontent.manager.ServiceManager;
+import com.mnewservice.mcontent.manager.SmsMessageManager;
 import com.mnewservice.mcontent.manager.SubscriberManager;
+import com.mnewservice.mcontent.util.DateUtils;
 import com.mnewservice.mcontent.util.Messages;
 import com.mnewservice.mcontent.util.SessionUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +42,7 @@ public class PresentationController {
     private static final String INVALID_UUID = "Invalid uuid: %s";
     private static final String NO_ACCESS_TO_CONTENT
             = "User %s does not have access to the content with uuid %s";
+    private static final int MESSAGE_HISTORY_LENGTH_IN_DAYS = 7;
 
     @Autowired
     private SubscriberManager subscriberManager;
@@ -48,6 +52,9 @@ public class PresentationController {
 
     @Autowired
     private ServiceManager serviceManager;
+
+    @Autowired
+    private SmsMessageManager smsMessageManager;
 
     @Autowired
     Messages messages;
@@ -173,6 +180,19 @@ public class PresentationController {
         mav.addObject("short_uuid", shortUuid);
 
         mav.addObject("subscriberhistory", request.getRemoteUser());
+
+        return mav;
+    }
+
+    @RequestMapping(value = "/show/messages", method = RequestMethod.GET)
+    public ModelAndView showMessages(
+            @RequestParam(value = "uuid", required = false) String shortUuid) {
+        Date newerThan = DateUtils.getCurrentDatePlusNDays(-MESSAGE_HISTORY_LENGTH_IN_DAYS);
+        Collection<SmsMessage> messages = smsMessageManager.getLatestMessages(newerThan);
+
+        ModelAndView mav = new ModelAndView("messagesPaged");
+        mav.addObject("theme", deliveryPipeManager.getThemeForContentByUuid(shortUuid));
+        mav.addObject("messages", messages);
 
         return mav;
     }

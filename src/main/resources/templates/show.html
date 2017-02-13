@@ -13,7 +13,7 @@
     <body>
         <div class="themed-content">
             <div class="content">
-                <div class="ad-panel"></div>
+                <div class="ad-panel ad-panel-top"></div>
                 <div class="workarea" th:utext="${content.content}"></div>
             </div>
             <div class="user-menu">
@@ -35,6 +35,14 @@
             <script th:src="@{|/js/config.js|}"></script>
             <script th:src="@{|/js/show/show.js|}"></script>
             <script th:src="@{|/theme/js/${theme}.js|}"></script>
+            <script th:src="@{|/js/show/banners.js|}"/>
+            <script>
+                $(function () {
+                    setBanner(1);
+                    setBanner(2);
+                });
+            </script>
+
         </div>
     </body>
 </html>

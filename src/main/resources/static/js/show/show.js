@@ -56,13 +56,13 @@ function callSimpleAction(src, event) {
     return false;
 }
 
-$.fn.protectImage = function() {
-    return this.each(function() {
-        if(!$(this).is("img")) {
+$.fn.protectImage = function () {
+    return this.each(function () {
+        if (!$(this).is("img")) {
             console.log("Trying to protect non img");
             return;
         }
-        $(this).css("background-image", "url(" + $(this).attr("src") +")");
+        $(this).css("background-image", "url(" + $(this).attr("src") + ")");
         $(this).attr("src", "../../img/000000-0.png"); //original url was "/img/000000-0.png"
     })
 };

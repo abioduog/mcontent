@@ -1,12 +1,12 @@
-    <head lang="en">
-        <title th:inline="text">mContent -  [[${content.title}]]</title>
-        <meta charset="UTF-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <link rel="stylesheet" th:href="@{|/lib/jquery/jquery-ui.min.css|}"/>
-        <link rel="stylesheet" th:href="@{|/lib/pure/pure-0.6.0.min.css|}"/>
-        <!-- link rel="stylesheet" th:href="@{|/css/show.css|}"/>
-        < link rel="stylesheet" th:href="@{|/theme/css/${theme}.css|}"/ -->
-    </head>
+<head lang="en">
+    <title th:inline="text">mContent -  [[${content.title}]]</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" th:href="@{|/lib/jquery/jquery-ui.min.css|}"/>
+    <link rel="stylesheet" th:href="@{|/lib/pure/pure-0.6.0.min.css|}"/>
+    <!-- link rel="stylesheet" th:href="@{|/css/show.css|}"/>
+    < link rel="stylesheet" th:href="@{|/theme/css/${theme}.css|}"/ -->
+</head>
 <div class="content">
     <ul class="nav nav-tabs">
         <li class="active"><a onclick="navClick('view');">View</a></li>
@@ -17,7 +17,7 @@
         <legend>View</legend>
         <div>
             <label for="content.title" th:text="#{content.title}">Title</label>
-            <span name="content.title" th:text="${deliverable.content.title}"></span> 
+            <span name="content.title" th:text="${deliverable.content.title}"></span>
 
             <label for="content.message" th:text="#{content.message}">Message</label>
             <div class="message-preview">
@@ -32,12 +32,12 @@
             <div class="preview-device-screen">
                 <div class="themed-content" th:classappend="${deliveryPipe.theme}">
                     <div class="content">
-                        <div class="ad-panel"></div>
+                        <div class="ad-panel ad-panel-top"></div>
                         <div class="workarea previewer-content" th:utext="${deliverable.content.content}"></div>
                     </div>
                     <div class="user-menu">
                         <div class="user-menu-content">
-                        <a class="view-subscriber">Subscription history</a> | <a>Discover</a> | <a>Logout</a>
+                            <a class="view-subscriber">Subscription history</a> | <a>Discover</a> | <a>Logout</a>
                         </div><br/>
                         <div class="copy">mContent Platform. All rights Reserved</div>
                     </div>
@@ -48,12 +48,12 @@
             <div class="preview-device-screen">
                 <div class="themed-content" th:classappend="${deliveryPipe.theme}">
                     <div class="content">
-                        <div class="ad-panel"></div>
+                        <div class="ad-panel ad-panel-bottom"></div>
                         <div class="workarea previewer-content" th:utext="${deliverable.content.content}"></div>
                     </div>
                     <div class="user-menu">
                         <div class="user-menu-content">
-                        <a class="view-subscriber">Subscription history</a> | <a>Discover</a> | <a>Logout</a>
+                            <a class="view-subscriber">Subscription history</a> | <a>Discover</a> | <a>Logout</a>
                         </div><br/>
                         <div class="copy">mContent Platform. All rights Reserved</div>
                     </div>
@@ -61,18 +61,22 @@
             </div>
         </div>
     </formfield>
-        <!-- formfield id="previewers" class="tab-content tab-content-newpreview">
-        <legend>New preview</legend>
+    <!-- formfield id="previewers" class="tab-content tab-content-newpreview">
+    <legend>New preview</legend>
 
-        <div class="ipad-previewer">
-            <div class="newpreviewer-content" th:utext="${deliverable.content.content}">
-            </div>
-                <div class="copy">mContent Platform. All rights Reserved</div>            
+    <div class="ipad-previewer">
+        <div class="newpreviewer-content" th:utext="${deliverable.content.content}">
         </div>
-        
-    </formfield -->
-    
+            <div class="copy">mContent Platform. All rights Reserved</div>
+    </div>
+
+</formfield -->
+    <script th:src="@{|/js/show/banners.js|}"/>
     <script>
+        $(function () {
+            setBanner(1);
+            setBanner(2);
+        });
         function navClick(navId) {
             event.preventDefault();
             $(".nav-tabs li").removeClass("active");
@@ -81,10 +85,8 @@
             $(".tab-content-" + navId).addClass("active");
             return false;
         }
-        
+
         $("#theme-css").remove();
         $("head").append('<link id="theme-css" rel="stylesheet" th:href="@{|/theme/css/${deliveryPipe.theme}.css|}"/>')
     </script>
-                <!-- script th:src="@{|/js/show/show.js|}"></script>
-            <script th:src="@{|/theme/js/${theme}.js|}"></script -->
 </div>

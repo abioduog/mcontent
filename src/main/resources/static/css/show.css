@@ -41,24 +41,16 @@ body {
 
 .ad-panel {
     position: relative;
-    background-image: url("/adds/random");
     background-position: center;
     background-size: contain;
-}
-/*
-.ad-panel:empty {
-    background-color: #e4e4e4;
+    cursor: pointer; cursor: hand;
 }
 
-.ad-panel::after {
-    content: 'AD PANEL';
-    font-size: 1.4rem;
-    color: white;
-    top: 50%;
-    left: 50%;
-    position: absolute;
-    transform: translate(-50%, -50%);
-}*/
+.ad-panel-top {
+}
+
+.ad-panel-bottom {
+}
 
 .themed-content .user-menu {
     text-align: center;

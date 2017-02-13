@@ -12,7 +12,7 @@
     <body>
         <div class="themed-content">
             <div class="content">
-                <div class="ad-panel"></div>
+                <div class="ad-panel ad-panel-top"></div>
                 <div class="workarea">
                     <div tiles:fragment="show-login-content">
                         <form name="show-login-form" class="pure-form" th:action="@{/show/login}" method="post">
@@ -32,12 +32,19 @@
                         </form>
                     </div>
                 </div>
-                <div class="ad-panel"></div>
+                <div class="ad-panel ad-panel-bottom"></div>
             </div>
             <div class="user-menu">
                 <div class="copy">mContent Platform. All rights Reserved</div>
             </div>
-            <script th:src="@{/lib/jquery/jquery.min.js}"></script>
+            <script th:src="@{/lib/jquery/jquery.min.js}"/>
+            <script th:src="@{|/js/show/banners.js|}"/>
+            <script>
+                $(function () {
+                    setBanner(1);
+                    setBanner(2);
+                });
+            </script>
         </div>
     </body>
 </html>

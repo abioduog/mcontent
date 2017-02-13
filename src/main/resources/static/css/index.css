@@ -118,8 +118,8 @@ form[name='content-form']{
 }
 
 .iphone-previewer .themed-content .ad-panel {
-        height: 72px;
-        width: 100%;
+    height: 72px;
+    width: 100%;
 }
 
 .iphone-previewer .themed-content.comics .workarea {
@@ -263,4 +263,16 @@ span.form-warning {
 
 #previewers .preview-device-screen {
     overflow: hidden;
+}
+
+.clndr-next-button, .clndr-previous-button {
+    font-size: 10px;
+    text-decoration: none;
+    background-color: #EEEEEE;
+    color: #333333;
+    padding: 2px 6px 2px 6px;
+    border-top: 1px solid #CCCCCC;
+    border-right: 1px solid #333333;
+    border-bottom: 1px solid #333333;
+    border-left: 1px solid #CCCCCC;
 }

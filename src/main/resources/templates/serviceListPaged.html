@@ -1,8 +1,8 @@
 <h1 th:inline="text">Service list</h1>
 
-    
+
 <div class="service-list" th:unless="${#lists.isEmpty(allServicesPaged)}">
-            <div class="form-fields">
+    <div class="form-fields">
         <label th:text="#{service.keyword}">Keyword</label>
         <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
         <a class="search-pipes pure-button" th:href="@{|${baseUrl}/1|}" th:text="#{general.search}">Search</a>
@@ -27,11 +27,11 @@
                 th:class="${item == currentIndex ? 'active' : ''}">
                 <span
                     th:if='${item == currentIndex}' th:text='${item}'>1</span>
-                    <a class="linktopage" th:if='${item != currentIndex}'
+                <a class="linktopage" th:if='${item != currentIndex}'
 
-                      th:href="@{|${baseUrl}/${item}|}">
+                   th:href="@{|${baseUrl}/${item}|}">
                     <span th:text='${item}'>1</span>
-                    </a>
+                </a>
             </li>
 
             <li th:class="${currentIndex != totalPageCount}? '' : 'disabled' ">
@@ -58,6 +58,7 @@
                 <th th:text="#{service.keyword}">Keyword</th>
                 <th th:text="#{service.serviceDescription}">Service description</th>
                 <th th:text="#{service.subscriptionPeriod}">Subscription time</th>
+                <th th:text="#{service.deliveryTime}">Delivery time</th>
                 <th th:text="#{service.deliveryPipe}">Delivery pipe</th>
                 <th>&nbsp;</th>
             </tr>
@@ -69,6 +70,7 @@
                 <td th:text="${service.keyword}">KEYWORD</td>
                 <td th:text="${service.serviceDescription}">DESCRIPTION</td>
                 <td th:text="${service.subscriptionPeriod}">SUBSCRIPTION TIME</td>
+                <td th:text="${service.deliveryTime.text}">DELIVERY TIME</td>
                 <td th:text="${service.deliveryPipe.name}">DELIVERY PIPE</td>
                 <td><!-- icon (?) -->
                     <a class="edit-service pure-button" sec:authorize="hasAnyRole('ADMIN','PROVIDER')"
@@ -89,35 +91,35 @@
 
 </div>
 <script>
-    $(".create-service").click(function() {
+    $(".create-service").click(function () {
         event.preventDefault();
         mContent.popup.load('Create service', $(this).attr("href"));
         return false;
     });
-    $(".edit-service").click(function() {
+    $(".edit-service").click(function () {
         event.preventDefault();
         mContent.popup.load('Edit service', $(this).attr("href"));
         return false;
     });
-    $(".del-service").click(function() {
+    $(".del-service").click(function () {
         event.preventDefault();
         mContent.popup.load('Remove service', $(this).attr("href"));
         return false;
     });
-    $(".linktopage").click(function(event) {
+    $(".linktopage").click(function (event) {
         event.preventDefault();
         mContent.loaders.workArea($(this).attr("href"));
         return false;
     });
-            $(".search-pipes").click(function() {
+    $(".search-pipes").click(function () {
         event.preventDefault();
         $.ajax({
             type: "GET",
             data: {
-                "nameFilter" : document.getElementById("nameFilter").value
+                "nameFilter": document.getElementById("nameFilter").value
             },
             url: $(this).attr("href"),
-            success: function(data) {
+            success: function (data) {
                 $("#workarea").html("").append(data);
             }
         });

@@ -59,7 +59,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .and()
                     .rememberMe()
                     .key(REMEMBERME_KEY)
-                    .tokenValiditySeconds(REMEMBERME_TOKEN_VALIDITY);
+                    .tokenValiditySeconds(REMEMBERME_TOKEN_VALIDITY)
+                    .and()
+                    .sessionManagement().invalidSessionUrl("/show/login");
         }
 
         @Override
@@ -107,7 +109,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .formLogin()
                     .loginPage("/login").permitAll()
                     .and()
-                    .logout().permitAll();
+                    .logout().permitAll()
+                    .and()
+                    .sessionManagement().invalidSessionUrl("/login");
         }
 
         @Override

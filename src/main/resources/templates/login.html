@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:tiles="http://www.thymeleaf.org">
     <head lang="en">
         <title tiles:fragment="title">Login | mContent</title>
@@ -25,7 +25,7 @@
                         <p th:text="#{login.passwordChanged}"></p>
                     </div>
 
-                    
+
                     <input type="text" name="username" th:placeholder="#{login.username}" autocorrect="off" autocapitalize="none"/>
                     <input type="password" name="password" th:placeholder="#{login.password}" autocorrect="off" autocapitalize="none"/>
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -40,10 +40,5 @@
                 </fieldset>
             </form>
         </div>
-        <script>
-            /*if (!window.location.pathname.endsWith("login")) {
-                window.location.href = window.location.hostname;
-            }*/
-        </script>
     </body>
 </html>

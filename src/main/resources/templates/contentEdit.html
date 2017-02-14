@@ -294,7 +294,8 @@
                 contentType: false,
                 processData: false,
                 success: function (response, status, xhr) {
-                    $("textarea[name='content.content']").summernote('code', $("textarea[name='content.content']").val() + response.files[0].imageHtmlBlock);
+                    $("textarea[name='content.content']").summernote('focus');
+                    $("textarea[name='content.content']").summernote('pasteHTML', response.files[0].imageHtmlBlock);
                     addNewFile(response.files[0]);
                 },
                 error: function (error) {

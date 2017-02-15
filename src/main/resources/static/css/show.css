@@ -79,3 +79,7 @@ span.view-subscriber {
     font-size: .8rem;
     color: #ddd;
 }
+
+.workarea iframe {
+    height: 80vh;
+}

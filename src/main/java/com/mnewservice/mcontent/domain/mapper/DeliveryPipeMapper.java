@@ -21,6 +21,9 @@ public class DeliveryPipeMapper extends AbstractMapper<DeliveryPipe, DeliveryPip
     @Autowired
     private DeliverableTypeMapper deliverableTypeMapper;
 
+    @Autowired
+    private ThemeMapper themeMapper;
+
     @Override
     public DeliveryPipe toDomain(DeliveryPipeEntity entity) {
         if (entity == null) {
@@ -31,7 +34,7 @@ public class DeliveryPipeMapper extends AbstractMapper<DeliveryPipe, DeliveryPip
         domain.setName(entity.getName());
         domain.setDeliverableType(
                 deliverableTypeMapper.toDomain(entity.getDeliverableType()));
-        domain.setTheme(entity.getTheme());
+        domain.setTheme(themeMapper.toDomain(entity.getTheme()));
         domain.setProviders(userMapper.toDomain(entity.getProviders()));
 
         // DTO local variable
@@ -50,7 +53,7 @@ public class DeliveryPipeMapper extends AbstractMapper<DeliveryPipe, DeliveryPip
         entity.setName(domain.getName());
         entity.setDeliverableType(
                 deliverableTypeMapper.toEntity(domain.getDeliverableType()));
-        entity.setTheme(domain.getTheme());
+        entity.setTheme(themeMapper.toEntity(domain.getTheme()));
         Collection<UserEntity> providers = userMapper.toEntity(domain.getProviders());
         entity.setProviders((providers == null)
                 ? null

@@ -19,4 +19,4 @@ Each content in a delivery pipe can be approved/disapproved, and only after it i
 
 ### Type of delivery pipe ###
 
-The content-designer chooses a type for a delivery-pipe when creating it. Currently supported types are fashion and comic. Fashion means that each deliverable has a short message and a URL to a free-form HTML. Comic means that each deliverable has a short message and a URL to one image.
+The content-designer chooses a type for a delivery-pipe when creating it. Currently supported types are default and comic. Default means that each deliverable has a short message and a URL to a free-form HTML. Comic means that each deliverable has a short message and a URL to one image.

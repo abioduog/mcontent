@@ -83,3 +83,7 @@ span.view-subscriber {
 .workarea iframe {
     height: 80vh;
 }
+
+.sms-log table tr {
+    border-bottom: 1px solid #cbcbcb;
+}

@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -195,10 +196,34 @@ public class PresentationController {
 
         ModelAndView mav = new ModelAndView("messagesPaged");
         mav.addObject("theme", deliveryPipeManager.getThemeForContentByUuid(shortUuid));
+        for (SmsMessage message : messages) {
+            String formattedMsg = formatMessage(message.getMessage());
+            message.setMessage(formattedMsg);
+        }
         mav.addObject("messages", messages);
         mav.addObject("short_uuid", shortUuid);
 
         return mav;
+    }
+
+    private String formatMessage(String message) {
+        if (StringUtils.isEmpty(message)) {
+            return message;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String part : message.split(" ")) {
+            if (part.startsWith("http://")) {
+                sb.append("<a href=\"");
+                sb.append(part);
+                sb.append("\" target=\"_blank\">");
+                sb.append(part);
+                sb.append("</a>");
+            } else {
+                sb.append(part);
+            }
+            sb.append(" ");
+        }
+        return sb.toString();
     }
 
     @RequestMapping(value = "/show/discover", method = RequestMethod.GET)

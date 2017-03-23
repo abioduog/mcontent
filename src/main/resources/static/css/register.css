@@ -95,3 +95,67 @@ form#savelogin button {
         margin: 0;
     }
 }
+
+#success-container {
+    width: 400px;
+    height: 600px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#success-container legend {
+    font-size: 2em;
+    color: silver;
+}
+
+#success-container .message {
+    margin: 3% 0 10% 0;
+}
+
+#success-container button.btn {
+    width: 70%;
+    height: 2em;
+    margin: 10px 15% 0;
+    font-size: 1.0em;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 30px;
+    border: none;
+}
+
+#success-container button.btn:hover {
+    background-color: #8BC34A;
+}
+
+#success-container fieldset {
+    text-align: center;
+    padding: 20px 20px 40px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+#success-container .logo {
+    background-image: url(../img/3wc_logo.svg);
+    width: 400px;
+    height: 200px;
+    background-size: contain;
+    background-position: center top;
+    background-repeat: no-repeat;
+}
+
+#success-container .title {
+    width: 400px;
+    display: block;
+    text-align: center;
+    font-size: 3em;
+}
+
+#success-container .subtitle {
+    width: 400px;
+    display: block;
+    text-align: center;
+    font-size: 1.3em;
+    color: silver;
+}

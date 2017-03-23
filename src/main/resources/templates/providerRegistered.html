@@ -3,10 +3,22 @@
     <head lang="en">
         <title tiles:fragment="title">Registered | mContent</title>
         <meta charset="UTF-8"/>
-        <link rel="stylesheet" href="css/lib/pure-0.6.0.min.css"/>
+        <link rel="stylesheet" th:href="@{|/css/register.css|}"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     </head>
     <body>
-        Registered, waiting for approval!
+        <div id="success-container">
+            <div class="logo"></div>
+            <span class="title" th:text="#{general.appname}"></span>
+            <span class="subtitle" th:text="#{login.subtitle}"></span>
+            <form name="return-form" th:action="@{/}" method="get">
+                <fieldset>
+                    <div class="message" th:text="#{registration.waitingForApproval}">waiting for approval</div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn" th:text="#{general.backToLoginPage}">back to login page</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
     </body>
 </html>

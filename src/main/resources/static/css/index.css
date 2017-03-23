@@ -52,6 +52,10 @@ form[name='content-form']{
     position: relative;
 }
 
+#previewers iframe {
+    width: 100%;
+}
+
 #previewers > div {
     background: linear-gradient(to bottom, #5d5d5d 0%, #292929 100%);
 }

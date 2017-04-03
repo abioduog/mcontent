@@ -12,6 +12,9 @@ public class ThemeMapper extends AbstractMapper<String, String> {
 
     @Override
     public String toDomain(String entity) {
+        if (entity == null) {
+            return null;
+        }
         switch (entity) {
             case ENTITY_THEME_FASHION:
                 return DOMAIN_THEME_FASHION;
@@ -24,6 +27,9 @@ public class ThemeMapper extends AbstractMapper<String, String> {
 
     @Override
     public String toEntity(String domain) {
+        if (domain == null) {
+            return null;
+        }
         switch (domain) {
             case DOMAIN_THEME_FASHION:
                 return ENTITY_THEME_FASHION;

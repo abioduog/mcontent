@@ -4,7 +4,6 @@ import com.mnewservice.mcontent.domain.PhoneNumber;
 import com.mnewservice.mcontent.domain.Service;
 import com.mnewservice.mcontent.domain.SmsMessage;
 import com.mnewservice.mcontent.domain.Subscription;
-import com.mnewservice.mcontent.domain.SubscriptionPeriod;
 import com.mnewservice.mcontent.domain.SubscriptionLog;
 import com.mnewservice.mcontent.domain.SubscriptionLogAction;
 import com.mnewservice.mcontent.domain.mapper.PhoneNumberMapper;
@@ -20,17 +19,12 @@ import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionPeriodEntity;
 import com.mnewservice.mcontent.util.DateUtils;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
-import java.util.SortedSet;
 import java.util.stream.Collectors;
-import java.util.TreeSet;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,12 +118,6 @@ public class SubscriptionManager {
         SubscriptionEntity subscriptionEntity = doRegisterSubscription(subscription);
         Long id = subscriptionEntity.getId();
 
-
-        /*
-         //
-         Collection<SubscriptionPeriodEntity> periodEntities
-         = subscriptionPeriodMapper.toEntity(subscription.getPeriods());
-         */
         SubscriptionEntity savedEntity
                 = subscriptionRepository.save(subscriptionEntity);
 
@@ -351,7 +339,7 @@ public class SubscriptionManager {
                 subscription.getService().getOperator()
         );
 
-           // LOG.info("msg = " + msg);
+        // LOG.info("msg = " + msg);
         SmsMessage message = createSmsMessage(subscription.getService().getShortCode(), msg, subscription.getSubscriber().getPhone());
         //sendMessage()
         sendMessage(message);
@@ -362,7 +350,7 @@ public class SubscriptionManager {
         PhoneNumber pn = new PhoneNumber();
 
         pn.setNumber(phonenumber);
-           // LOG.info("msg = " + msg);
+        // LOG.info("msg = " + msg);
 
         SmsMessage message = createSmsMessage(shortcode, msg1, pn);
         //sendMessage()

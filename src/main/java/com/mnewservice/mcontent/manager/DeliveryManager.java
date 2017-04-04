@@ -15,11 +15,8 @@ import com.mnewservice.mcontent.repository.entity.ScheduledDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.SeriesDeliverableEntity;
 import com.mnewservice.mcontent.repository.entity.ServiceEntity;
 import com.mnewservice.mcontent.repository.entity.SubscriptionEntity;
-import com.mnewservice.mcontent.repository.entity.SubscriptionPeriodEntity;
 import com.mnewservice.mcontent.util.DateUtils;
-import com.mnewservice.mcontent.util.exception.MessagingException;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -162,13 +159,13 @@ public class DeliveryManager {
             String expiryMessage,
             Integer expiryMinDuration,
             Integer sendSize) {
-        
+
         List<SubscriptionEntity> subscriptions;
         boolean subscriptionsFound;
         long offSet = 0L;
         do {
             LOG.info("Getting expiring subscriptions, start");
-            
+
             //LOG.info("Values: " + (new SimpleDateFormat("dd-M-yyyy HH:mm:ss").format(expiryAt)) + ", " + expiryMinDuration);
             subscriptions = subscriptionRepository.findByExpiry(
                     service.getId(), expiryAt, expiryMinDuration, pageSize, offSet);
@@ -220,25 +217,20 @@ public class DeliveryManager {
         return services;
     }
 
-    // returns list of SeriesDeliverableEntity ordered such, that in index i
-    // there is deliverable, which deliveryDaysAfterSubscription is i
     private SeriesDeliverableEntity[] getSeriesDeliverables(DeliveryPipeEntity deliveryPipe) {
         LOG.info("Getting series deliverables, start");
         List<SeriesDeliverableEntity> seriesDeliverables
                 = seriesDeliverableRepository.findByDeliveryPipeAndStatusOrderByDeliveryDaysAfterSubscriptionAsc(
                         deliveryPipe,
                         AbstractDeliverableEntity.DeliverableStatusEnum.APPROVED);
-        SeriesDeliverableEntity[] seriesDeliverablesOrdered
-                = new SeriesDeliverableEntity[MAXIMUM_LENGTH_FOR_SERIES + 1];
-        for (SeriesDeliverableEntity deliverable : seriesDeliverables) {
-            int index = deliverable.getDeliveryDaysAfterSubscription();
-            seriesDeliverablesOrdered[index] = deliverable;
-        }
+        // no gaps allowed in series
         LOG.info(String.format(
                 "Getting series deliverables, end (count %d)",
                 seriesDeliverables.size())
         );
-        return seriesDeliverables.size() > 0 ? seriesDeliverablesOrdered : null;
+        return seriesDeliverables.size() > 0
+                ? seriesDeliverables.toArray(new SeriesDeliverableEntity[seriesDeliverables.size()])
+                : null;
     }
 
     private void doDeliverContent(ServiceEntity service,
@@ -281,17 +273,17 @@ public class DeliveryManager {
             Integer shortCode, ScheduledDeliverableEntity scheduledDeliverable,
             SeriesDeliverableEntity[] seriesDeliverables,
             Integer sendSize) throws UnsupportedOperationException {
-        
+
         LOG.info("Processing subscriptions, start");
-        
+
         Map<AbstractDeliverableEntity, AbstractMessage> messagesMap = new HashMap<>();
 
         for (SubscriptionEntity subscription : subscriptions) {
             LOG.info(subscription.getSubscriber().getPhone().getNumber() + " = " + sendSize);
-            
+
             AbstractDeliverableEntity deliverable
                     = getDeliverable(subscription, scheduledDeliverable, seriesDeliverables);
-            
+
             if (deliverable == null) {
                 // nothing to deliver
                 LOG.debug("Nothing to deliver for subscription, id=" + subscription.getId());
@@ -300,7 +292,7 @@ public class DeliveryManager {
 
             SmsMessage message = createMessage(shortCode, messagesMap, deliverable, subscription);
 
-            if (message.getReceivers().size() >= sendSize) { 
+            if (message.getReceivers().size() >= sendSize) {
                 sendMessage(message);
                 messagesMap.remove(deliverable);
             }
@@ -382,21 +374,28 @@ public class DeliveryManager {
             SeriesDeliverableEntity[] seriesDeliverableOrdered) {
         // assumption: there is either one scheduledDeliverable..
         if (scheduledDeliverable != null) {
+            LOG.debug("Found scheduled deliverable for "
+                    + subscription.getSubscriber().getPhone().getNumber()
+                    + "'s subscription to " + subscription.getService().getKeyword()
+                    + "(" + subscription.getService().getOperator() + ")");
             return scheduledDeliverable;
         }
 
         // ..or one or more seriesDeliverables
         int activeDayNumber = subscription.getActiveDaysOverall();
 
-        LOG.info(subscription.getSubscriber().getPhone().getNumber() +
-                    "'s subscription to " + subscription.getService().getKeyword() +
-                    "(" + subscription.getService().getOperator() +
-                    ") has been active for " + activeDayNumber);
-        
-        if (activeDayNumber > 0 && activeDayNumber <= seriesDeliverableOrdered.length) {
-           return seriesDeliverableOrdered[activeDayNumber-1];
-        }
+        LOG.debug(subscription.getSubscriber().getPhone().getNumber()
+                + "'s subscription to " + subscription.getService().getKeyword()
+                + "(" + subscription.getService().getOperator()
+                + ") has been active for " + activeDayNumber + " days");
 
+        if (activeDayNumber >= 0 && activeDayNumber < seriesDeliverableOrdered.length) {
+            LOG.debug("Found series deliverable for "
+                    + subscription.getSubscriber().getPhone().getNumber()
+                    + "'s subscription to " + subscription.getService().getKeyword()
+                    + "(" + subscription.getService().getOperator() + ")");
+            return seriesDeliverableOrdered[activeDayNumber];
+        }
         return null;
     }
 }

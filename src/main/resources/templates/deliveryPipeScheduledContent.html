@@ -4,26 +4,28 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         var deliveryPipeContentListUrl = /*[[@{|/deliverypipe/${deliveryPipe.id}/content/list|}]]*/;
-        var contentUrlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/scheduled/|}]]*/;
-        var deliveryPipeName = /*[[${deliveryPipe.name}]]*/;
-
-        function createContent(event) {
-            event.preventDefault();
-            mContent.popup.load(deliveryPipeName + ' (' + $.lastClickedScheduledDay.date._i + ')', contentUrlBase + "create?date=" + $.lastClickedScheduledDay.date._i);
-            return false;
-        };
+                var contentUrlBase = /*[[@{|/deliverypipe/${deliveryPipe.id}/scheduled/|}]]*/;
+                var deliveryPipeName = /*[[${deliveryPipe.name}]]*/;
+                function createContent(event) {
+                    event.preventDefault();
+                    mContent.popup.load(deliveryPipeName + ' (' + $.lastClickedScheduledDay.date._i + ')', contentUrlBase + "create?date=" + $.lastClickedScheduledDay.date._i);
+                    return false;
+                }
+        ;
 
         function editContent(event) {
             event.preventDefault();
             mContent.popup.loadWide(deliveryPipeName + ' (' + $.lastClickedScheduledDay.events[0].date + ')', contentUrlBase + $.lastClickedScheduledDay.events[0].id);
             return false;
-        };
+        }
+        ;
 
         function removeContent(event) {
             event.preventDefault();
             mContent.popup.load('Remove scheduled content', contentUrlBase + "remove/" + $.lastClickedScheduledDay.events[0].id);
             return false;
-        };
+        }
+        ;
 
         function changeStatus(event, cmnd) {
             event.preventDefault();
@@ -32,28 +34,30 @@
                 mContent.loaders.workArea(deliveryPipeContentListUrl);
             }, function (error) {
                 console.log(error);
-                mContent.alert.error("Failed to "+cmnd+" content.", error);
+                mContent.alert.error("Failed to " + cmnd + " content.", error);
                 mContent.loaders.workArea(deliveryPipeContentListUrl);
             });
             return false;
-        };
+        }
+        ;
 
         // Obsoleted
         function approve(event) {
             event.preventDefault();
             mContent.ajax.get(contentUrlBase + $.lastClickedScheduledDay.events[0].id + "/approve", function (data) {
-                    mContent.alert.success("Content approved.");
-                    mContent.loaders.workArea(deliveryPipeContentListUrl);
-                }, function (error) {
-                    console.log(error);
-                    mContent.alert.error("Failed to approve content.", error);
-                    mContent.loaders.workArea(deliveryPipeContentListUrl);
-                });
+                mContent.alert.success("Content approved.");
+                mContent.loaders.workArea(deliveryPipeContentListUrl);
+            }, function (error) {
+                console.log(error);
+                mContent.alert.error("Failed to approve content.", error);
+                mContent.loaders.workArea(deliveryPipeContentListUrl);
+            });
             return false;
-        };
+        }
+        ;
 
 
-            // Obsoleted
+        // Obsoleted
         function disapprove(event) {
             event.preventDefault();
             mContent.ajax.get(contentUrlBase + $.lastClickedScheduledDay.events[0].id + "/disapprove", function (data) {
@@ -65,9 +69,10 @@
                 mContent.loaders.workArea(deliveryPipeContentListUrl);
             });
             return false;
-        };
+        }
+        ;
 
-        var initMenu = function() {
+        var initMenu = function () {
             $(".calendar-menu").find(".day:not(.past):not(.event)").attr("data-jq-dropdown", "#create-content-context-menu");
             $(".calendar-menu").find(".day:not(.past).event").attr("data-jq-dropdown", "#edit-content-context-menu");
             $(".calendar-menu").find(".day.past.event").attr("data-jq-dropdown", "#view-content-context-menu");
@@ -77,36 +82,48 @@
             weekOffset: 1,
             events: /*[[${contents}]]*/ [],
             clickEvents: {
-                click: function(target) {
+                click: function (target) {
                     window.debug = target;
                     $.lastClickedScheduledDay = target;
-                    if(target.events.length > 0) {
+                    if (target.events.length > 0) {
                         $(".context-menu-content-title").text(target.events[0].title);
                         if (target.events[0].myStatus == "approved") {
                             $(".context-menu-approve").css("display", "none");
                             $(".context-menu-edit").css("display", "none");
+                            $(".context-menu-view").css("display", "unset");
+                            $(".context-menu-disapprove").css("display", "unset");
                         }
                         if (target.events[0].myStatus == "disapproved" || target.events[0].myStatus == "pending_approval") {
                             $(".context-menu-view").css("display", "none");
                             $(".context-menu-disapprove").css("display", "none");
+                            $(".context-menu-approve").css("display", "unset");
+                            $(".context-menu-edit").css("display", "unset");
                         }
                     }
                 },
-                nextMonth: function(month){ initMenu();},
-                previousMonth: function(month){ initMenu();},
-                onMonthChange: function(month){ initMenu(); },
-                today: function(month){ initMenu(); }
+                nextMonth: function (month) {
+                    initMenu();
+                },
+                previousMonth: function (month) {
+                    initMenu();
+                },
+                onMonthChange: function (month) {
+                    initMenu();
+                },
+                today: function (month) {
+                    initMenu();
+                }
             }
         });
 
 
         initMenu();
 
-            /*        $('#jq-dropdown-1').on('show', function(event, dropdownData) {
-            console.log(dropdownData.trigger.context);
-        }).on('hide', function(event, dropdownData) {
-            $.lastClickedScheduledDay = null;
-        });*/
+        /*        $('#jq-dropdown-1').on('show', function(event, dropdownData) {
+         console.log(dropdownData.trigger.context);
+         }).on('hide', function(event, dropdownData) {
+         $.lastClickedScheduledDay = null;
+         });*/
 
         /*]]>*/
     </script>

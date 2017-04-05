@@ -272,7 +272,6 @@ public class ContentController {
     @RequestMapping({"/deliverypipe/{pipeId}"})
     public ModelAndView viewDeliveryPipe(@PathVariable("pipeId") long id) {
         LOG.info("/deliverypipe/" + id);
-        deliveryManager.deliverContent(DeliveryTime.T0800);
         ModelAndView mav = new ModelAndView("deliveryPipeDetail");
         mav.addObject("deliveryPipe", deliveryPipeManager.getDeliveryPipe(id));
         return mav;

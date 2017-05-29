@@ -2,7 +2,7 @@
 <!-- div class="content-menu" -->
 
 
-<div class="sms-log" th:unless="${#lists.isEmpty(smsmessagesList)}">
+<div class="sms-log">
     <div class="form-fields">
         <label text="To">To</label>
         <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
@@ -65,7 +65,7 @@
         </thead>
         <tbody>
 
-        <tr th:each="message : ${smsmessagesList}">
+        <tr th:each="message : ${smsmessagesList}" th:unless="${#lists.isEmpty(smsmessagesList)}">
             <td th:text="${message.fromNumber}">FROM</td>
             <td><p th:each="receiver : ${message.receivers}" th:text="${receiver.number}">RECIEVER</p></td>
             <td th:text="${message.message}">MESSAGE</td>

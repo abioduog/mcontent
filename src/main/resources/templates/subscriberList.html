@@ -1,5 +1,5 @@
 <h1 th:inline="text">Subscribers list</h1>
-<div class="subscriber-list" th:unless="${#lists.isEmpty(allSubscribers)}">
+<div class="subscriber-list">
         <div class="form-fields">
         <label th:text="#{deliverypipe.name}">Name</label>
         <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
@@ -16,7 +16,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr th:each="subscriber : ${allSubscribers}">
+            <tr th:each="subscriber : ${allSubscribers}" th:unless="${#lists.isEmpty(allSubscribers)}">
                 <td th:text="${subscriber.phone.number}">PHONE</td>
                 <td th:text="${subscriber.activeSubscriptionCount}">ACTIVE SUBSCRIPTION COUNT</td>
                 <td th:text="${subscriber.inactiveSubscriptionCount}">ACTIVE SUBSCRIPTION COUNT</td>

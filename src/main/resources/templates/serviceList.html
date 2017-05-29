@@ -1,5 +1,5 @@
 <h1 th:inline="text">Service list</h1>
-<div class="service-list" th:unless="${#lists.isEmpty(allServices)}">
+<div class="service-list">
                 <div class="form-fields">
         <label th:text="#{deliverypipe.name}">Name</label>
         <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
@@ -19,7 +19,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr th:each="service : ${allServices}">
+            <tr th:each="service : ${allServices}" th:unless="${#lists.isEmpty(allServices)}">
                 <td th:text="${service.operator}">OPERATOR</td>
                 <td th:text="${service.shortCode}">00000</td>
                 <td th:text="${service.keyword}">KEYWORD</td>

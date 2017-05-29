@@ -1,6 +1,6 @@
 <h1 th:inline="text">Delivery pipe list</h1>
 
-<div class="delivery-pipe-list" th:unless="${#lists.isEmpty(allDeliveryPipes)}">
+<div class="delivery-pipe-list">
     <div class="form-fields">
         <label th:text="#{deliverypipe.name}">Name</label>
         <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
@@ -61,7 +61,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr th:each="deliveryPipe : (${filteredDeliveryPipes}? ${filteredDeliveryPipes} : ${allDeliveryPipes})">
+            <tr th:each="deliveryPipe : (${filteredDeliveryPipes}? ${filteredDeliveryPipes} : ${allDeliveryPipes})" th:unless="${#lists.isEmpty(allDeliveryPipes)}">
                 <td th:text="${deliveryPipe.name}">NAME</td>
                 <td th:text="${deliveryPipe.deliverableType}">TYPE</td>
                 <td th:text="${deliveryPipe.theme}">THEME</td>

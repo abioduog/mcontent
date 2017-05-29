@@ -81,6 +81,9 @@
             </tr>
         </tbody>
     </table>
+    <div th:if="${#lists.isEmpty(allDeliveryPipes)}">
+        <span th:text="#{general.noResults}">No results</span>
+    </div>
 </div>
 <br/>
 <div sec:authorize="hasRole('ADMIN')" class="">

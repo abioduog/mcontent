@@ -78,6 +78,9 @@
            
         </tbody>
     </table>
+    <div th:if="${#lists.isEmpty(smsmessagesList)}">
+        <span th:text="#{general.noResults}">No results</span>
+    </div>
   
 </div>
 <!-- /div -->

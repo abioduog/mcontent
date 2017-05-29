@@ -31,6 +31,9 @@
             </tr>   
         </tbody>
     </table>
+    <div th:if="${#lists.isEmpty(allSubscribers)}">
+        <span th:text="#{general.noResults}">No results</span>
+    </div>
 </div>
 <script th:inline="javascript">
 

@@ -39,6 +39,9 @@
             </tr>
         </tbody>
     </table>
+    <div th:if="${#lists.isEmpty(allProviders)}">
+        <span th:text="#{general.noResults}">No results</span>
+    </div>
 </div>
 <!--
 <p><a href="serviceDetail.html"

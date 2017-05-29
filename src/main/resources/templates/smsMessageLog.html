@@ -34,6 +34,9 @@
            
         </tbody>
     </table>
+    <div th:if="${#lists.isEmpty(messages)}">
+        <span th:text="#{general.noResults}">No results</span>
+    </div>
 </div>
 <script sec:authorize="hasAnyRole('ADMIN')">
 

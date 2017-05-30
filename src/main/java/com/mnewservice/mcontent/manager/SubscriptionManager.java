@@ -206,7 +206,7 @@ public class SubscriptionManager {
                     DateUtils.addDays(periodToBeMerged.getStart(), (diffInDays + 1))
             );
             periodToBeMerged.setEnd(
-                    DateUtils.addDays(periodToBeMerged.getEnd(), (diffInDays + 1))
+                    DateUtils.addDaysToMidnight(periodToBeMerged.getEnd(), (diffInDays + 1))
             );
 
         }

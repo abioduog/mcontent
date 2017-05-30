@@ -36,10 +36,20 @@ public class DateUtils {
         return getCurrentCalendar().getTime();
     }
 
+    public static Date addDaysToMidnight(Date date, int days) {
+        Calendar cal = getCalendar(date);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        int seconds = days * 24 * 60 *60;
+        cal.add(Calendar.SECOND, seconds - 1);
+        return cal.getTime();
+    }
+
     public static Date addDays(Date date, int days) {
         Calendar cal = getCalendar(date);
-        int seconds = days * 24 * 60 * 60;
-        cal.add(Calendar.SECOND, seconds - 1); // minus 1 sec is adequate accuracy instead of 1 millisecond
+        cal.add(Calendar.DAY_OF_MONTH, days);
         return cal.getTime();
     }
 

@@ -38,7 +38,8 @@ public class DateUtils {
 
     public static Date addDays(Date date, int days) {
         Calendar cal = getCalendar(date);
-        cal.add(Calendar.DAY_OF_MONTH, days);
+        int seconds = days * 24 * 60 * 60;
+        cal.add(Calendar.SECOND, seconds - 1); // minus 1 sec is adequate accuracy instead of 1 millisecond
         return cal.getTime();
     }
 

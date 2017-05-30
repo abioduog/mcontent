@@ -115,7 +115,6 @@ public class SubscriberController {
         int totalPageCount = pagedListHolder.getPageCount();
 
 
-
         mav.addObject("allSubscribers", pagedListHolder.getPageList());
         mav.addObject("beginIndex", begin);
         mav.addObject("endIndex", end);

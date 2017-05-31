@@ -1,5 +1,5 @@
 <h1 th:inline="text">Provider list</h1>
-<div class="provider-list" th:unless="${#lists.isEmpty(allProviders)}">
+<div class="provider-list">
         <div class="form-fields">
         <label th:text="#{deliverypipe.name}">Name</label>
         <input id="nameFilter" name="nameFilter" type="text" th:value="${nameFilter}" required="false"/>
@@ -18,7 +18,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr th:each="provider : ${allProviders}">
+            <tr th:each="provider : ${allProviders}"  th:unless="${#lists.isEmpty(allProviders)}">
                 <td th:text="${provider.name}">NAME</td>
                 <td th:text="${provider.emailOfContactPerson}">EMAIL</td>
                 <td th:text="${provider.user.active} ? #{user.status.active} : #{user.status.inactive}">ACTIVE</td>
@@ -39,6 +39,9 @@
             </tr>
         </tbody>
     </table>
+    <div th:if="${#lists.isEmpty(allProviders)}">
+        <span th:text="#{general.noResults}">No results</span>
+    </div>
 </div>
 <!--
 <p><a href="serviceDetail.html"

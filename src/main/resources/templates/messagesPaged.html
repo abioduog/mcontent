@@ -16,7 +16,7 @@
                 <div class="workarea">
                     <h1 th:inline="text">My Subscriptions</h1>
 
-                    <div class="sms-log" th:unless="${#lists.isEmpty(messages)}">
+                    <div class="sms-log">
                         <table class="pure-table table-striped table-bordered">
                             <thead>
                                 <tr>
@@ -26,7 +26,7 @@
                             </thead>
                             <tbody>
 
-                                <tr th:each="message : ${messages}">
+                                <tr th:each="message : ${messages}" th:unless="${#lists.isEmpty(messages)}">
                                     <td th:text="${message.sent}?${#dates.format(message.sent, 'yyyy-MM-dd HH:mm:ss')}:''" >SENT</td>
                                     <td th:utext="${message.message}">MESSAGE</td>
                                 </tr>

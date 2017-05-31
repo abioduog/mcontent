@@ -116,6 +116,9 @@
             </tr>
         </tbody>
     </table>
+    <div th:if="${#lists.isEmpty(allDashboardServicesPaged)}">
+        <span th:text="#{general.noResults}">No results</span>
+    </div>
 </div>
 <script th:inline="javascript" sec:authorize="hasAnyRole('ADMIN','PROVIDER')">
     /*<![CDATA[*/

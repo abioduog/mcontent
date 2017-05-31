@@ -199,7 +199,7 @@ try{
         SubscriptionPeriod period = new SubscriptionPeriod();
         period.setStart(getDeliveryStartDate(service.getDeliveryTime()));
         period.setEnd(
-                DateUtils.addDays(
+                DateUtils.addDaysToMidnight(
                         period.getStart(),
                         service.getSubscriptionPeriod()
                 )

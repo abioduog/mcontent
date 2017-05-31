@@ -133,9 +133,10 @@ public class DeliveryManager {
             LOG.info(String.format("Service in progress, id=%s", service.getId()));
             // {expirationdate} = %1$s = # of days
             // {daystoexpire} = %2$s = actual date
-            String expireMsg = service.getExpireMessage();
-            expireMsg.replace("{daystoexpire}", "%1$d");
-            expireMsg.replace("{expirationdate}", "%2$s");
+            String expireMsg = service
+                    .getExpireMessage()
+                    .replace("{daystoexpire}", "%1$d")
+                    .replace("{expirationdate}", "%2$s");
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.DAY_OF_YEAR, leadInDays);
             DateFormat dateFormatter = DateFormat.getDateInstance(DateFormat.SHORT);

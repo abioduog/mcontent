@@ -16,8 +16,11 @@
                 <div class="workarea">
                     <div tiles:fragment="show-login-content">
                         <form name="show-login-form" class="pure-form" th:action="@{/show/login}" method="post">
-                            <div th:if="${param.error}" class="alert alert-error" th:text="#{loginShow.invalidPhoneNumber}">
-                                Invalid phone number.
+                            <div th:if="${param.error}" class="alert alert-inform">
+                                <div th:text="#{loginShow.invalidPhoneNumber}" class="compact">
+                                    Dear subscriber, you do not have any active mContent service.
+                                </div>
+                                <div class="compact">Kindly click <a href='https://mcontent.3wc4.com/discover/index.php' class='button-link pure-button'>here</a> to see our list of services.</div>
                             </div>
                             <div th:if="${param.logout}" class="alert alert-success" th:text="#{loginShow.loggedOut}">
                                 You have been logged out.

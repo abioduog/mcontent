@@ -21,3 +21,15 @@ form[name='show-login-form'] button.btn {
     margin: 10px auto;
     display: block;
 }
+
+form[name='show-login-form'] a.button-link {
+    color: white;
+    background-color: rgb(38, 210, 38);
+    padding: .3em .4em;
+    border-radius: 6px;
+}
+
+form[name='show-login-form'] div.compact {
+    margin: 3px 0px;
+}
+

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nolwenture</groupId>
     <artifactId>mContent</artifactId>
-    <version>1.0.5</version>
+    <version>dev</version>
     <packaging>war</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -60,7 +60,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.36</version>
+            <version>5.1.47</version>
         </dependency>
         <!-- scheduling related stuff -->
         <dependency>

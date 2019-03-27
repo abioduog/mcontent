@@ -23,7 +23,7 @@ pipelines:
         caches:
           - docker
         script:
-          - export IMAGE_NAME=${BITBUCKET_REPO_OWNER}/proot_${BITBUCKET_REPO_SLUG}:$BITBUCKET_TAG
+          - export IMAGE_NAME=${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}:$BITBUCKET_TAG
           - docker build -t $IMAGE_NAME .
           - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
           - docker push $IMAGE_NAME

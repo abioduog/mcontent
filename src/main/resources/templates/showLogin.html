@@ -43,6 +43,11 @@
             <script th:src="@{/lib/jquery/jquery.min.js}"/>
             <script th:src="@{|/js/show/banners.js|}"/>
             <script>
+              $('input[name="username"]').change(function() {
+                $('input[name="username"]').val($('input[name="username"]').val().replace(/^234/, '0'));
+              });
+            </script>
+            <script>
                 $(function () {
                     setBanner(1);
                     setBanner(2);

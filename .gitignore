@@ -1,0 +1,26 @@
+#Builds
+target/
+
+# Maven
+release.properties
+
+#Eclipse
+.settings/
+.classpath
+.project
+
+# Netbeans
+nb-configuration.xml
+nbactions.xml
+nbproject
+
+#IntelliJ IDEA
+.idea/
+*.iml
+\.orig\..*$
+\.orig$
+\.chg\..*$
+\.rej$
+\.conflict\~$
+build/
+.m2/

@@ -25,7 +25,7 @@
                             <div th:if="${param.logout}" class="alert alert-success" th:text="#{loginShow.loggedOut}">
                                 You have been logged out.
                             </div>
-                            <input type="text" name="username" th:placeholder="#{loginShow.phoneNumber}" pattern="(234|0)[0-9]{10}"/>
+                            <input type="text" name="username" th:placeholder="#{loginShow.phoneNumber}" pattern="(0|234)[0-9]{10}"/>
                             <input type="hidden" name="password" value=" "/>
                             <input type="hidden" name="remember-me" value="true"/>
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -44,7 +44,7 @@
             <script th:src="@{|/js/show/banners.js|}"/>
             <script>
               $('input[name="username"]').change(function() {
-                $('input[name="username"]').val($('input[name="username"]').val().replace(/^234/, '0'));
+                $('input[name="username"]').val($('input[name="username"]').val().replace(/^0/, '234'));
               });
             </script>
             <script>

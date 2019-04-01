@@ -7,8 +7,8 @@ public class ThemeMapper extends AbstractMapper<String, String> {
 
     private static final String ENTITY_THEME_FASHION = "fashion";
     private static final String ENTITY_THEME_COMICS = "comics";
-    private static final String DOMAIN_THEME_FASHION = "default";
-    private static final String DOMAIN_THEME_COMICS = "comics";
+    private static final String DOMAIN_THEME_FASHION = "Default";
+    private static final String DOMAIN_THEME_COMICS = "Comics";
 
     @Override
     public String toDomain(String entity) {
